@@ -4,12 +4,12 @@ import Code from '@/components/Code'
 
 const create = `
 create table
-  public.notes (
+  public.quotes (
     id serial,
     title text null,
     user_id uuid not null default auth.uid (),
-    constraint notes_pkey primary key (id),
-    constraint notes_user_id_fkey foreign key (user_id) references auth.users (id) on update cascade on delete cascade
+    constraint quotes_pkey primary key (id),
+    constraint quotes_user_id_fkey foreign key (user_id) references auth.users (id) on update cascade on delete cascade
   ) tablespace pg_default;
 `.trim()
 
@@ -20,9 +20,9 @@ import { cookies } from 'next/headers'
 export default async function Page() {
   const cookieStore = cookies()
   const supabase = createClient(cookieStore)
-  const { data: notes } = await supabase.from('notes').select()
+  const { data: quotes } = await supabase.from('quotes').select()
 
-  return <pre>{JSON.stringify(notes, null, 2)}</pre>
+  return <pre>{JSON.stringify(quotes, null, 2)}</pre>
 }
 `.trim()
 
@@ -33,18 +33,18 @@ import { createClient } from '@/utils/supabase/client'
 import { useEffect, useState } from 'react'
 
 export default function Page() {
-  const [notes, setNotes] = useState<any[] | null>(null)
+  const [quotes, setQuotes] = useState<any[] | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
     const getData = async () => {
-      const { data } = await supabase.from('notes').select()
-      setNotes(data)
+      const { data } = await supabase.from('quotes').select()
+      setQuotes(data)
     }
     getData()
   }, [])
 
-  return <pre>{JSON.stringify(notes, null, 2)}</pre>
+  return <pre>{JSON.stringify(quotes, null, 2)}</pre>
 }
 `.trim()
 
@@ -92,7 +92,7 @@ export default function SignUpUserSteps() {
         <p>
           Now you can add/remove data using a{' '}
           <a
-              href='/notes'
+              href='/quotes'
               className="font-bold hover:underline text-foreground/80"
               target="_blank"
               rel="noreferrer"
@@ -100,7 +100,7 @@ export default function SignUpUserSteps() {
             Server Component
           </a>{', '}
           <a
-              href='/notes/client'
+              href='/quotes/client'
               className="font-bold hover:underline text-foreground/80"
               target="_blank"
               rel="noreferrer"
@@ -108,7 +108,7 @@ export default function SignUpUserSteps() {
             Client Component
           </a>{', or '}
           <a
-              href='/notes/swr'
+              href='/quotes/swr'
               className="font-bold hover:underline text-foreground/80"
               target="_blank"
               rel="noreferrer"
@@ -123,7 +123,7 @@ export default function SignUpUserSteps() {
           To create a Supabase client and query data from an Async Server
           Component, create a new page.tsx file at{' '}
           <span className="px-2 py-1 rounded-md bg-foreground/20 text-foreground/80">
-            /app/notes/page.tsx
+            /app/quotes/page.tsx
           </span>{' '}
           and add the following.
         </p>

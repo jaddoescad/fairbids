@@ -1,37 +1,37 @@
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
-import {AddNote, ClearAllNotes} from "./actions";
+import {AddQuote, ClearAllQuotes} from "./actions";
 
 export default async function Page() {
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
-    const { data: notes } = await supabase.from('notes').select()
+    const { data: quotes } = await supabase.from('quotes').select()
 
     return (
         <div>
-            <pre>{JSON.stringify(notes, null, 2)}</pre>
+            <pre>{JSON.stringify(quotes, null, 2)}</pre>
 
             <div className="pt-4">
-                {/* Handle Add Note */}
-                <form action={AddNote} className={'animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground'}>
+                {/* Handle Add quote */}
+                <form action={AddQuote} className={'animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground'}>
                     <input
                         className="rounded-md px-4 py-2 bg-inherit border"
-                        name="note"
+                        name="quote"
                         type="text"
-                        placeholder="Write your note here..."
+                        placeholder="Write your title here..."
                     />
                     <button className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2">
-                        Add Note
+                        Add Quote
                     </button>
                 </form>
 
-                {/* Handle Clear All Notes */}
+                {/* Handle Clear All quotes */}
                 <form>
                     <button
-                        formAction={ClearAllNotes}
+                        formAction={ClearAllQuotes}
                         className="animate-in w-full bg-red-700 rounded-md px-4 py-2 text-foreground mb-2"
                     >
-                        Clear All Notes
+                        Clear All quotes
                     </button>
                 </form>
             </div>

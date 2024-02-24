@@ -3,17 +3,17 @@
 import {createClient} from "@/utils/supabase/client";
 import useSWRImmutable from "swr/immutable";
 
-export function getNotes() {
+export function getQuotes() {
     const supabase = createClient()
 
-    const getNotesSWR = async () => {
+    const getQuotesSWR = async () => {
         const { data } = await supabase
-            .from('notes')
+            .from('quotes')
             .select()
         return data
     }
 
-    const { data, isLoading, isValidating } = useSWRImmutable('getNotes', getNotesSWR, {});
+    const { data, isLoading, isValidating } = useSWRImmutable('getQuotes', getQuotesSWR, {});
 
     return { data, isLoading, isValidating }
 }

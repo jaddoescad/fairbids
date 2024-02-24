@@ -1,64 +1,58 @@
-'use client'
-
-import {Dispatch, FormEvent, SetStateAction, useState} from "react";
+import {FormEvent, useState} from "react";
 import {createClient} from "@/utils/supabase/client";
+import {mutate} from "swr";
 
-interface NotesFormClientProps {
-    refresh: boolean;
-    setRefresh: Dispatch<SetStateAction<boolean>>;
-}
-
-export function NotesFormClient({ refresh, setRefresh }: NotesFormClientProps) {
+export function QuotesFormSWR() {
     const [title, setTitle] = useState("");
     const supabase = createClient()
 
-    const handleAddNote = async (e: FormEvent) => {
+    const handleAddquote = async (e: FormEvent) => {
         e.preventDefault();
         if (title.trim() === "") return;
 
         const { error } = await supabase
-            .from('notes')
+            .from('quotes')
             .insert([{ title }])
 
         if (!error) {
             setTitle("")
-            setRefresh(!refresh)
+            mutate('getQuotes')
         }
     }
 
-    const handleClearAllNotes = async () => {
+    const handleClearAllQuotes = async () => {
         const { data: { session } } = await supabase.auth.getSession();
         const { error } = await supabase
-            .from('notes')
+            .from('quotes')
             .delete()
             .eq('user_id', session?.user?.id)
 
         if (!error) {
-            setRefresh(!refresh)
+            mutate('getQuotes')
         }
     }
 
     return (
         <div className="pt-4">
-            <form onSubmit={handleAddNote} className={'animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground'}>
+            <form onSubmit={handleAddquote} className={'animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground'}>
                 <input
                     className="rounded-md px-4 py-2 bg-inherit border"
-                    name="note"
+                    name="quote"
                     type="text"
-                    placeholder="Write your note here..."
+                    placeholder="Write your quote here..."
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                 />
                 <button className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2">
-                    Add Note
+                    Add Quote
                 </button>
             </form>
 
             <button
-                onClick={handleClearAllNotes}
+                onClick={handleClearAllQuotes}
                 className="animate-in w-full bg-red-700 rounded-md px-4 py-2 text-foreground mb-2"
             >
-                Clear All Notes
+                Clear All Quotes
             </button>
         </div>
     )
