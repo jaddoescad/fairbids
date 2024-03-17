@@ -1,5 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from 'uuid';
+import { revalidatePathServer } from "./revalidatePath";
 
 export const uploadImage = async (
   supabase: SupabaseClient,
@@ -57,19 +58,16 @@ export const uploadImage = async (
       },
     });
 
-    const { error: insertError } = await supabase
-    .from("job_files")
-    .insert({
-      job_id: jobId,
-      file_type: fileType,
-      file_url: imageData.publicUrl,
-    });
+  const { error: insertError } = await supabase.from("job_files").insert({
+    job_id: jobId,
+    file_type: fileType,
+    file_url: imageData.publicUrl,
+  });
 
+  if (insertError) {
+    throw insertError;
+  }
 
-    if (insertError) {
-      throw insertError;
-    }
-
-
+  revalidatePathServer(jobId);
   return imageData.publicUrl;
 };

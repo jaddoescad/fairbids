@@ -29,6 +29,7 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
 
     const uploadPromises = files.map(async (file) => {
       const publicUrl = await uploadImage(
+        supabase,
         file,
         userId,
         jobId,
@@ -41,7 +42,6 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
     setImages((prevImages) => [...prevImages, ...uploadedImages]);
 
     setUploading(false);
-    router.refresh();
   };
 
   return (
