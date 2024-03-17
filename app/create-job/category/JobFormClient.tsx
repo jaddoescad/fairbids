@@ -15,6 +15,8 @@ export function JobFormClient({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+
+
     const category = e.target[0].value;
 
     if (category.trim() === "") return;

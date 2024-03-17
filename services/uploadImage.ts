@@ -4,17 +4,24 @@ import { v4 as uuidv4 } from 'uuid';
 export const uploadImage = async (
   supabase: SupabaseClient,
   file: File,
+  userId: string,
   jobId: string,
-  userId: string
+  fileType: string
 ) => {
   const imageId = uuidv4();
+  const filePath = `${jobId}/${fileType}/${file.name}`;
+
   // check if file is empty
   if (!file) {
     throw new Error("No file selected");
   }
 
-  if (jobId === "" || jobId === undefined || jobId === null) {
-    throw new Error("No job id");
+  if (!userId) {
+    throw new Error("User not found");
+  }
+
+  if (!filePath) {
+    throw new Error("File path not found");
   }
 
   // check if file is an image
@@ -29,12 +36,12 @@ export const uploadImage = async (
     throw new Error("Image must smaller than 2MB!");
   }
 
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${jobId}/job_images/${imageId}.${fileExt}`;
-  const filePath = `${fileName}`;
+  // const fileExt = file.name.split(".").pop();
+  // const fileName = `${jobId}/job_images/${imageId}.${fileExt}`;
+  // const filePath = `${fileName}`;
 
   let { error: uploadError, data } = await supabase.storage
-    .from("job_images")
+    .from("job_files")
     .upload(filePath, file, { upsert: true });
 
   if (uploadError) {
@@ -42,8 +49,26 @@ export const uploadImage = async (
   }
 
   const { data: imageData } = supabase.storage
-    .from("job_images")
-    .getPublicUrl(`${userId}/jobs/${jobId}/job_images/${imageId}.${fileExt}`);
+    .from("job_files")
+    .getPublicUrl(filePath, {
+      transform: {
+        width: 100,
+        height: 100,
+      },
+    });
+
+    const { error: insertError } = await supabase
+    .from("job_files")
+    .insert({
+      job_id: jobId,
+      file_type: fileType,
+      file_url: imageData.publicUrl,
+    });
+
+
+    if (insertError) {
+      throw insertError;
+    }
 
 
   return imageData.publicUrl;

@@ -1,3 +1,6 @@
+"use client";
+
+import { addQuote } from "../../services/uploadQuoteFile";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -15,23 +18,28 @@ import {
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { FaUpload } from "react-icons/fa"; // Importing an upload icon
+import { createClient } from "@/utils/supabase/client";
 
-export function AddQuoteDialog({ onAddQuote }) {
+export function AddQuoteDialog({ jobId, onAdd }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
   const [quoteTitle, setQuoteTitle] = useState(""); // Separate state for quote title
   const [quoteText, setQuoteText] = useState(""); // Separate state for quote text
-  const [file, setFile] = useState(null); // State for uploaded file
+  const [files, setFiles] = useState([]); // State for uploaded files
+  const supabase = createClient();
 
-  const handleAddClick = () => {
-    console.log("Adding quote", quoteTitle, quoteText);
-    // Assuming you want to add both the quote title and text
-    onAddQuote({ title: quoteTitle, text: quoteText });
-    onClose(); // Close the dialog
-  };
+const handleAddClick = async () => {
+  try {
+    const quoteData = await addQuote(supabase, jobId, quoteTitle, files);
+    onAdd(quoteData); // Pass the complete quote data, including quote_files
+    onClose();
+  } catch (error) {
+    console.error('Error adding quote:', error);
+  }
+};
   // Function to handle file selection
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]); // Assuming single file upload
+    setFiles(Array.from(event.target.files)); // Update to handle multiple files
   };
 
   return (
@@ -45,7 +53,7 @@ export function AddQuoteDialog({ onAddQuote }) {
         leastDestructiveRef={cancelRef}
         onClose={onClose}
       >
-        <AlertDialogOverlay>
+        <AlertDialogOverlay color={"black"}>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Add Quotes
@@ -61,24 +69,18 @@ export function AddQuoteDialog({ onAddQuote }) {
                     onChange={(e) => setQuoteTitle(e.target.value)}
                   />
                 </Box>
-                <Box>
-                  Quote
-                  <Input
-                    placeholder="Enter quote text"
-                    value={quoteText}
-                    onChange={(e) => setQuoteText(e.target.value)}
-                  />
-                </Box>
+
                 <Box width="full">
-                  Upload File
+                  Upload Files
                   <InputGroup>
                     <InputLeftElement pointerEvents="none">
                       <FaUpload />
                     </InputLeftElement>
                     <Input
                       type="file"
+                      multiple // Add multiple attribute to allow multiple file selection
                       p={1}
-                      pl={10} // Padding to make room for the icon
+                      pl={10}
                       onChange={handleFileChange}
                     />
                   </InputGroup>
@@ -98,7 +100,6 @@ export function AddQuoteDialog({ onAddQuote }) {
                 }}
                 colorScheme="red"
                 ml={3}
-                
               >
                 Add Quote
               </Button>
