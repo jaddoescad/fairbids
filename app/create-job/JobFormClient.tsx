@@ -36,17 +36,11 @@ const CategorySelect = ({ category, setCategory }) => (
   </Select>
 );
 
-const LocationAutocomplete = ({ location, setLocation }) => {
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyBHVjOOTOajAGnWUah3mbCq1NLkGNAZBTs",
-    libraries,
-  });
+const LocationAutocomplete = ({ location, setLocation, isLoaded }) => {
 
   const handlePlaceChanged = (autocomplete) => {
-    if (autocomplete) {
-      const place = autocomplete.getPlace();
-      setLocation(place.formatted_address);
-    }
+    const place = autocomplete.getPlace();
+    setLocation(place.formatted_address);
   };
 
   if (!isLoaded) {
@@ -65,6 +59,11 @@ export default function JobForm() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyBHVjOOTOajAGnWUah3mbCq1NLkGNAZBTs",
+    libraries,
+  });
+
   const router = useRouter();
 
   const handleNext = () => setStep(step + 1);
@@ -133,6 +132,7 @@ export default function JobForm() {
             <LocationAutocomplete
               location={location}
               setLocation={setLocation}
+              isLoaded={isLoaded}
             />
             <div className="flex justify-between w-full">
               <Button onClick={handleBack} colorScheme="gray">
