@@ -1,6 +1,8 @@
 'use client'
 
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { revalidatePathServer } from "./revalidatePath";
 
 const uploadQuoteFile = async (supabase, file, jobId, quoteId) => {
   try {
@@ -34,7 +36,8 @@ const uploadQuoteFile = async (supabase, file, jobId, quoteId) => {
       throw insertError;
     }
 
-    console.log('File uploaded successfully:', publicUrlData.publicUrl);
+    revalidatePathServer(jobId);
+
     return publicUrlData.publicUrl;
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -67,6 +70,8 @@ export const addQuote = async (supabase, jobId, quoteTitle, files) => {
     if (files.length > 0) {
       fileUrls = await uploadQuoteFiles(supabase, files, jobId, quoteData[0].id);
     }
+    
+    revalidatePathServer(jobId);
 
     return {
       ...quoteData[0],

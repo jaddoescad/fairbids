@@ -9,8 +9,6 @@ import {
   BeforeImages,
 } from "@/components/CreateJobComponents/BeforeAfterImageUpload";
 import { DescriptionInput } from "@/components/CreateJobComponents/Description";
-import { AddQuoteDialog } from "@/components/CreateJobComponents/AddQuoteDialog";
-import { QuotesList } from "@/components/CreateJobComponents/QuoteList";
 import { Quotes } from "@/components/CreateJobComponents/Quotes";
 
 async function fetchJobData(id) {
@@ -28,7 +26,7 @@ async function fetchJobData(id) {
 
   const { data: quotesData, error: quotesError } = await supabase
     .from("quotes")
-    .select("*")
+    .select("*, quote_files(file_url)")
     .eq("job_id", id);
 
   if (quotesError) {
@@ -65,7 +63,7 @@ export default async function JobDetails({ params }) {
       <DescriptionInput initialDescription={job.description} jobId={job.id} />
       <BeforeImages jobId={job.id} initialImages={beforeImages} />
       <AfterImages jobId={job.id} initialImages={afterImages} />
-      <Quotes jobId={job.id} />
+      <Quotes jobId={job.id} initialQuotes={job.quotes} />
 
     </div>
   );
