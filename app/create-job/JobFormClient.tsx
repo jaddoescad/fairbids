@@ -59,8 +59,10 @@ const LocationAutocomplete = ({ isLoaded, error, locationValue, setLocationValue
   };
 
   const onPlaceChanged = () => {
+    console.log("Place changed");
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
+      console.log("Place:", place);
       setLocationValue(place.formatted_address);
     } else {
       console.error("Autocomplete is not loaded yet!");
@@ -72,8 +74,9 @@ const LocationAutocomplete = ({ isLoaded, error, locationValue, setLocationValue
       <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
         <Input
           placeholder="Type a city"
-          value={locationValue}
-          onChange={(e) => setLocationValue(e.target.value)}
+          defaultValue={locationValue}
+          // value={locationValue}
+          // onChange={(e) => setLocationValue(e.target.value)}
         />
       </Autocomplete>
       {error && (
