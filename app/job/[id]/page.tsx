@@ -41,6 +41,7 @@ async function fetchJobData(id) {
 
 export default async function JobDetails({ params }) {
   const job = await fetchJobData(params.id);
+  console.log(job);
 
 
   if (!job) {

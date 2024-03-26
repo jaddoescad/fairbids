@@ -41,7 +41,7 @@ export function TitleInput({ initialTitle, jobId }) {
           value={title}
           onChange={handleTitleChange}
           onBlur={toggleEdit} // Optionally, you can switch back to label mode on blur
-          placeholder="Enter job title"
+          placeholder="Kitchen remodel: Electrical, plumbing, and drywall"
           autoFocus // Focus on the input field when editing starts
         />
       ) : (

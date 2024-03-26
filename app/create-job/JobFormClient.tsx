@@ -15,7 +15,7 @@ const TitleInput = ({ title, setTitle, error }) => (
     <Input
       value={title}
       onChange={(e) => setTitle(e.target.value)}
-      placeholder="Enter job title"
+      placeholder="Kitchen remodel: Electrical, plumbing, and drywall"
       height="50px"
       width="100%"
       borderRadius="0px"
@@ -75,8 +75,7 @@ const LocationAutocomplete = ({ isLoaded, error, locationValue, setLocationValue
         <Input
           placeholder="Type a city"
           defaultValue={locationValue}
-          // value={locationValue}
-          // onChange={(e) => setLocationValue(e.target.value)}
+          onChange={(e) => setLocationValue("")}
         />
       </Autocomplete>
       {error && (
@@ -109,7 +108,7 @@ export default function JobForm() {
       setTitleError(true);
     } else if (step === 2 && category === "") {
       setCategoryError(true);
-    } else if (step === 3 && location.trim() === "") {
+    } else if (step === 3 && locationValue.trim() === "") {
       setLocationError(true);
     } else {
       setTitleError(false);
@@ -126,7 +125,7 @@ export default function JobForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (location.trim() === "") {
+    if (locationValue.trim() === "") {
       setLocationError(true);
       return;
     }
@@ -144,7 +143,7 @@ export default function JobForm() {
       supabase,
       title,
       category,
-      location,
+      locationValue,
       userId
     );
     if (savedJob) {

@@ -22,11 +22,6 @@ export default function RootLayout({
           <Image src={"/logo.png"} alt="Logo" width={125} height={125} priority={true}/>
         </Flex>
         <Spacer />
-        <Box>
-          <Button size="lg" fontSize="2xl">
-            Exit
-          </Button>
-        </Box>
       </Flex>
       <div className="flex-grow flex flex-col items-center">{children}</div>
     </div>
