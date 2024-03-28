@@ -32,6 +32,7 @@ export function AddQuoteDialog({ jobId, onAdd }) {
   const [files, setFiles] = useState([]);
   const [quoteValue, setQuoteValue] = useState("");
   const supabase = createClient();
+  const [isLoading, setIsLoading] = useState(false);
 
   const formatQuoteValue = (value) => {
     if (value === "") return "";
@@ -48,6 +49,7 @@ export function AddQuoteDialog({ jobId, onAdd }) {
 
   const handleAddClick = async () => {
     try {
+      setIsLoading(true);
       const quoteData = await addQuote(
         supabase,
         jobId,
@@ -60,6 +62,8 @@ export function AddQuoteDialog({ jobId, onAdd }) {
     } catch (error) {
       console.error("Error adding quote:", error);
       alert("An error occurred while adding the quote. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -241,10 +245,10 @@ export function AddQuoteDialog({ jobId, onAdd }) {
               <Button onClick={onClose}>Cancel</Button>
               <Button
                 onClick={() => {
-                  console.log("Adding quote", quoteTitle);
                   handleAddClick();
-                  onClose();
                 }}
+                isLoading={isLoading}
+                loadingText="Adding quote..."
                 colorScheme="blue"
                 ml={3}
               >

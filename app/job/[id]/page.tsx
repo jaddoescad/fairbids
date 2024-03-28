@@ -42,10 +42,12 @@ async function fetchJobData(id) {
         return null;
       }
 
-      return {
+      var file = {
         ...file,
         file_url: fileData.publicUrl,
       };
+
+      return file;
     })
   );
 
@@ -58,18 +60,42 @@ async function fetchJobData(id) {
     console.error("Error fetching quotes data", quotesError);
   }
 
+  const updatedQuotesData = await Promise.all(
+    quotesData.map(async (quote) => {
+      const updatedQuoteFiles = await Promise.all(
+        quote.quote_files.map(async (file) => {
+          const { data: fileData, error: fileError } = await supabase.storage
+            .from("job_files")
+            .getPublicUrl(file.file_url);
+
+          if (fileError) {
+            console.error("Error fetching quote file URL", fileError);
+            return null;
+          }
+
+          return {
+            ...file,
+            file_url: fileData.publicUrl,
+          };
+        })
+      );
+
+      return {
+        ...quote,
+        quote_files: updatedQuoteFiles.filter((file) => file !== null),
+      };
+    })
+  );
+
   return {
     ...data,
     job_files: jobFiles.filter((file) => file !== null),
-    quotes: quotesData || [],
+    quotes: updatedQuotesData || [],
   };
 }
 
-
 export default async function JobDetails({ params }) {
   const job = await fetchJobData(params.id);
-  console.log(job);
-
 
   if (!job) {
     return <div>Loading...</div>;
@@ -85,12 +111,11 @@ export default async function JobDetails({ params }) {
 
   return (
     <Box marginTop={10} paddingBottom={"200px"}>
-      <Center><Text 
-        fontSize="3xl" 
-        fontWeight="bold" 
-        color="black" 
-        marginBottom={5}
-      >Post Your Job</Text></Center>
+      <Center>
+        <Text fontSize="3xl" fontWeight="bold" color="black" marginBottom={5}>
+          Post Your Job
+        </Text>
+      </Center>
       <Box background={"white"} padding={10}>
         <TitleInput initialTitle={job.title} jobId={job.id} />
         <CategorySelect initialCategory={job.category} jobId={job.id} />
@@ -102,7 +127,7 @@ export default async function JobDetails({ params }) {
         <AfterImages jobId={job.id} initialImages={afterImages} />
       </Box>
       <Box background={"white"} padding={10} my={5}>
-      <Quotes jobId={job.id} initialQuotes={job.quotes} />
+        <Quotes jobId={job.id} initialQuotes={job.quotes} />
       </Box>
     </Box>
   );
