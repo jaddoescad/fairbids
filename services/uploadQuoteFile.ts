@@ -17,7 +17,7 @@ const uploadQuoteFile = async (supabase, file, jobId, quoteId) => {
       .from('quote_files')
       .insert({
         quote_id: quoteId,
-        file_url: filePath, // Save the file path instead of the public URL
+        file_path: filePath, // Save the file path instead of the public URL
       });
     
     if (insertError) {
@@ -49,22 +49,32 @@ export const addQuote = async (supabase, jobId, quoteTitle, quoteValue, files) =
         value: quoteValue,
       })
       .select('*');
-    
+
     if (quoteError) {
       throw quoteError;
     }
-    
-    let filePaths = []; // Rename to filePaths
+
+    let fileUrls = [];
     if (files.length > 0) {
-      filePaths = await uploadQuoteFiles(supabase, files, jobId, quoteData[0].id);
+      const filePaths = await uploadQuoteFiles(supabase, files, jobId, quoteData[0].id);
+      fileUrls = await Promise.all(
+        filePaths.map(async (filePath) => {
+          const { data, error } = await supabase.storage
+            .from("job_files")
+            .getPublicUrl(filePath);
+          if (error) {
+            throw error;
+          }
+          return {
+            file_path: filePath,
+            file_url: data.publicUrl,
+          };
+        })
+      );
     }
-    
+
     revalidatePathServer(jobId);
-    
-    return {
-      ...quoteData[0],
-      quote_files: filePaths, // Use filePaths instead of fileUrls
-    };
+    return { ...quoteData[0], quote_files: fileUrls };
   } catch (error) {
     console.error("Error adding quote:", error);
     throw error;

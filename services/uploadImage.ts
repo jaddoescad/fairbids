@@ -61,7 +61,7 @@ export const uploadImage = async (
   const { error: insertError } = await supabase.from("job_files").insert({
     job_id: jobId,
     file_type: fileType,
-    file_url: filePath, // Store the file path instead of the public URL
+    file_path: filePath, // Store the file path instead of the public URL
   });
 
   if (insertError) {

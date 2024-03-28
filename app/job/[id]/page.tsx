@@ -17,7 +17,7 @@ async function fetchJobData(id) {
 
   const { data, error } = await supabase
     .from("jobs")
-    .select("*, job_files(file_url, file_type)")
+    .select("*, job_files(file_path, file_type)")
     .eq("id", id)
     .single();
 
@@ -30,7 +30,7 @@ async function fetchJobData(id) {
     data.job_files.map(async (file) => {
       const { data: fileData, error: fileError } = await supabase.storage
         .from("job_files")
-        .getPublicUrl(file.file_url, {
+        .getPublicUrl(file.file_path, {
           transform: {
             width: 200,
             height: 200,
@@ -53,7 +53,7 @@ async function fetchJobData(id) {
 
   const { data: quotesData, error: quotesError } = await supabase
     .from("quotes")
-    .select("*, quote_files(file_url)")
+    .select("*, quote_files(file_path)")
     .eq("job_id", id);
 
   if (quotesError) {
@@ -66,7 +66,7 @@ async function fetchJobData(id) {
         quote.quote_files.map(async (file) => {
           const { data: fileData, error: fileError } = await supabase.storage
             .from("job_files")
-            .getPublicUrl(file.file_url);
+            .getPublicUrl(file.file_path);
 
           if (fileError) {
             console.error("Error fetching quote file URL", fileError);
