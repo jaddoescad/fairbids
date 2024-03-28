@@ -1,30 +1,36 @@
 "use client";
 
-import { useEffect } from "react";
 import { ImageUpload } from "./ImageUpload";
-import { createClient } from "@/utils/supabase/client";
+import { Text, Box } from "@chakra-ui/react";
 
 export const BeforeImages = ({ jobId, initialImages }) => {
 
-    useEffect(() => {
-        console.log("initialImages", initialImages);
-
-    }, [initialImages]);
-
 
     return (
-      <div>
-        <h3>Before Pictures</h3>
-        <ImageUpload jobId={jobId} imageType="before" initialImages={initialImages} />
-      </div>
+      <Box>
+        <Text fontSize={"lg"} fontWeight="bold">
+          Before Pictures
+        </Text>
+        <ImageUpload
+          jobId={jobId}
+          imageType="before"
+          initialImages={initialImages}
+        />
+      </Box>
     );
   };
   
   export const AfterImages = ({ jobId, initialImages }) => {
     return (
-      <div>
-        <h3>After Pictures</h3>
-        <ImageUpload jobId={jobId} imageType="after" initialImages={initialImages} />
-      </div>
+      <Box>
+        <Text fontSize={"lg"} fontWeight="bold">
+          After Pictures
+        </Text>
+        <ImageUpload
+          jobId={jobId}
+          imageType="after"
+          initialImages={initialImages}
+        />
+      </Box>
     );
   };

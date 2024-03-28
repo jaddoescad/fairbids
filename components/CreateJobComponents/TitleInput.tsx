@@ -1,55 +1,48 @@
 "use client";
-
-import React, { useState } from 'react';
-import { Input, Text, Button, Box } from '@chakra-ui/react';
-import { updateJobTitle } from '../../services/updateTitle';
-import { createClient } from '@/utils/supabase/client';
+import React, { useState, useEffect } from "react";
+import { Input, Box, Text } from "@chakra-ui/react";
+import { updateJobTitle } from "../../services/updateTitle";
 import { useRouter } from 'next/navigation';
-
+import { Textarea } from '@chakra-ui/react'
 
 export function TitleInput({ initialTitle, jobId }) {
   const [title, setTitle] = useState(initialTitle);
-  const [isEditing, setIsEditing] = useState(false);
-  const supabase = createClient();
   const router = useRouter();
 
+  useEffect(() => {
+    const debounceTimer = setTimeout(async () => {
+      try {
+        await updateJobTitle(jobId, title);
+        router.refresh();
+      } catch (error) {
+        console.error("Error updating job title", error);
+      }
+    }, 500);
 
-  const handleTitleChange = async (e) => {
+    return () => {
+      clearTimeout(debounceTimer);
+    };
+  }, [title, jobId, router]);
 
+  const handleTitleChange = (e) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-    console.log('newTitle', newTitle);
-
-    try {
-      await updateJobTitle(jobId, newTitle);
-      router.refresh();
-    } catch (error) {
-      console.error('Error updating job title', error);
-    }
-
-
-  };
-
-  const toggleEdit = () => {
-    setIsEditing(!isEditing);
   };
 
   return (
-    <Box display="flex" alignItems="center" gap="2">
-      {isEditing ? (
-        <Input
-          value={title}
-          onChange={handleTitleChange}
-          onBlur={toggleEdit} // Optionally, you can switch back to label mode on blur
-          placeholder="Kitchen remodel: Electrical, plumbing, and drywall"
-          autoFocus // Focus on the input field when editing starts
-        />
-      ) : (
-        <>
-          <Text>{title || 'No title set'}</Text>
-          <Button onClick={toggleEdit} size="sm">Edit</Button>
-        </>
-      )}
+    <Box py={4}>
+      <Text
+      fontWeight="bold"
+      fontSize={"lg"}     
+      mb={2}>Title</Text>
+      <Input
+        value={title}
+        onChange={handleTitleChange}
+        placeholder="Kitchen remodel: Electrical, plumbing, and drywall"
+        size="lg"
+        maxW={"500px"}
+        p={5}
+      />
     </Box>
   );
 }

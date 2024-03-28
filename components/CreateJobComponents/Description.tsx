@@ -1,42 +1,46 @@
-'use client'
-
-import { useState } from 'react';
-import { updateJobDescription } from '../../services/updateDescription';
+"use client";
+import { useState, useEffect } from "react";
+import { updateJobDescription } from "../../services/updateDescription";
+import { useRouter } from "next/navigation";
+import { Box, Textarea, Text } from "@chakra-ui/react";
 
 export function DescriptionInput({ initialDescription, jobId }) {
-  const [description, setDescription] = useState(initialDescription || '');
-  const [isEditing, setIsEditing] = useState(!initialDescription);
+  const [description, setDescription] = useState(initialDescription || "");
+  const router = useRouter();
 
   const handleDescriptionChange = (event) => {
     setDescription(event.target.value);
   };
 
-  const handleSave = () => {
-    updateJobDescription(jobId, description);
-    setIsEditing(false);
-  };
+  useEffect(() => {
+    const debounceTimer = setTimeout(async () => {
+      try {
+        await updateJobDescription(jobId, description);
+        router.refresh();
+      } catch (error) {
+        console.error("Error updating job description", error);
+      }
+    }, 500);
 
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
+    return () => {
+      clearTimeout(debounceTimer);
+    };
+  }, [description, jobId, router]);
 
   return (
-    <div>
-      {isEditing ? (
-        <>
-          <textarea
-            value={description}
-            onChange={handleDescriptionChange}
-            placeholder="Enter job description"
-          />
-          <button onClick={handleSave}>Save</button>
-        </>
-      ) : (
-        <>
-          <p>{description}</p>
-          <button onClick={handleEdit}>Edit</button>
-        </>
-      )}
-    </div>
+    <Box py={4}>
+      <Text fontSize={"lg"} fontWeight="bold" mb={2}>
+        Description
+      </Text>
+      <Textarea
+        value={description}
+        onChange={handleDescriptionChange}
+        placeholder="Enter job description"
+        size="lg"
+        h={"200px"}
+        resize={"none"}
+        p={5}
+      />
+    </Box>
   );
 }

@@ -1,9 +1,8 @@
 "use client";
-
-import React, { useState } from 'react';
-import { Select, Text, Button, Box } from '@chakra-ui/react';
+import React, { useState, useEffect } from "react";
+import { Select, Box, Text } from "@chakra-ui/react";
 import { updateJobCategory } from '../../services/updateCategory';
-import { createClient } from '@/utils/supabase/client';
+import { useRouter } from "next/navigation";
 
 const categoryOptions = {
   kitchen: 'Kitchen',
@@ -14,49 +13,46 @@ const categoryOptions = {
 
 export function CategorySelect({ initialCategory, jobId }) {
   const [category, setCategory] = useState(initialCategory);
-  const [isEditing, setIsEditing] = useState(false);
-  const supabase = createClient();
+  const router = useRouter();
 
-  const handleCategoryChange = async (e) => {
+  useEffect(() => {
+    const debounceTimer = setTimeout(async () => {
+      try {
+        await updateJobCategory(jobId, category);
+        router.refresh();
+      } catch (error) {
+        console.error("Error updating job category", error);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(debounceTimer);
+    };
+  }, [category, jobId, router]);
+
+  const handleCategoryChange = (e) => {
     const newCategory = e.target.value;
     setCategory(newCategory);
-
-    try {
-      await updateJobCategory(jobId, newCategory);
-    } catch (error) {
-      console.error('Error updating job title', error);
-    }
-
-    // onCategoryChange(newCategory); // Uncomment this if you need to propagate the change to a parent component
-  };
-
-  const toggleEdit = () => {
-    setIsEditing(!isEditing);
   };
 
   return (
-    <Box display="flex" alignItems="center" gap="2">
-      {isEditing ? (
-        <Select
-          value={category}
-          onChange={handleCategoryChange}
-          onBlur={toggleEdit} // Optionally, you can switch back to label mode on blur
-          autoFocus // Focus on the select field when editing starts
-        >
-          {Object.entries(categoryOptions).map(([value, name]) => (
-            <option key={value} value={value}>
-              {name}
-            </option>
-          ))}
-        </Select>
-      ) : (
-        <>
-          <Text>{categoryOptions[category] || 'No category set'}</Text>
-          <Button onClick={toggleEdit} size="sm">
-            Edit
-          </Button>
-        </>
-      )}
+    <Box>
+      <Text fontSize={"lg"} fontWeight="bold" mb={2}>
+        Category
+      </Text>
+      <Select
+        value={category}
+        onChange={handleCategoryChange}
+        placeholder="Select a category"
+        maxW={"500px"}
+        size={"lg"}
+      >
+        {Object.entries(categoryOptions).map(([value, name]) => (
+          <option key={value} value={value}>
+            {name}
+          </option>
+        ))}
+      </Select>
     </Box>
   );
 }

@@ -10,6 +10,7 @@ import {
 } from "@/components/CreateJobComponents/BeforeAfterImageUpload";
 import { DescriptionInput } from "@/components/CreateJobComponents/Description";
 import { Quotes } from "@/components/CreateJobComponents/Quotes";
+import { Box } from "@chakra-ui/react";
 
 async function fetchJobData(id) {
   const supabase = createClient();
@@ -57,15 +58,18 @@ export default async function JobDetails({ params }) {
     .map((file) => file.file_url);
 
   return (
-    <div>
-      <TitleInput initialTitle={job.title} jobId={job.id} />
-      <CategorySelect initialCategory={job.category} jobId={job.id} />
-      <LocationAutocomplete initialLocation={job.location} jobId={job.id} />
-      <DescriptionInput initialDescription={job.description} jobId={job.id} />
-      <BeforeImages jobId={job.id} initialImages={beforeImages} />
-      <AfterImages jobId={job.id} initialImages={afterImages} />
+    <Box marginTop={10}>
+      <Box background={"white"} padding={10}>
+        <TitleInput initialTitle={job.title} jobId={job.id} />
+        <CategorySelect initialCategory={job.category} jobId={job.id} />
+        <LocationAutocomplete initialLocation={job.location} jobId={job.id} />
+        <DescriptionInput initialDescription={job.description} jobId={job.id} />
+      </Box>
+      <Box background={"white"} padding={10} my={5}>
+        <BeforeImages jobId={job.id} initialImages={beforeImages} />
+        <AfterImages jobId={job.id} initialImages={afterImages} />
+      </Box>
       <Quotes jobId={job.id} initialQuotes={job.quotes} />
-
-    </div>
+    </Box>
   );
 }

@@ -8,7 +8,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-full w-full">
+    <div
+      style={{
+        background: "#f2f2f2",
+      }}
+      className="w-full flex flex-col items-center"
+    >
       <Flex
         as="nav"
         align="center"
@@ -16,14 +21,22 @@ export default function RootLayout({
         wrap="wrap"
         padding="1.5rem"
         bg="white"
+        w={"100%"}
         borderBottom="1px solid black"
       >
-        <Flex align="center" mr={5}>
-          <Image src={"/logo.png"} alt="Logo" width={125} height={125} priority={true}/>
+        <Flex w="100%" maxW={"2050px"} mx="auto">
+          <Flex w="100%" mr={5}>
+            <Image
+              src={"/logo.png"}
+              alt="Logo"
+              width={125}
+              height={125}
+              priority={true}
+            />
+          </Flex>
         </Flex>
-        <Spacer />
       </Flex>
-      <div className="flex-grow flex flex-col items-center">{children}</div>
+      <div style={{ maxWidth: "2050px", width: "100%" }}>{children}</div>
     </div>
   );
 }
