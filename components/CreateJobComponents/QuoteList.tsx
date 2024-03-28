@@ -15,10 +15,10 @@ export function QuotesList({ jobId, initialQuotes, onAdd }) {
   
     return (
       <div>
-        <h3>Quotes</h3>
         {quotes.map((quote) => (
           <div key={quote.id}>
             <p>Title: {quote.title}</p>
+            <p>Value: {quote.value}</p>
             <p>Attachments: {quote.quote_files.length}</p>
           </div>
         ))}

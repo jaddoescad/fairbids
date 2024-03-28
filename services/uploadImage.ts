@@ -61,7 +61,7 @@ export const uploadImage = async (
   const { error: insertError } = await supabase.from("job_files").insert({
     job_id: jobId,
     file_type: fileType,
-    file_url: imageData.publicUrl,
+    file_url: filePath, // Store the file path instead of the public URL
   });
 
   if (insertError) {
@@ -69,5 +69,6 @@ export const uploadImage = async (
   }
 
   revalidatePathServer(jobId);
-  return imageData.publicUrl;
+
+  return filePath; // Return the file path
 };

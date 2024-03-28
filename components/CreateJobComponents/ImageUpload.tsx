@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { uploadImage } from "../../services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
+import { transform } from "typescript";
 
 export const ImageUpload = ({ jobId, imageType, initialImages }) => {
   const [uploading, setUploading] = useState(false);
@@ -29,24 +30,45 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
 
     const files = Array.from(event.target.files);
     const uploadPromises = files.map(async (file) => {
-      const publicUrl = await uploadImage(
+      const filePath = await uploadImage(
         supabase,
         file,
         userId,
         jobId,
         imageType
       );
-      return publicUrl;
+      return filePath;
     });
 
-    const uploadedImages = await Promise.all(uploadPromises);
-    setImages((prevImages) => [...prevImages, ...uploadedImages]);
+    const uploadedFilePaths = await Promise.all(uploadPromises);
 
+    const publicUrlPromises = uploadedFilePaths.map(async (filePath) => {
+      const { data: fileData, error: fileError } = await supabase.storage
+        .from("job_files")
+        .getPublicUrl(filePath, {
+          transform: {
+            width: 200,
+            height: 200,
+          },
+        });
+
+      if (fileError) {
+        console.error("Error fetching file URL", fileError);
+        return null;
+      }
+
+      return fileData.publicUrl;
+    });
+
+    const publicUrls = await Promise.all(publicUrlPromises);
+    const filteredPublicUrls = publicUrls.filter((url) => url !== null);
+
+    setImages((prevImages) => [...prevImages, ...filteredPublicUrls]);
     setUploading(false);
   };
 
   return (
-    <Box my="4">
+    <Box>
       <Flex flexWrap="wrap">
         <AspectRatio width="64" ratio={1} m="2">
           <Box
@@ -86,16 +108,24 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
                 top="0"
                 left="0"
                 opacity="0"
+                cursor={"pointer"}
                 aria-hidden="true"
                 onChange={handleUpload}
                 disabled={uploading}
+                _disabled={{
+                  cursor: "not-allowed",
+                }}  
               />
             </Box>
           </Box>
         </AspectRatio>
-        {images.map((imageUrl) => (
-          <AspectRatio key={imageUrl} width="64" ratio={1} m="2">
-            <Image src={imageUrl} alt={`${imageType} picture`} objectFit="cover" />
+        {images.map((filePath) => (
+          <AspectRatio key={filePath} width="64" ratio={1} m="2">
+            <Image
+              src={filePath}
+              alt={`${imageType} picture`}
+              objectFit="cover"
+            />
           </AspectRatio>
         ))}
       </Flex>

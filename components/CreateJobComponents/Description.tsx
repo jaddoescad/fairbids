@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { updateJobDescription } from "../../services/updateDescription";
 import { useRouter } from "next/navigation";
 import { Box, Textarea, Text } from "@chakra-ui/react";
+import { TopTitle } from "./FormReusable/TopTitle";
 
 export function DescriptionInput({ initialDescription, jobId }) {
   const [description, setDescription] = useState(initialDescription || "");
@@ -29,9 +30,9 @@ export function DescriptionInput({ initialDescription, jobId }) {
 
   return (
     <Box py={4}>
-      <Text fontSize={"lg"} fontWeight="bold" mb={2}>
+      <TopTitle>
         Description
-      </Text>
+      </TopTitle>
       <Textarea
         value={description}
         onChange={handleDescriptionChange}

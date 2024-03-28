@@ -4,6 +4,7 @@ import { Input, Box, Text } from "@chakra-ui/react";
 import { updateJobTitle } from "../../services/updateTitle";
 import { useRouter } from 'next/navigation';
 import { Textarea } from '@chakra-ui/react'
+import { TopTitle } from "./FormReusable/TopTitle";
 
 export function TitleInput({ initialTitle, jobId }) {
   const [title, setTitle] = useState(initialTitle);
@@ -31,10 +32,7 @@ export function TitleInput({ initialTitle, jobId }) {
 
   return (
     <Box py={4}>
-      <Text
-      fontWeight="bold"
-      fontSize={"lg"}     
-      mb={2}>Title</Text>
+      <TopTitle>Title</TopTitle>
       <Input
         value={title}
         onChange={handleTitleChange}

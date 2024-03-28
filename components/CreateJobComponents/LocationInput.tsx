@@ -4,6 +4,7 @@ import { Autocomplete, useLoadScript } from "@react-google-maps/api";
 import { Input, Box, Text } from "@chakra-ui/react";
 import { updateJobLocation } from "../../services/updateLocation";
 import { useRouter } from "next/navigation";
+import { TopTitle } from "./FormReusable/TopTitle";
 
 const libraries = ["places"];
 
@@ -58,9 +59,9 @@ export function LocationAutocomplete({ initialLocation, jobId }) {
     <>
       {isLoaded && (
         <Box py={4}>
-          <Text fontSize={"lg"} fontWeight="bold" mb={2}>
+          <TopTitle>
             Location
-          </Text>
+          </TopTitle>
           <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
             <Input
               value={location}

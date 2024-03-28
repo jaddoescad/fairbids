@@ -10,10 +10,11 @@ import {
 } from "@/components/CreateJobComponents/BeforeAfterImageUpload";
 import { DescriptionInput } from "@/components/CreateJobComponents/Description";
 import { Quotes } from "@/components/CreateJobComponents/Quotes";
-import { Box } from "@chakra-ui/react";
+import { Box, Text, Center} from "@chakra-ui/react";
 
 async function fetchJobData(id) {
   const supabase = createClient();
+
   const { data, error } = await supabase
     .from("jobs")
     .select("*, job_files(file_url, file_type)")
@@ -24,6 +25,29 @@ async function fetchJobData(id) {
     console.error("Error fetching job data", error);
     return null;
   }
+
+  const jobFiles = await Promise.all(
+    data.job_files.map(async (file) => {
+      const { data: fileData, error: fileError } = await supabase.storage
+        .from("job_files")
+        .getPublicUrl(file.file_url, {
+          transform: {
+            width: 200,
+            height: 200,
+          },
+        });
+
+      if (fileError) {
+        console.error("Error fetching file URL", fileError);
+        return null;
+      }
+
+      return {
+        ...file,
+        file_url: fileData.publicUrl,
+      };
+    })
+  );
 
   const { data: quotesData, error: quotesError } = await supabase
     .from("quotes")
@@ -36,9 +60,11 @@ async function fetchJobData(id) {
 
   return {
     ...data,
+    job_files: jobFiles.filter((file) => file !== null),
     quotes: quotesData || [],
   };
 }
+
 
 export default async function JobDetails({ params }) {
   const job = await fetchJobData(params.id);
@@ -58,7 +84,13 @@ export default async function JobDetails({ params }) {
     .map((file) => file.file_url);
 
   return (
-    <Box marginTop={10}>
+    <Box marginTop={10} paddingBottom={"200px"}>
+      <Center><Text 
+        fontSize="3xl" 
+        fontWeight="bold" 
+        color="black" 
+        marginBottom={5}
+      >Post Your Job</Text></Center>
       <Box background={"white"} padding={10}>
         <TitleInput initialTitle={job.title} jobId={job.id} />
         <CategorySelect initialCategory={job.category} jobId={job.id} />
@@ -69,7 +101,9 @@ export default async function JobDetails({ params }) {
         <BeforeImages jobId={job.id} initialImages={beforeImages} />
         <AfterImages jobId={job.id} initialImages={afterImages} />
       </Box>
+      <Box background={"white"} padding={10} my={5}>
       <Quotes jobId={job.id} initialQuotes={job.quotes} />
+      </Box>
     </Box>
   );
 }

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Select, Box, Text } from "@chakra-ui/react";
 import { updateJobCategory } from '../../services/updateCategory';
 import { useRouter } from "next/navigation";
+import { TopTitle } from "./FormReusable/TopTitle";
 
 const categoryOptions = {
   kitchen: 'Kitchen',
@@ -37,9 +38,7 @@ export function CategorySelect({ initialCategory, jobId }) {
 
   return (
     <Box>
-      <Text fontSize={"lg"} fontWeight="bold" mb={2}>
-        Category
-      </Text>
+      <TopTitle>Category</TopTitle>
       <Select
         value={category}
         onChange={handleCategoryChange}
