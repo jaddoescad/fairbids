@@ -1,9 +1,9 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
-import { Input, Box, Text } from "@chakra-ui/react";
+import { Input, Box } from "@chakra-ui/react";
 import { updateJobTitle } from "../../services/updateTitle";
 import { useRouter } from 'next/navigation';
-import { Textarea } from '@chakra-ui/react'
 import { TopTitle } from "./FormReusable/TopTitle";
 
 export function TitleInput({ initialTitle, jobId }) {

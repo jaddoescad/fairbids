@@ -1,10 +1,23 @@
 // QuotesList.js
 "use client";
 import { useEffect, useState } from "react";
-import { Box, VStack, HStack, Text, Badge, Link, Image } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Badge,
+  Link,
+  Image,
+  Button,
+} from "@chakra-ui/react";
+import { deleteQuote } from "@/services/uploadQuoteFile";
+import { createClient } from "@/utils/supabase/client";
 
 export function QuotesList({ initialQuotes, onAdd }) {
   const [quotes, setQuotes] = useState(initialQuotes || []);
+  const supabase = createClient();
+  const [deletingQuoteId, setDeletingQuoteId] = useState(null);
 
   useEffect(() => {
     if (onAdd) {
@@ -12,7 +25,18 @@ export function QuotesList({ initialQuotes, onAdd }) {
     }
   }, [onAdd]);
 
-
+  const handleDeleteQuote = async (quoteId) => {
+    try {
+      setDeletingQuoteId(quoteId);
+      await deleteQuote(supabase, quoteId);
+      setQuotes((prevQuotes) => prevQuotes.filter((quote) => quote.id !== quoteId));
+    } catch (error) {
+      console.error("Error deleting quote:", error);
+      alert("An error occurred while deleting the quote. Please try again.");
+    } finally {
+      setDeletingQuoteId(null);
+    }
+  };
 
   const getFileExtension = (url) => {
     if (!url) return "";
@@ -72,21 +96,21 @@ export function QuotesList({ initialQuotes, onAdd }) {
                       )}
                     </Box>
                   )}
-                  <Link
-                    href={file.file_url}
-                    isExternal
-                  >
-                  <Text
-                    color="blue.500"
-                    fontWeight="bold"
-                    cursor="pointer"
-                  >
-                    {file.file_url}
-                  </Text>
+                  <Link href={file.file_url} isExternal>
+                    <Text color="blue.500" fontWeight="bold" cursor="pointer">
+                      {file.file_url}
+                    </Text>
                   </Link>
                 </Box>
               ))}
             </VStack>
+            <Button
+              colorScheme="red"
+              size="sm"
+              onClick={() => handleDeleteQuote(quote.id)}
+            >
+              Delete
+            </Button>
           </Box>
         ))}
       </VStack>

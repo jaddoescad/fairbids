@@ -103,13 +103,7 @@ const uploadImage = async (
 export const deleteImage = async (filePath, jobId) => {
   const supabase = createClient();
   console.log("Deleting image", filePath);
-  const { error: deleteError } = await supabase.storage
-    .from("job_files")
-    .remove([filePath]);
 
-  if (deleteError) {
-    throw deleteError;
-  }
 
   const { error: deleteRecordError } = await supabase
     .from("job_files")

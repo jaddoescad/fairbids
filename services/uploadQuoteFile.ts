@@ -80,3 +80,22 @@ export const addQuote = async (supabase, jobId, quoteTitle, quoteValue, files) =
     throw error;
   }
 };
+
+export const deleteQuote = async (supabase, quoteId) => {
+  try {
+    const { data: deletedQuote, error: deleteError } = await supabase
+      .from("quotes")
+      .delete()
+      .eq("id", quoteId)
+      .single();
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    return deletedQuote;
+  } catch (error) {
+    console.error("Error deleting quote:", error);
+    throw error;
+  }
+};
