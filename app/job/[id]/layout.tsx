@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Flex, Spacer, Button } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import Image from "next/image";
 
 export default function RootLayout({
@@ -12,8 +12,7 @@ export default function RootLayout({
       style={{
         background: "#f2f2f2",
       }}
-      className="w-full flex flex-col items-center"
-    >
+      className="w-full flex flex-col items-center">
       <Flex
         as="nav"
         align="center"

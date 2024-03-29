@@ -28,7 +28,6 @@ export function LocationAutocomplete({ initialLocation, jobId }) {
   };
 
   const onPlaceChanged = () => {
-    console.log("Place changed");
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
       if (place && place.formatted_address) {

@@ -2,14 +2,50 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from 'uuid';
 import { revalidatePathServer } from "./revalidatePath";
 
-export const uploadImage = async (
+// services/uploadImageService.js
+import { createClient } from "@/utils/supabase/client";
+
+export const uploadImages = async (files, userId, jobId, imageType) => {
+  const supabase = createClient();
+
+  const uploadPromises = files.map(async (file) => {
+    const filePath = await uploadImage(supabase, file, userId, jobId, imageType);
+    return filePath;
+  });
+
+  const uploadedFilePaths = await Promise.all(uploadPromises);
+
+  const publicUrlPromises = uploadedFilePaths.map(async (filePath) => {
+    const { data: fileData, error: fileError } = await supabase.storage
+      .from("job_files")
+      .getPublicUrl(filePath, {
+        transform: {
+          width: 200,
+          height: 200,
+        },
+      });
+
+    if (fileError) {
+      console.error("Error fetching file URL", fileError);
+      return null;
+    }
+
+    return fileData.publicUrl;
+  });
+
+  const publicUrls = await Promise.all(publicUrlPromises);
+  const filteredPublicUrls = publicUrls.filter((url) => url !== null);
+
+  return filteredPublicUrls;
+};
+
+const uploadImage = async (
   supabase: SupabaseClient,
   file: File,
   userId: string,
   jobId: string,
   fileType: string
 ) => {
-  const imageId = uuidv4();
   const filePath = `${jobId}/${fileType}/${file.name}`;
 
   // check if file is empty
@@ -37,10 +73,6 @@ export const uploadImage = async (
     throw new Error("Image must smaller than 2MB!");
   }
 
-  // const fileExt = file.name.split(".").pop();
-  // const fileName = `${jobId}/job_images/${imageId}.${fileExt}`;
-  // const filePath = `${fileName}`;
-
   let { error: uploadError, data } = await supabase.storage
     .from("job_files")
     .upload(filePath, file, { upsert: true });
@@ -48,15 +80,6 @@ export const uploadImage = async (
   if (uploadError) {
     throw uploadError;
   }
-
-  const { data: imageData } = supabase.storage
-    .from("job_files")
-    .getPublicUrl(filePath, {
-      transform: {
-        width: 200,
-        height: 200,
-      },
-    });
 
   const { error: insertError } = await supabase.from("job_files").insert({
     job_id: jobId,

@@ -15,7 +15,7 @@ const handleQuoteAdd = async (quoteData) => {
     <>
       <TopTitle>Quotes</TopTitle>
       <AddQuoteDialog jobId={jobId} onAdd={handleQuoteAdd} />
-      <QuotesList jobId={jobId} initialQuotes={initialQuotes} onAdd={newQuote} />
+      <QuotesList initialQuotes={initialQuotes} onAdd={newQuote} />
     </>
   );
 }

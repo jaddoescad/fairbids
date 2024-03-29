@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Box, VStack, HStack, Text, Badge, Link, Image } from "@chakra-ui/react";
 
-export function QuotesList({ jobId, initialQuotes, onAdd }) {
+export function QuotesList({ initialQuotes, onAdd }) {
   const [quotes, setQuotes] = useState(initialQuotes || []);
 
   useEffect(() => {

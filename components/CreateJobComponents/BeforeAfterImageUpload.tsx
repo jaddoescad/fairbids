@@ -12,11 +12,7 @@ export const BeforeImages = ({ job }) => {
   return (
     <Box>
       <TopTitle>Before Pictures</TopTitle>
-      <ImageUpload
-        jobId={job.id}
-        imageType="before"
-        initialImages={beforeImages}
-      />
+      <ImageUpload jobId={job.id} imageType="before" initialImages={beforeImages} />
     </Box>
   );
 };
@@ -28,11 +24,7 @@ export const AfterImages = ({ job }) => {
   return (
     <Box>
       <TopTitle>After Pictures</TopTitle>
-      <ImageUpload
-        jobId={job.id}
-        imageType="after"
-        initialImages={afterImages}
-      />
+      <ImageUpload jobId={job.id} imageType="after" initialImages={afterImages} />
     </Box>
   );
 };

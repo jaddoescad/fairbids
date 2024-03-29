@@ -2,18 +2,17 @@ import { useState } from "react";
 import {
   AspectRatio,
   Box,
-  Button,
-  Container,
   Heading,
   Input,
   Stack,
   Text,
   Image,
   Flex,
+  IconButton,
 } from "@chakra-ui/react";
-import { uploadImage } from "../../services/uploadImage";
+import { deleteImage, uploadImages } from "../../services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
-import { transform } from "typescript";
+import { DeleteIcon } from "@chakra-ui/icons";
 
 export const ImageUpload = ({ jobId, imageType, initialImages }) => {
   const [uploading, setUploading] = useState(false);
@@ -25,45 +24,10 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
       data: { session },
     } = await supabase.auth.getSession();
     const userId = session?.user.id;
-
     setUploading(true);
-
     const files = Array.from(event.target.files);
-    const uploadPromises = files.map(async (file) => {
-      const filePath = await uploadImage(
-        supabase,
-        file,
-        userId,
-        jobId,
-        imageType
-      );
-      return filePath;
-    });
-
-    const uploadedFilePaths = await Promise.all(uploadPromises);
-
-    const publicUrlPromises = uploadedFilePaths.map(async (filePath) => {
-      const { data: fileData, error: fileError } = await supabase.storage
-        .from("job_files")
-        .getPublicUrl(filePath, {
-          transform: {
-            width: 200,
-            height: 200,
-          },
-        });
-
-      if (fileError) {
-        console.error("Error fetching file URL", fileError);
-        return null;
-      }
-
-      return fileData.publicUrl;
-    });
-
-    const publicUrls = await Promise.all(publicUrlPromises);
-    const filteredPublicUrls = publicUrls.filter((url) => url !== null);
-
-    setImages((prevImages) => [...prevImages, ...filteredPublicUrls]);
+    const uploadedImages = await uploadImages(files, userId, jobId, imageType);
+    setImages((prevImages) => [...prevImages, ...uploadedImages]);
     setUploading(false);
   };
 
@@ -121,12 +85,12 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
         </AspectRatio>
         {images.map((filePath) => (
           <AspectRatio key={filePath} width="64" ratio={1} m="2">
-            <Image
-              src={filePath}
-              alt={`${imageType} picture`}
-              objectFit="cover"
-            />
-          </AspectRatio>
+          <Image
+            src={filePath}
+            alt={`${imageType} picture`}
+            objectFit="cover"
+          />
+        </AspectRatio>
         ))}
       </Flex>
       {uploading && <Text>Uploading...</Text>}
