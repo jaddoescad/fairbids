@@ -1,21 +1,9 @@
 // services/jobService.js
 import { createClient } from "@/utils/supabase/client";
 
-async function getJobFileUrl(supabase, filePath, transform = {}) {
-  const { data: fileData, error: fileError } = await supabase.storage
-    .from("job_files")
-    .getPublicUrl(filePath, { transform });
-
-  if (fileError) {
-    console.error("Error fetching file URL", fileError);
-    return null;
-  }
-
-  return fileData.publicUrl;
-}
-
 async function fetchJobData(id) {
   const supabase = createClient();
+
   const { data, error } = await supabase
     .from("jobs")
     .select("*, job_files(file_path, file_type)")
@@ -29,11 +17,24 @@ async function fetchJobData(id) {
 
   const jobFiles = await Promise.allSettled(
     data.job_files.map(async (file) => {
-      const fileUrl = await getJobFileUrl(supabase, file.file_path, {
-        width: 200,
-        height: 200,
-      });
-      return { ...file, file_url: fileUrl };
+      const { data: fileData, error: fileError } = await supabase.storage
+        .from("job_files")
+        .getPublicUrl(file.file_path, {
+          transform: {
+            width: 200,
+            height: 200,
+          },
+        });
+
+      if (fileError) {
+        console.error("Error fetching file URL", fileError);
+        return null;
+      }
+
+      return {
+        ...file,
+        file_url: fileData.publicUrl,
+      };
     })
   );
 
@@ -50,10 +51,22 @@ async function fetchJobData(id) {
     quotesData.map(async (quote) => {
       const updatedQuoteFiles = await Promise.allSettled(
         quote.quote_files.map(async (file) => {
-          const fileUrl = await getJobFileUrl(supabase, file.file_path);
-          return { ...file, file_url: fileUrl };
+          const { data: fileData, error: fileError } = await supabase.storage
+            .from("job_files")
+            .getPublicUrl(file.file_path);
+
+          if (fileError) {
+            console.error("Error fetching file URL", fileError);
+            return null;
+          }
+
+          return {
+            ...file,
+            file_url: fileData.publicUrl,
+          };
         })
       );
+
       return {
         ...quote,
         quote_files: updatedQuoteFiles.map((result) => result.value).filter(Boolean),

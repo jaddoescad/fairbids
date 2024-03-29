@@ -14,7 +14,6 @@ export const uploadImages = async (files, userId, jobId, imageType) => {
   });
 
   const uploadedFilePaths = await Promise.all(uploadPromises);
-
   const publicUrlPromises = uploadedFilePaths.map(async (filePath) => {
     const { data: fileData, error: fileError } = await supabase.storage
       .from("job_files")
@@ -24,19 +23,24 @@ export const uploadImages = async (files, userId, jobId, imageType) => {
           height: 200,
         },
       });
-
+  
     if (fileError) {
       console.error("Error fetching file URL", fileError);
       return null;
     }
+    
+    console.log("public url", fileData.publicUrl);
+    console.log("file path", filePath);
 
-    return fileData.publicUrl;
+    return { publicUrl: fileData.publicUrl, filePath };
   });
 
-  const publicUrls = await Promise.all(publicUrlPromises);
-  const filteredPublicUrls = publicUrls.filter((url) => url !== null);
-
-  return filteredPublicUrls;
+  const publicUrlsWithFilePaths = await Promise.all(publicUrlPromises);
+  const filteredPublicUrlsWithFilePaths = publicUrlsWithFilePaths.filter(
+    (urlWithPath) => urlWithPath !== null
+  );
+  
+  return filteredPublicUrlsWithFilePaths;
 };
 
 const uploadImage = async (
@@ -94,4 +98,27 @@ const uploadImage = async (
   revalidatePathServer(jobId);
 
   return filePath; // Return the file path
+};
+
+export const deleteImage = async (filePath, jobId) => {
+  const supabase = createClient();
+  console.log("Deleting image", filePath);
+  const { error: deleteError } = await supabase.storage
+    .from("job_files")
+    .remove([filePath]);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  const { error: deleteRecordError } = await supabase
+    .from("job_files")
+    .delete()
+    .eq("file_path", filePath);
+
+  if (deleteRecordError) {
+    throw deleteRecordError;
+  }
+
+  revalidatePathServer(jobId);
 };

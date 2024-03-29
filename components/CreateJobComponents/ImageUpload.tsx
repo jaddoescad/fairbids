@@ -14,9 +14,11 @@ import { deleteImage, uploadImages } from "../../services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
 import { DeleteIcon } from "@chakra-ui/icons";
 
+
 export const ImageUpload = ({ jobId, imageType, initialImages }) => {
   const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState(initialImages || []);
+  const [deleting, setDeleting] = useState(false);
 
   const handleUpload = async (event) => {
     const supabase = createClient();
@@ -29,6 +31,17 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
     const uploadedImages = await uploadImages(files, userId, jobId, imageType);
     setImages((prevImages) => [...prevImages, ...uploadedImages]);
     setUploading(false);
+  };
+
+  console.log("images",images);
+
+  const handleDelete = async (filePath) => {
+    setDeleting(true);
+    await deleteImage(filePath, jobId);
+    setImages((prevImages) =>
+      prevImages.filter((image) => image.filePath !== filePath)
+    );
+    setDeleting(false);
   };
 
   return (
@@ -78,19 +91,31 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
                 disabled={uploading}
                 _disabled={{
                   cursor: "not-allowed",
-                }}  
+                }}
               />
             </Box>
           </Box>
         </AspectRatio>
-        {images.map((filePath) => (
-          <AspectRatio key={filePath} width="64" ratio={1} m="2">
-          <Image
-            src={filePath}
-            alt={`${imageType} picture`}
-            objectFit="cover"
-          />
-        </AspectRatio>
+        {images.map((image) => (
+          <Box key={image.filePath} position="relative">
+            <AspectRatio width="64" ratio={1} m="2">
+              <Image
+                src={image.publicUrl}
+                alt={`${imageType} picture`}
+                objectFit="cover"
+              />
+            </AspectRatio>
+            <IconButton
+              icon={<DeleteIcon />}
+              colorScheme="red"
+              aria-label="Delete image"
+              size="sm"
+              position="absolute"
+              top="4"
+              right="4"
+              onClick={() => handleDelete(image.filePath)}
+            />
+          </Box>
         ))}
       </Flex>
       {uploading && <Text>Uploading...</Text>}
