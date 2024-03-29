@@ -18,7 +18,7 @@ export function LocationAutocomplete({ initialLocation, jobId }) {
   }, [initialLocation]);
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyBHVjOOTOajAGnWUah3mbCq1NLkGNAZBTs",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     libraries,
   });
 

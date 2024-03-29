@@ -17,11 +17,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+
   return (
     <html lang="en" className={"h-full"}>
       <body className="bg-background text-foreground h-full">
         <main className="h-full flex flex-col items-center">
-          <ChakraProvider>{children}</ChakraProvider>
+        <ChakraProvider>{children}</ChakraProvider>
         </main>
       </body>
     </html>
