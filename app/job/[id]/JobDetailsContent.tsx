@@ -9,12 +9,34 @@ import { Box, Text, Center, Button } from "@chakra-ui/react";
 import { fetchJobData } from "@/services/fetchJobData";
 import { useEffect, useState } from "react";
 import { updateJobDetails } from "@/services/updateJobDetails";
+import { uploadImages } from "@/services/uploadImage";
+import { createClient } from "@/utils/supabase/client";
 
 function JobDetailsContent({ job }) {
   const [updatedJob, setUpdatedJob] = useState(job);
+  const [beforeImages, setBeforeImages] = useState([]);
+  const [afterImages, setAfterImages] = useState([]);
 
   const handleSaveChanges = async () => {
     try {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        console.error("User not logged in");
+        return;
+      }
+      
+      const userId = session.user.id;
+      const newBeforeImages = beforeImages.filter((image) => !image.filePath);
+      const newAfterImages = afterImages.filter((image) => !image.filePath);
+
+      await Promise.all([
+        uploadImages(newBeforeImages, userId, job.id, "before"),
+        uploadImages(newAfterImages, userId, job.id, "after"),
+      ]);
+
       await updateJobDetails(updatedJob);
       // Refresh the page or show a success message
     } catch (error) {
@@ -51,8 +73,8 @@ function JobDetailsContent({ job }) {
         />
       </Box>
       <Box background={"white"} padding={10} my={5}>
-        <BeforeImages job={job} />
-        <AfterImages job={job} />
+        <BeforeImages job={job} onBeforeImagesChange={setBeforeImages} />
+        <AfterImages job={job} onAfterImagesChange={setAfterImages} />
       </Box>
       <Box background={"white"} padding={10} my={5}>
         <Quotes jobId={job.id} initialQuotes={job.quotes} />

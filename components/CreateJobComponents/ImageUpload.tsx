@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AspectRatio,
   Box,
@@ -14,36 +14,41 @@ import { deleteImage, uploadImages } from "../../services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
 import { DeleteIcon } from "@chakra-ui/icons";
 
-
-export const ImageUpload = ({ jobId, imageType, initialImages }) => {
-  const [uploading, setUploading] = useState(false);
+export const ImageUpload = ({
+  jobId,
+  imageType,
+  initialImages,
+  onImagesChange,
+}) => {
   const [images, setImages] = useState(initialImages || []);
-  const [deleting, setDeleting] = useState(false);
 
-  const handleUpload = async (event) => {
-    const supabase = createClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const userId = session?.user.id;
-    setUploading(true);
+  const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
-    const uploadedImages = await uploadImages(files, userId, jobId, imageType);
-    setImages((prevImages) => [...prevImages, ...uploadedImages]);
-    setUploading(false);
+    const newImages = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setImages((prevImages) => [...prevImages, ...newImages]);
+    onImagesChange((prevImages) => [...prevImages, ...newImages]);
   };
 
-  console.log("images",images);
-
-  const handleDelete = async (filePath) => {
-    setDeleting(true);
-    await deleteImage(filePath, jobId);
-    setImages((prevImages) =>
-      prevImages.filter((image) => image.filePath !== filePath)
-    );
-    setDeleting(false);
+  const handleDelete = (index) => {
+    setImages((prevImages) => {
+      const updatedImages = prevImages.filter((_, i) => i !== index);
+      URL.revokeObjectURL(prevImages[index].preview);
+      return updatedImages;
+    });
+    onImagesChange((prevImages) => prevImages.filter((_, i) => i !== index));
   };
-
+  useEffect(() => {
+    return () => {
+      images.forEach((image) => {
+        if (image.preview) {
+          URL.revokeObjectURL(image.preview);
+        }
+      });
+    };
+  }, [images]);
   return (
     <Box>
       <Flex flexWrap="wrap">
@@ -87,8 +92,7 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
                 opacity="0"
                 cursor={"pointer"}
                 aria-hidden="true"
-                onChange={handleUpload}
-                disabled={uploading}
+                onChange={handleImageChange}
                 _disabled={{
                   cursor: "not-allowed",
                 }}
@@ -96,11 +100,11 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
             </Box>
           </Box>
         </AspectRatio>
-        {images.map((image) => (
-          <Box key={image.filePath} position="relative">
+        {images.map((image, index) => (
+          <Box key={image.filePath || image.preview} position="relative">
             <AspectRatio width="64" ratio={1} m="2">
               <Image
-                src={image.publicUrl}
+                src={image.publicUrl || image.preview}
                 alt={`${imageType} picture`}
                 objectFit="cover"
               />
@@ -113,12 +117,11 @@ export const ImageUpload = ({ jobId, imageType, initialImages }) => {
               position="absolute"
               top="4"
               right="4"
-              onClick={() => handleDelete(image.filePath)}
+              onClick={() => handleDelete(index)}
             />
           </Box>
         ))}
       </Flex>
-      {uploading && <Text>Uploading...</Text>}
     </Box>
   );
 };

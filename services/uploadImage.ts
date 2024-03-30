@@ -7,13 +7,19 @@ import { createClient } from "@/utils/supabase/client";
 
 export const uploadImages = async (files, userId, jobId, imageType) => {
   const supabase = createClient();
-
   const uploadPromises = files.map(async (file) => {
-    const filePath = await uploadImage(supabase, file, userId, jobId, imageType);
+    const filePath = await uploadImage(
+      supabase,
+      file.file,
+      userId,
+      jobId,
+      imageType
+    );
     return filePath;
   });
-
   const uploadedFilePaths = await Promise.all(uploadPromises);
+
+
   const publicUrlPromises = uploadedFilePaths.map(async (filePath) => {
     const { data: fileData, error: fileError } = await supabase.storage
       .from("job_files")
