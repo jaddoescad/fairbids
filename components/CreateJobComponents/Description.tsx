@@ -1,32 +1,15 @@
 "use client";
-import { useState, useEffect } from "react";
-import { updateJobDescription } from "../../services/updateDescription";
 import { useRouter } from "next/navigation";
-import { Box, Textarea, Text } from "@chakra-ui/react";
+import { Box, Textarea } from "@chakra-ui/react";
 import { TopTitle } from "./FormReusable/TopTitle";
 
-export function DescriptionInput({ initialDescription, jobId }) {
-  const [description, setDescription] = useState(initialDescription || "");
+export function DescriptionInput({ initialDescription, setDescription }) {
   const router = useRouter();
 
   const handleDescriptionChange = (event) => {
     setDescription(event.target.value);
   };
 
-  useEffect(() => {
-    const debounceTimer = setTimeout(async () => {
-      try {
-        await updateJobDescription(jobId, description);
-        router.refresh();
-      } catch (error) {
-        console.error("Error updating job description", error);
-      }
-    }, 500);
-
-    return () => {
-      clearTimeout(debounceTimer);
-    };
-  }, [description, jobId, router]);
 
   return (
     <Box py={4}>
@@ -34,7 +17,7 @@ export function DescriptionInput({ initialDescription, jobId }) {
         Description
       </TopTitle>
       <Textarea
-        value={description}
+        value={initialDescription}
         onChange={handleDescriptionChange}
         placeholder="Enter job description"
         size="lg"

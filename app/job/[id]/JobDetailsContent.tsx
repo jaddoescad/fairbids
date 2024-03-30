@@ -1,16 +1,28 @@
 'use client'
-
 import { CategorySelect } from "@/components/CreateJobComponents/CategorySelect";
 import { LocationAutocomplete } from "@/components/CreateJobComponents/LocationInput";
 import { TitleInput } from "@/components/CreateJobComponents/TitleInput";
 import { AfterImages, BeforeImages } from "@/components/CreateJobComponents/BeforeAfterImageUpload";
 import { DescriptionInput } from "@/components/CreateJobComponents/Description";
 import { Quotes } from "@/components/CreateJobComponents/Quotes";
-import { Box, Text, Center } from "@chakra-ui/react";
+import { Box, Text, Center, Button } from "@chakra-ui/react";
 import { fetchJobData } from "@/services/fetchJobData";
 import { useEffect, useState } from "react";
+import { updateJobDetails } from "@/services/updateJobDetails";
 
 function JobDetailsContent({ job }) {
+  const [updatedJob, setUpdatedJob] = useState(job);
+
+  const handleSaveChanges = async () => {
+    try {
+      await updateJobDetails(updatedJob);
+      // Refresh the page or show a success message
+    } catch (error) {
+      console.error("Error updating job details", error);
+      // Show an error message
+    }
+  };
+
   return (
     <Box marginTop={10} paddingBottom={"200px"}>
       <Center>
@@ -19,10 +31,24 @@ function JobDetailsContent({ job }) {
         </Text>
       </Center>
       <Box background={"white"} padding={10}>
-        <TitleInput initialTitle={job.title} jobId={job.id} />
-        <CategorySelect initialCategory={job.category} jobId={job.id} />
-        <LocationAutocomplete initialLocation={job.location} jobId={job.id} />
-        <DescriptionInput initialDescription={job.description} jobId={job.id} />
+        <TitleInput
+          initialTitle={updatedJob.title}
+          setTitle={(title) => setUpdatedJob({ ...updatedJob, title })}
+        />
+        <CategorySelect
+          initialCategory={updatedJob.category}
+          setCategory={(category) => setUpdatedJob({ ...updatedJob, category })}
+        />
+        <LocationAutocomplete
+          initialLocation={updatedJob.location}
+          setLocation={(location) => setUpdatedJob({ ...updatedJob, location })}
+        />
+        <DescriptionInput
+          initialDescription={updatedJob.description}
+          setDescription={(description) =>
+            setUpdatedJob({ ...updatedJob, description })
+          }
+        />
       </Box>
       <Box background={"white"} padding={10} my={5}>
         <BeforeImages job={job} />
@@ -31,13 +57,22 @@ function JobDetailsContent({ job }) {
       <Box background={"white"} padding={10} my={5}>
         <Quotes jobId={job.id} initialQuotes={job.quotes} />
       </Box>
+      <Button
+        colorScheme="blue"
+        size="lg"
+        width="100%"
+        marginBottom={5}
+        onClick={handleSaveChanges}
+      >
+        Save Changes
+      </Button>
     </Box>
   );
 }
 
-export default function JobDetails({jobId}) {
+export default function JobDetails({ jobId }) {
   const [job, setJob] = useState(null);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       if (jobId) {
@@ -45,7 +80,6 @@ export default function JobDetails({jobId}) {
         setJob(jobData);
       }
     };
-
     fetchData();
   }, [jobId]);
 

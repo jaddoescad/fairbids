@@ -12,35 +12,18 @@ const categoryOptions = {
   other: 'Other',
 };
 
-export function CategorySelect({ initialCategory, jobId }) {
-  const [category, setCategory] = useState(initialCategory);
-  const router = useRouter();
-
-  useEffect(() => {
-    const debounceTimer = setTimeout(async () => {
-      try {
-        await updateJobCategory(jobId, category);
-        router.refresh();
-      } catch (error) {
-        console.error("Error updating job category", error);
-      }
-    }, 500);
-
-    return () => {
-      clearTimeout(debounceTimer);
-    };
-  }, [category, jobId, router]);
-
+// CategorySelect.js
+export function CategorySelect({ initialCategory, setCategory }) {
   const handleCategoryChange = (e) => {
     const newCategory = e.target.value;
     setCategory(newCategory);
-  };
+  }
 
   return (
     <Box>
       <TopTitle>Category</TopTitle>
       <Select
-        value={category}
+        value={initialCategory}
         onChange={handleCategoryChange}
         placeholder="Select a category"
         maxW={"500px"}
