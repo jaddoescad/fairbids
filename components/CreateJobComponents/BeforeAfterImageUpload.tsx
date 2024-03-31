@@ -3,7 +3,7 @@ import { TopTitle } from "./FormReusable/TopTitle";
 import { ImageUpload } from "./ImageUpload";
 import { Text, Box } from "@chakra-ui/react";
 
-export const BeforeImages = ({ job, onBeforeImagesChange }) => {
+export const BeforeImages = ({ job, onBeforeImagesChange, setImagesToDelete }) => {
   const beforeImages = job.job_files
     .filter((file) => file.file_type === "before")
     .map((file) => ({
@@ -18,12 +18,13 @@ export const BeforeImages = ({ job, onBeforeImagesChange }) => {
         imageType="before"
         initialImages={beforeImages}
         onImagesChange={onBeforeImagesChange}
+        setImagesToDelete={setImagesToDelete}
       />
     </Box>
   );
 };
 
-export const AfterImages = ({ job, onAfterImagesChange }) => {
+export const AfterImages = ({ job, onAfterImagesChange, setImagesToDelete }) => {
   const afterImages = job.job_files
     .filter((file) => file.file_type === "after")
     .map((file) => ({
@@ -38,6 +39,7 @@ export const AfterImages = ({ job, onAfterImagesChange }) => {
         imageType="after"
         initialImages={afterImages}
         onImagesChange={onAfterImagesChange}
+        setImagesToDelete={setImagesToDelete}
       />
     </Box>
   );

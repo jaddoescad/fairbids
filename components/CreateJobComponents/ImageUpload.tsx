@@ -16,6 +16,7 @@ export const ImageUpload = ({
   imageType,
   initialImages,
   onImagesChange,
+  setImagesToDelete,
 }) => {
   const [images, setImages] = useState(initialImages || []);
 
@@ -30,12 +31,10 @@ export const ImageUpload = ({
   };
 
   const handleDelete = (index) => {
-    setImages((prevImages) => {
-      const updatedImages = prevImages.filter((_, i) => i !== index);
-      URL.revokeObjectURL(prevImages[index].preview);
-      return updatedImages;
-    });
+    const deletedImage = images[index];
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
     onImagesChange((prevImages) => prevImages.filter((_, i) => i !== index));
+    setImagesToDelete((prevImagesToDelete) => [...prevImagesToDelete, deletedImage]);
   };
 
   

@@ -106,19 +106,30 @@ const uploadImage = async (
   return filePath; // Return the file path
 };
 
-export const deleteImage = async (filePath, jobId) => {
+
+export const deleteImages = async (images, jobId) => {
   const supabase = createClient();
-  console.log("Deleting image", filePath);
 
+  const deletePromises = images.map(async (image) => {
+    if (image.filePath) {
+      const { error } = await supabase.storage
+        .from("job_files")
+        .remove([image.filePath]);
 
-  const { error: deleteRecordError } = await supabase
-    .from("job_files")
-    .delete()
-    .eq("file_path", filePath);
+      if (error) {
+        console.error("Error deleting image", error);
+      } else {
+        await supabase
+          .from("job_files")
+          .delete()
+          .eq("file_path", image.filePath);
+      }
+    }
+  });
 
-  if (deleteRecordError) {
-    throw deleteRecordError;
-  }
+  await Promise.all(deletePromises);
 
   revalidatePathServer(jobId);
+
+  return;
 };

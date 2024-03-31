@@ -9,7 +9,7 @@ import { Box, Text, Center, Button } from "@chakra-ui/react";
 import { fetchJobData } from "@/services/fetchJobData";
 import { useEffect, useState } from "react";
 import { updateJobDetails } from "@/services/updateJobDetails";
-import { uploadImages } from "@/services/uploadImage";
+import { deleteImages, uploadImages } from "@/services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
 import { uploadQuotes } from "@/services/uploadQuoteFile";
 
@@ -18,6 +18,7 @@ function JobDetailsContent({ job }) {
   const [beforeImages, setBeforeImages] = useState([]);
   const [afterImages, setAfterImages] = useState([]);
   const [quotes, setQuotes] = useState(job.quotes || []);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
 
   const handleSaveChanges = async () => {
     try {
@@ -37,6 +38,7 @@ function JobDetailsContent({ job }) {
       await Promise.all([
         uploadImages(newBeforeImages, userId, job.id, "before"),
         uploadImages(newAfterImages, userId, job.id, "after"),
+        deleteImages(imagesToDelete, job.id),
       ]);
 
       // Filter out the quotes that already have an id (existing quotes)
@@ -81,8 +83,8 @@ function JobDetailsContent({ job }) {
         />
       </Box>
       <Box background={"white"} padding={10} my={5}>
-        <BeforeImages job={job} onBeforeImagesChange={setBeforeImages} />
-        <AfterImages job={job} onAfterImagesChange={setAfterImages} />
+        <BeforeImages job={job} onBeforeImagesChange={setBeforeImages} setImagesToDelete={setImagesToDelete}/>
+        <AfterImages job={job} onAfterImagesChange={setAfterImages} setImagesToDelete={setImagesToDelete}/>
       </Box>
       <Box background={"white"} padding={10} my={5}>
         <Quotes
