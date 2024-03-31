@@ -12,40 +12,42 @@ import {
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 
-
 export const ImageUpload = ({
-  jobId,
   imageType,
   initialImages,
   onImagesChange,
 }) => {
+  const [images, setImages] = useState(initialImages || []);
+
   const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
     const newImages = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));
+    setImages((prevImages) => [...prevImages, ...newImages]);
     onImagesChange((prevImages) => [...prevImages, ...newImages]);
   };
 
   const handleDelete = (index) => {
-    onImagesChange((prevImages) => {
+    setImages((prevImages) => {
       const updatedImages = prevImages.filter((_, i) => i !== index);
       URL.revokeObjectURL(prevImages[index].preview);
       return updatedImages;
     });
+    onImagesChange((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
+  
   useEffect(() => {
     return () => {
-      initialImages.forEach((image) => {
+      images.forEach((image) => {
         if (image.preview) {
           URL.revokeObjectURL(image.preview);
         }
       });
     };
-  }, [initialImages]);
-
+  }, [images]);
   return (
     <Box>
       <Flex flexWrap="wrap">
@@ -97,7 +99,7 @@ export const ImageUpload = ({
             </Box>
           </Box>
         </AspectRatio>
-        {initialImages.map((image, index) => (
+        {images.map((image, index) => (
           <Box key={image.filePath || image.preview} position="relative">
             <AspectRatio width="64" ratio={1} m="2">
               <Image
