@@ -47,24 +47,14 @@ export function AddQuoteDialog({ jobId, onAdd }) {
     return formattedValue.toFixed(2);
   };
 
-  const handleAddClick = async () => {
-    try {
-      setIsLoading(true);
-      const quoteData = await addQuote(
-        supabase,
-        jobId,
-        quoteTitle,
-        quoteValue,
-        files
-      );
-      onAdd(quoteData);
-      onClose();
-    } catch (error) {
-      console.error("Error adding quote:", error);
-      alert("An error occurred while adding the quote. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleAddClick = () => {
+    const newQuote = {
+      title: quoteTitle,
+      value: quoteValue,
+      quote_files: files,
+    };
+    onAdd(newQuote);
+    onClose();
   };
 
   const handleFileChange = (event) => {

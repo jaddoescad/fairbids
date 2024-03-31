@@ -5,17 +5,21 @@ import { AddQuoteDialog } from "./AddQuoteDialog";
 import { QuotesList } from "./QuotesList";
 import { TopTitle } from "./FormReusable/TopTitle";
 
-export function Quotes({ jobId, initialQuotes }) {
-  const [newQuote, setNewQuote] = useState(null);
+// Quotes.js
+export function Quotes({ jobId, initialQuotes, setQuotes }) {
+  const [quotes, setLocalQuotes] = useState(initialQuotes || []);
 
-const handleQuoteAdd = async (quoteData) => {
-  setNewQuote(quoteData);
-};
+  const handleQuoteAdd = (newQuote) => {
+    const updatedQuotes = [...quotes, newQuote];
+    setLocalQuotes(updatedQuotes);
+    setQuotes(updatedQuotes);
+  };
+
   return (
     <>
       <TopTitle>Quotes</TopTitle>
       <AddQuoteDialog jobId={jobId} onAdd={handleQuoteAdd} />
-      <QuotesList initialQuotes={initialQuotes} onAdd={newQuote} />
+      <QuotesList quotes={quotes} setQuotes={setLocalQuotes} />
     </>
   );
 }

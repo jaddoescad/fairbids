@@ -10,9 +10,8 @@ import {
   Flex,
   IconButton,
 } from "@chakra-ui/react";
-import { deleteImage, uploadImages } from "../../services/uploadImage";
-import { createClient } from "@/utils/supabase/client";
 import { DeleteIcon } from "@chakra-ui/icons";
+
 
 export const ImageUpload = ({
   jobId,
@@ -20,35 +19,33 @@ export const ImageUpload = ({
   initialImages,
   onImagesChange,
 }) => {
-  const [images, setImages] = useState(initialImages || []);
-
   const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
     const newImages = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));
-    setImages((prevImages) => [...prevImages, ...newImages]);
     onImagesChange((prevImages) => [...prevImages, ...newImages]);
   };
 
   const handleDelete = (index) => {
-    setImages((prevImages) => {
+    onImagesChange((prevImages) => {
       const updatedImages = prevImages.filter((_, i) => i !== index);
       URL.revokeObjectURL(prevImages[index].preview);
       return updatedImages;
     });
-    onImagesChange((prevImages) => prevImages.filter((_, i) => i !== index));
   };
+
   useEffect(() => {
     return () => {
-      images.forEach((image) => {
+      initialImages.forEach((image) => {
         if (image.preview) {
           URL.revokeObjectURL(image.preview);
         }
       });
     };
-  }, [images]);
+  }, [initialImages]);
+
   return (
     <Box>
       <Flex flexWrap="wrap">
@@ -100,7 +97,7 @@ export const ImageUpload = ({
             </Box>
           </Box>
         </AspectRatio>
-        {images.map((image, index) => (
+        {initialImages.map((image, index) => (
           <Box key={image.filePath || image.preview} position="relative">
             <AspectRatio width="64" ratio={1} m="2">
               <Image

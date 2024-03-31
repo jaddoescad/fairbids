@@ -15,7 +15,6 @@ export const BeforeImages = ({ job, onBeforeImagesChange }) => {
     <Box>
       <TopTitle>Before Pictures</TopTitle>
       <ImageUpload
-        jobId={job.id}
         imageType="before"
         initialImages={beforeImages}
         onImagesChange={onBeforeImagesChange}
@@ -36,7 +35,6 @@ export const AfterImages = ({ job, onAfterImagesChange }) => {
     <Box>
       <TopTitle>After Pictures</TopTitle>
       <ImageUpload
-        jobId={job.id}
         imageType="after"
         initialImages={afterImages}
         onImagesChange={onAfterImagesChange}

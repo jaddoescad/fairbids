@@ -11,11 +11,13 @@ import { useEffect, useState } from "react";
 import { updateJobDetails } from "@/services/updateJobDetails";
 import { uploadImages } from "@/services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
+import { uploadQuotes } from "@/services/uploadQuoteFile";
 
 function JobDetailsContent({ job }) {
   const [updatedJob, setUpdatedJob] = useState(job);
   const [beforeImages, setBeforeImages] = useState([]);
   const [afterImages, setAfterImages] = useState([]);
+  const [quotes, setQuotes] = useState(job.quotes || []);
 
   const handleSaveChanges = async () => {
     try {
@@ -27,7 +29,7 @@ function JobDetailsContent({ job }) {
         console.error("User not logged in");
         return;
       }
-      
+
       const userId = session.user.id;
       const newBeforeImages = beforeImages.filter((image) => !image.filePath);
       const newAfterImages = afterImages.filter((image) => !image.filePath);
@@ -37,7 +39,13 @@ function JobDetailsContent({ job }) {
         uploadImages(newAfterImages, userId, job.id, "after"),
       ]);
 
+      // Filter out the quotes that already have an id (existing quotes)
+      const localQuotes = quotes.filter((quote) => !quote.id);
+
+      // Upload only the local quotes
+      await uploadQuotes(localQuotes, job.id);
       await updateJobDetails(updatedJob);
+
       // Refresh the page or show a success message
     } catch (error) {
       console.error("Error updating job details", error);
@@ -77,7 +85,11 @@ function JobDetailsContent({ job }) {
         <AfterImages job={job} onAfterImagesChange={setAfterImages} />
       </Box>
       <Box background={"white"} padding={10} my={5}>
-        <Quotes jobId={job.id} initialQuotes={job.quotes} />
+        <Quotes
+          jobId={job.id}
+          initialQuotes={job.quotes}
+          setQuotes={setQuotes}
+        />
       </Box>
       <Button
         colorScheme="blue"
