@@ -54,6 +54,13 @@ export function AddQuoteDialog({ jobId, onAdd }) {
       quote_files: files,
     };
     onAdd(newQuote);
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setQuoteTitle("");
+    setQuoteValue("");
+    setFiles([]);
     onClose();
   };
 
@@ -146,7 +153,7 @@ export function AddQuoteDialog({ jobId, onAdd }) {
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
       >
         <ModalOverlay>
           <ModalContent>
@@ -232,7 +239,7 @@ export function AddQuoteDialog({ jobId, onAdd }) {
               </VStack>
             </ModalBody>
             <ModalFooter>
-              <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={handleClose}>Cancel</Button>
               <Button
                 onClick={() => {
                   handleAddClick();
