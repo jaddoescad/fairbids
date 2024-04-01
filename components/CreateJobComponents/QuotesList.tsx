@@ -1,6 +1,7 @@
 // QuotesList.js
 import { useEffect, useState } from "react";
 import { Box, VStack, HStack, Text, Image, Button } from "@chakra-ui/react";
+import Link from 'next/navigation'
 
 export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
   useEffect(() => {
@@ -26,6 +27,10 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
   };
 
   const isLocalFile = (file) => file instanceof File;
+
+  const getFileName = (filePath) => {
+    return filePath.split("/").pop();
+  };
 
   return (
     <Box py={4}>
@@ -62,6 +67,8 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
                     <Box width="100px" height="100px" mr={4}>
                       {isLocalFile(file) ? (
                         file.type && file.type.startsWith("image/") ? (
+                          <a href={URL.createObjectURL(file)} target="_blank">
+
                           <Image
                             src={URL.createObjectURL(file)}
                             alt={file.name}
@@ -69,7 +76,10 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
                             height="100%"
                             objectFit="cover"
                           />
+                          </a>
                         ) : (
+                          <a href={URL.createObjectURL(file)} target="_blank">
+
                           <Box
                             bg="gray.100"
                             display="flex"
@@ -80,8 +90,11 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
                           >
                             <Text>PDF</Text>
                           </Box>
+                          </a>
                         )
                       ) : (
+                        <a href={file.file_url} target="_blank">
+
                         <Image
                           src={file.file_url}
                           alt={file.file_path}
@@ -89,11 +102,17 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
                           height="100%"
                           objectFit="cover"
                         />
+                         </a>
                       )}
                     </Box>
+                    <a
+                      href={isLocalFile(file) ? URL.createObjectURL(file) : file.file_url}
+                      target="_blank"
+                    >
                     <Text color="blue.500" fontWeight="bold" cursor="pointer">
-                      {isLocalFile(file) ? file.name : file.file_path}
+                      {isLocalFile(file) ? file.name : getFileName(file.file_path)}
                     </Text>
+                    </a>
                   </Box>
                 ))}
             </VStack>
