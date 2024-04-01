@@ -1,130 +1,160 @@
-'use client'
-import { CategorySelect } from "@/components/CreateJobComponents/CategorySelect";
-import { LocationAutocomplete } from "@/components/CreateJobComponents/LocationInput";
-import { TitleInput } from "@/components/CreateJobComponents/TitleInput";
-import { AfterImages, BeforeImages } from "@/components/CreateJobComponents/BeforeAfterImageUpload";
-import { DescriptionInput } from "@/components/CreateJobComponents/Description";
-import { Quotes } from "@/components/CreateJobComponents/Quotes";
+"use server";
+
 import { Box, Text, Center, Button } from "@chakra-ui/react";
 import { fetchJobData } from "@/services/fetchJobData";
-import { useEffect, useState } from "react";
-import { updateJobDetails } from "@/services/updateJobDetails";
-import { deleteImages, uploadImages } from "@/services/uploadImage";
-import { createClient } from "@/utils/supabase/client";
-import { deleteQuotes, uploadQuotes } from "@/services/uploadQuoteFile";
 
-function JobDetailsContent({ job }) {
-  const [updatedJob, setUpdatedJob] = useState(job);
-  const [beforeImages, setBeforeImages] = useState([]);
-  const [afterImages, setAfterImages] = useState([]);
-  const [quotes, setQuotes] = useState(job.quotes || []);
-  const [imagesToDelete, setImagesToDelete] = useState([]);
-  const [quotesToDelete, setQuotesToDelete] = useState([]);
-
-  const handleSaveChanges = async () => {
-    try {
-      const supabase = createClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) {
-        console.error("User not logged in");
-        return;
-      }
-
-      const userId = session.user.id;
-      const newBeforeImages = beforeImages.filter((image) => !image.filePath);
-      const newAfterImages = afterImages.filter((image) => !image.filePath);
-
-      await Promise.all([
-        uploadImages(newBeforeImages, userId, job.id, "before"),
-        uploadImages(newAfterImages, userId, job.id, "after"),
-        deleteImages(imagesToDelete, job.id),
-        deleteQuotes(supabase, quotesToDelete)
-      ]);
-
-      // Filter out the quotes that already have an id (existing quotes)
-      const localQuotes = quotes.filter((quote) => !quote.id);
-
-      // Upload only the local quotes
-      await uploadQuotes(localQuotes, job.id);
-      await updateJobDetails(updatedJob);
-
-      // Refresh the page or show a success message
-    } catch (error) {
-      console.error("Error updating job details", error);
-      // Show an error message
-    }
-  };
+export default async function JobDetailsContent({ jobId }) {
+  const job = await fetchJobData(jobId);
 
   return (
     <Box marginTop={10} paddingBottom={"200px"}>
-      <Center>
-        <Text fontSize="3xl" fontWeight="bold" color="black" marginBottom={5}>
-          Post Your Job
-        </Text>
-      </Center>
       <Box background={"white"} padding={10}>
-        <TitleInput
-          initialTitle={updatedJob.title}
-          setTitle={(title) => setUpdatedJob({ ...updatedJob, title })}
-        />
-        <CategorySelect
-          initialCategory={updatedJob.category}
-          setCategory={(category) => setUpdatedJob({ ...updatedJob, category })}
-        />
-        <LocationAutocomplete
-          initialLocation={updatedJob.location}
-          setLocation={(location) => setUpdatedJob({ ...updatedJob, location })}
-        />
-        <DescriptionInput
-          initialDescription={updatedJob.description}
-          setDescription={(description) =>
-            setUpdatedJob({ ...updatedJob, description })
-          }
-        />
+        <Text as="h1" fontSize="3xl" fontWeight="bold">
+          {job.title}
+        </Text>
+
+        <Text as="h2" fontSize="xl" fontWeight="bold" mt={4}>
+          Category: {job.category}
+        </Text>
+
+        <Text as="h2" fontSize="xl" fontWeight="bold" mt={4}>
+          Location: {job.location}
+        </Text>
+
+        <Text as="p" mt={4}>
+          {job.description}
+        </Text>
+
+        <BeforeAfterImages job={job} />
+
+        <QuotesList quotes={job.quotes || []} />
       </Box>
-      <Box background={"white"} padding={10} my={5}>
-        <BeforeImages job={job} onBeforeImagesChange={setBeforeImages} setImagesToDelete={setImagesToDelete}/>
-        <AfterImages job={job} onAfterImagesChange={setAfterImages} setImagesToDelete={setImagesToDelete}/>
-      </Box>
-      <Box background={"white"} padding={10} my={5}>
-        <Quotes
-          jobId={job.id}
-          initialQuotes={job.quotes}
-          setQuotes={setQuotes}
-          setQuotesToDelete={setQuotesToDelete}
-          />
-      </Box>
-      <Button
-        colorScheme="blue"
-        size="lg"
-        width="100%"
-        marginBottom={5}
-        onClick={handleSaveChanges}
-      >
-        Save Changes
-      </Button>
     </Box>
   );
 }
 
-export default function JobDetails({ jobId }) {
-  const [job, setJob] = useState(null);
+import { Heading, Image, Flex } from "@chakra-ui/react";
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (jobId) {
-        const jobData = await fetchJobData(jobId);
-        setJob(jobData);
-      }
-    };
-    fetchData();
-  }, [jobId]);
+export const BeforeAfterImages = ({ job }) => {
+  const beforeImages = job.job_files
+    .filter((file) => file.file_type === "before")
+    .map((file) => ({ publicUrl: file.file_url }));
 
-  if (!job) {
-    return <div>Loading...</div>;
-  }
+  const afterImages = job.job_files
+    .filter((file) => file.file_type === "after")
+    .map((file) => ({ publicUrl: file.file_url }));
 
-  return <JobDetailsContent job={job} />;
-}
+  return (
+    <Box>
+      <Heading size="md" mb="4">
+        Before Pictures
+      </Heading>
+      <Flex flexWrap="wrap">
+        {beforeImages.map((image, index) => (
+          <Box key={index} width="64" m="2">
+            <Image
+              src={image.publicUrl}
+              alt={`Before picture ${index + 1}`}
+              objectFit="cover"
+            />
+          </Box>
+        ))}
+      </Flex>
+
+      <Heading size="md" mb="4" mt="8">
+        After Pictures
+      </Heading>
+      <Flex flexWrap="wrap">
+        {afterImages.map((image, index) => (
+          <Box key={index} width="64" m="2">
+            <Image
+              src={image.publicUrl}
+              alt={`After picture ${index + 1}`}
+              objectFit="cover"
+            />
+          </Box>
+        ))}
+      </Flex>
+    </Box>
+  );
+};
+
+// QuotesList.js
+import { VStack, HStack } from "@chakra-ui/react";
+
+export const QuotesList = ({ quotes }) => {
+  const getFileName = (filePath) => {
+    return filePath.split("/").pop();
+  };
+
+  const isPdfFile = (file) => {
+    const fileName = getFileName(file.file_path);
+    return fileName.toLowerCase().endsWith(".pdf");
+  };
+
+  return (
+    <Box py={4}>
+      <VStack spacing={4} align="stretch">
+        {quotes.map((quote, index) => (
+          <Box
+            key={index}
+            borderWidth={1}
+            borderRadius="lg"
+            p={4}
+            boxShadow="md"
+            bg="white"
+          >
+            <VStack align="stretch" spacing={2}>
+              <Text fontSize="xl" fontWeight="bold">
+                {quote.title}
+              </Text>
+              <HStack>
+                <Text fontWeight="medium">Value:</Text>
+                <Text>${quote.value}</Text>
+              </HStack>
+              <HStack>
+                <Text fontWeight="medium">Attachments:</Text>
+              </HStack>
+              {quote.quote_files &&
+                quote.quote_files.map((file, index) => (
+                  <Box key={index} display="flex" alignItems="center" mb={2}>
+                    <Box width="100px" height="100px" mr={4}>
+                      {isPdfFile(file) ? (
+                        <a href={file.file_url} target="_blank">
+                          <Box
+                            bg="gray.100"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            width="100%"
+                            height="100%"
+                          >
+                            <Text>PDF</Text>
+                          </Box>
+                        </a>
+                      ) : (
+                        <a href={file.file_url} target="_blank">
+                          <Image
+                            src={file.file_url}
+                            alt={file.file_path}
+                            width="100%"
+                            height="100%"
+                            objectFit="cover"
+                          />
+                        </a>
+                      )}
+                    </Box>
+                    <a href={file.file_url} target="_blank">
+                      <Text color="blue.500" fontWeight="bold" cursor="pointer">
+                        {getFileName(file.file_path)}
+                      </Text>
+                    </a>
+                  </Box>
+                ))}
+            </VStack>
+          </Box>
+        ))}
+      </VStack>
+    </Box>
+  );
+};

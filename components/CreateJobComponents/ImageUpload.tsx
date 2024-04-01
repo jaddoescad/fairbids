@@ -19,6 +19,7 @@ export const ImageUpload = ({
   setImagesToDelete,
 }) => {
   const [images, setImages] = useState(initialImages || []);
+  const [markedForDelete, setMarkedForDelete] = useState([]);
 
   const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
@@ -31,12 +32,26 @@ export const ImageUpload = ({
   };
 
   const handleDelete = (index) => {
-    const deletedImage = images[index];
-    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
-    onImagesChange((prevImages) => prevImages.filter((_, i) => i !== index));
-    setImagesToDelete((prevImagesToDelete) => [...prevImagesToDelete, deletedImage]);
+    const image = images[index];
+  
+    if (image.preview) {
+      // If the image has a preview URL, it means it's a local image
+      setImages((prevImages) => prevImages.filter((img) => img !== image));
+      onImagesChange((prevImages) => prevImages.filter((img) => img !== image));
+    } else {
+      // If the image doesn't have a preview URL, it means it's an uploaded image
+      const isMarked = markedForDelete.includes(image);
+      if (isMarked) {
+        setMarkedForDelete((prevMarked) => prevMarked.filter((img) => img !== image));
+        setImagesToDelete((prevImagesToDelete) =>
+          prevImagesToDelete.filter((img) => img !== image)
+        );
+      } else {
+        setMarkedForDelete((prevMarked) => [...prevMarked, image]);
+        setImagesToDelete((prevImagesToDelete) => [...prevImagesToDelete, image]);
+      }
+    }
   };
-
   
   useEffect(() => {
     return () => {
@@ -105,11 +120,12 @@ export const ImageUpload = ({
                 src={image.publicUrl || image.preview}
                 alt={`${imageType} picture`}
                 objectFit="cover"
+                opacity={markedForDelete.includes(image) ? 0.5 : 1}
               />
             </AspectRatio>
             <IconButton
               icon={<DeleteIcon />}
-              colorScheme="red"
+              colorScheme={markedForDelete.includes(image) ? "gray" : "red"}
               aria-label="Delete image"
               size="sm"
               position="absolute"

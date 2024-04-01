@@ -24,7 +24,7 @@ export async function updateJobCategory(jobId, newCategory) {
         throw error;
       }
 
-    revalidatePath('/job/' + jobId);
+    revalidatePath('/edit-job/' + jobId);
 
     
     

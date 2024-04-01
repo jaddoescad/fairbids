@@ -17,5 +17,5 @@ export async function updateJobDescription(jobId, newDescription) {
       throw error;
     }
   
-    revalidatePath('/job/' + jobId);
+    revalidatePath('/edit-job/' + jobId);
   }

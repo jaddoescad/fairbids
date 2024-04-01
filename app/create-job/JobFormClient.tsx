@@ -147,7 +147,7 @@ export default function JobForm() {
       userId
     );
     if (savedJob) {
-      router.push(`/job/${savedJob.id}`);
+      router.push(`/edit-job/${savedJob.id}`);
     }
   };
 

@@ -18,5 +18,5 @@ export async function updateJobLocation(jobId, newLocation) {
     throw error;
   }
 
-  revalidatePath("/job/" + jobId);
+  revalidatePath("/edit-job/" + jobId);
 }

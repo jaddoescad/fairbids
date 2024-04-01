@@ -22,5 +22,5 @@ export async function updateJobDetails(updatedJob) {
     throw error;
   }
 
-  revalidatePath("/job/" + updatedJob.id);
+  revalidatePath("/edit-job/" + updatedJob.id);
 }
