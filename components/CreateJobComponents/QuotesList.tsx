@@ -8,22 +8,30 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
     console.log("QuotesList quotes", quotes);
   }, [quotes]);
 
-  const handleToggleDelete = (quoteId) => {
-    setQuotes((prevQuotes) =>
-      prevQuotes.map((quote) =>
-        quote.id === quoteId
-          ? { ...quote, markedForDelete: !quote.markedForDelete }
-          : quote
-      )
-    );
+  const handleToggleDelete = (quoteId, index) => {
+    if (quoteId) {
+      // For existing quotes with an ID
+      setQuotes((prevQuotes) =>
+        prevQuotes.map((quote) =>
+          quote.id === quoteId
+            ? { ...quote, markedForDelete: !quote.markedForDelete }
+            : quote
+        )
+      );
 
-    setQuotesToDelete((prevQuotesToDelete) => {
-      if (prevQuotesToDelete.includes(quoteId)) {
-        return prevQuotesToDelete.filter((id) => id !== quoteId);
-      } else {
-        return [...prevQuotesToDelete, quoteId];
-      }
-    });
+      setQuotesToDelete((prevQuotesToDelete) => {
+        if (prevQuotesToDelete.includes(quoteId)) {
+          return prevQuotesToDelete.filter((id) => id !== quoteId);
+        } else {
+          return [...prevQuotesToDelete, quoteId];
+        }
+      });
+    } else {
+      // For local quotes without an ID
+      setQuotes((prevQuotes) =>
+        prevQuotes.filter((_, i) => i !== index)
+      );
+    }
   };
 
   const isLocalFile = (file) => file instanceof File;
@@ -35,7 +43,7 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
   return (
     <Box py={4}>
       <VStack spacing={4} align="stretch">
-        {quotes.map((quote) => (
+        {quotes.map((quote, index) => (
           <Box
             key={quote.id}
             borderWidth={1}
@@ -116,13 +124,21 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
                   </Box>
                 ))}
             </VStack>
-            {quote.id && (
+            {quote.id ? (
               <Button
                 colorScheme={quote.markedForDelete ? "green" : "red"}
                 size="sm"
                 onClick={() => handleToggleDelete(quote.id)}
               >
                 {quote.markedForDelete ? "Unmark for Delete" : "Mark for Delete"}
+              </Button>
+            ) : (
+              <Button
+                colorScheme="red"
+                size="sm"
+                onClick={() => handleToggleDelete(null, index)}
+              >
+                Remove
               </Button>
             )}
           </Box>
