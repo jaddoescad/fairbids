@@ -1,7 +1,8 @@
 "use server";
 
-import { Box, Text, Center, Button } from "@chakra-ui/react";
+import { Box, Text, Center, Button, Heading, Image, Flex } from "@chakra-ui/react";
 import { fetchJobData } from "@/services/fetchJobData";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 export default async function JobDetailsContent({ jobId }) {
   const job = await fetchJobData(jobId);
@@ -13,15 +14,29 @@ export default async function JobDetailsContent({ jobId }) {
           {job.title}
         </Text>
 
-        <Text as="h2" fontSize="xl" fontWeight="bold" mt={4}>
-          Category: {job.category}
-        </Text>
-
-        <Text as="h2" fontSize="xl" fontWeight="bold" mt={4}>
-          Location: {job.location}
-        </Text>
-
-        <Text as="p" mt={4}>
+        <Flex>
+          <Box
+            as="span"
+            display="flex"
+            alignItems="center"
+            color="gray.500"
+            mr={2}
+            fontSize={"larger"}
+          >
+          <FaMapMarkerAlt />
+          </Box>
+          <Text as="h2" fontSize="large" fontWeight="medium">
+            {job.location}
+          </Text>
+        </Flex>
+        <Text
+          fontSize="large"
+          fontWeight="medium"
+          color="gray.500"
+          mt={5}
+          mb={10}
+          maxWidth="1000px"
+        >
           {job.description}
         </Text>
 
@@ -33,54 +48,11 @@ export default async function JobDetailsContent({ jobId }) {
   );
 }
 
-import { Heading, Image, Flex } from "@chakra-ui/react";
 
-export const BeforeAfterImages = ({ job }) => {
-  const beforeImages = job.job_files
-    .filter((file) => file.file_type === "before")
-    .map((file) => ({ publicUrl: file.file_url }));
-
-  const afterImages = job.job_files
-    .filter((file) => file.file_type === "after")
-    .map((file) => ({ publicUrl: file.file_url }));
-
-  return (
-    <Box>
-      <Heading size="md" mb="4">
-        Before Pictures
-      </Heading>
-      <Flex flexWrap="wrap">
-        {beforeImages.map((image, index) => (
-          <Box key={index} width="64" m="2">
-            <Image
-              src={image.publicUrl}
-              alt={`Before picture ${index + 1}`}
-              objectFit="cover"
-            />
-          </Box>
-        ))}
-      </Flex>
-
-      <Heading size="md" mb="4" mt="8">
-        After Pictures
-      </Heading>
-      <Flex flexWrap="wrap">
-        {afterImages.map((image, index) => (
-          <Box key={index} width="64" m="2">
-            <Image
-              src={image.publicUrl}
-              alt={`After picture ${index + 1}`}
-              objectFit="cover"
-            />
-          </Box>
-        ))}
-      </Flex>
-    </Box>
-  );
-};
 
 // QuotesList.js
 import { VStack, HStack } from "@chakra-ui/react";
+import { BeforeAfterImages } from "./BeforeAfterImages";
 
 export const QuotesList = ({ quotes }) => {
   const getFileName = (filePath) => {
@@ -94,6 +66,9 @@ export const QuotesList = ({ quotes }) => {
 
   return (
     <Box py={4}>
+            <Heading size="md" mb="4">
+       Quotes
+      </Heading>
       <VStack spacing={4} align="stretch">
         {quotes.map((quote, index) => (
           <Box
