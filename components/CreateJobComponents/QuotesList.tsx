@@ -3,18 +3,26 @@ import { useEffect, useState } from "react";
 import { Box, VStack, HStack, Text, Image, Button } from "@chakra-ui/react";
 
 export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
-
   useEffect(() => {
     console.log("QuotesList quotes", quotes);
   }, [quotes]);
 
-  const handleMarkForDelete = (quoteId) => {
-    setQuotesToDelete((prevQuotesToDelete) => [...prevQuotesToDelete, quoteId]);
+  const handleToggleDelete = (quoteId) => {
     setQuotes((prevQuotes) =>
       prevQuotes.map((quote) =>
-        quote.id === quoteId ? { ...quote, markedForDelete: true } : quote
+        quote.id === quoteId
+          ? { ...quote, markedForDelete: !quote.markedForDelete }
+          : quote
       )
     );
+
+    setQuotesToDelete((prevQuotesToDelete) => {
+      if (prevQuotesToDelete.includes(quoteId)) {
+        return prevQuotesToDelete.filter((id) => id !== quoteId);
+      } else {
+        return [...prevQuotesToDelete, quoteId];
+      }
+    });
   };
 
   const isLocalFile = (file) => file instanceof File;
@@ -44,7 +52,13 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
               </HStack>
               {quote.quote_files &&
                 quote.quote_files.map((file, index) => (
-                  <Box key={index} display="flex" alignItems="center" mb={2}>
+                  <Box
+                    key={index}
+                    display="flex"
+                    alignItems="center"
+                    mb={2}
+                    opacity={quote.markedForDelete ? 0.5 : 1}
+                  >
                     <Box width="100px" height="100px" mr={4}>
                       {isLocalFile(file) ? (
                         file.type && file.type.startsWith("image/") ? (
@@ -85,12 +99,11 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
             </VStack>
             {quote.id && (
               <Button
-                colorScheme="red"
+                colorScheme={quote.markedForDelete ? "green" : "red"}
                 size="sm"
-                onClick={() => handleMarkForDelete(quote.id)}
-                isDisabled={quote.markedForDelete}
+                onClick={() => handleToggleDelete(quote.id)}
               >
-                {quote.markedForDelete ? "Marked for Delete" : "Mark for Delete"}
+                {quote.markedForDelete ? "Unmark for Delete" : "Mark for Delete"}
               </Button>
             )}
           </Box>
