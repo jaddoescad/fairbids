@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { updateJobDetails } from "@/services/updateJobDetails";
 import { deleteImages, uploadImages } from "@/services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
-import { uploadQuotes } from "@/services/uploadQuoteFile";
+import { deleteQuotes, uploadQuotes } from "@/services/uploadQuoteFile";
 
 function JobDetailsContent({ job }) {
   const [updatedJob, setUpdatedJob] = useState(job);
@@ -19,6 +19,7 @@ function JobDetailsContent({ job }) {
   const [afterImages, setAfterImages] = useState([]);
   const [quotes, setQuotes] = useState(job.quotes || []);
   const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [quotesToDelete, setQuotesToDelete] = useState([]);
 
   const handleSaveChanges = async () => {
     try {
@@ -39,6 +40,7 @@ function JobDetailsContent({ job }) {
         uploadImages(newBeforeImages, userId, job.id, "before"),
         uploadImages(newAfterImages, userId, job.id, "after"),
         deleteImages(imagesToDelete, job.id),
+        deleteQuotes(supabase, quotesToDelete)
       ]);
 
       // Filter out the quotes that already have an id (existing quotes)
@@ -91,7 +93,8 @@ function JobDetailsContent({ job }) {
           jobId={job.id}
           initialQuotes={job.quotes}
           setQuotes={setQuotes}
-        />
+          setQuotesToDelete={setQuotesToDelete}
+          />
       </Box>
       <Button
         colorScheme="blue"

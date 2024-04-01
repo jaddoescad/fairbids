@@ -1,38 +1,20 @@
 // QuotesList.js
 import { useEffect, useState } from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Badge,
-  Image,
-  Button,
-} from "@chakra-ui/react";
-import { deleteQuote } from "@/services/uploadQuoteFile";
-import { createClient } from "@/utils/supabase/client";
+import { Box, VStack, HStack, Text, Image, Button } from "@chakra-ui/react";
 
-export function QuotesList({ quotes, setQuotes }) {
-  const supabase = createClient();
-  const [deletingQuoteId, setDeletingQuoteId] = useState(null);
+export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
 
   useEffect(() => {
     console.log("QuotesList quotes", quotes);
   }, [quotes]);
 
-  const handleDeleteQuote = async (quoteId) => {
-    try {
-      setDeletingQuoteId(quoteId);
-      await deleteQuote(supabase, quoteId);
-      setQuotes((prevQuotes) =>
-        prevQuotes.filter((quote) => quote.id !== quoteId)
-      );
-    } catch (error) {
-      console.error("Error deleting quote:", error);
-      alert("An error occurred while deleting the quote. Please try again.");
-    } finally {
-      setDeletingQuoteId(null);
-    }
+  const handleMarkForDelete = (quoteId) => {
+    setQuotesToDelete((prevQuotesToDelete) => [...prevQuotesToDelete, quoteId]);
+    setQuotes((prevQuotes) =>
+      prevQuotes.map((quote) =>
+        quote.id === quoteId ? { ...quote, markedForDelete: true } : quote
+      )
+    );
   };
 
   const isLocalFile = (file) => file instanceof File;
@@ -105,10 +87,10 @@ export function QuotesList({ quotes, setQuotes }) {
               <Button
                 colorScheme="red"
                 size="sm"
-                onClick={() => handleDeleteQuote(quote.id)}
-                isLoading={deletingQuoteId === quote.id}
+                onClick={() => handleMarkForDelete(quote.id)}
+                isDisabled={quote.markedForDelete}
               >
-                Delete
+                {quote.markedForDelete ? "Marked for Delete" : "Mark for Delete"}
               </Button>
             )}
           </Box>

@@ -44,24 +44,24 @@ const uploadQuoteFiles = async (supabase, files, jobId, quoteId) => {
 };
 
 
-export const deleteQuote = async (supabase, quoteId) => {
+export const deleteQuotes = async (supabase, quoteIds) => {
   try {
-    const { data: deletedQuote, error: deleteError } = await supabase
+    const { data: deletedQuotes, error: deleteError } = await supabase
       .from("quotes")
       .delete()
-      .eq("id", quoteId)
-      .single();
+      .in("id", quoteIds);
 
     if (deleteError) {
       throw deleteError;
     }
 
-    return deletedQuote;
+    return deletedQuotes;
   } catch (error) {
-    console.error("Error deleting quote:", error);
+    console.error("Error deleting quotes:", error);
     throw error;
   }
 };
+
 
 export const uploadQuotes = async (quotes, jobId) => {
   const supabase = createClient();

@@ -6,7 +6,7 @@ import { QuotesList } from "./QuotesList";
 import { TopTitle } from "./FormReusable/TopTitle";
 
 // Quotes.js
-export function Quotes({ jobId, initialQuotes, setQuotes }) {
+export function Quotes({ jobId, initialQuotes, setQuotes, setQuotesToDelete }) {
   const [quotes, setLocalQuotes] = useState(initialQuotes || []);
 
   const handleQuoteAdd = (newQuote) => {
@@ -19,7 +19,7 @@ export function Quotes({ jobId, initialQuotes, setQuotes }) {
     <>
       <TopTitle>Quotes</TopTitle>
       <AddQuoteDialog jobId={jobId} onAdd={handleQuoteAdd} />
-      <QuotesList quotes={quotes} setQuotes={setLocalQuotes} />
+      <QuotesList quotes={quotes} setQuotes={setLocalQuotes} setQuotesToDelete={setQuotesToDelete}/>
     </>
   );
 }
