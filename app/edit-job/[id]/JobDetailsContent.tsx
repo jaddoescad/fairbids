@@ -35,6 +35,7 @@ function JobDetailsContent({ job }) {
 
   const handleSaveChanges = async () => {
     try {
+
       if (updatedJob?.title && !updatedJob?.title.trim()) {
         setTitleError("Title is required.");
         setIsSaving(false); // Ensure to reset saving state
@@ -74,6 +75,7 @@ function JobDetailsContent({ job }) {
         return;
       }
 
+
       if (updatedJob.description == null || !updatedJob?.description.trim()) {
         setDescriptionError("Description is required.");
         setIsSaving(false);
@@ -87,19 +89,6 @@ function JobDetailsContent({ job }) {
         return;
       }
 
-      //check if there is at least one before or one after image
-      if (beforeImages.length === 0 || afterImages.length === 0) {
-        setImageError("At least one before or one after image is required.");
-        setIsSaving(false);
-        toast({
-          title: "Error",
-          description: "At least one before or one after image is required.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-        return;
-      }
 
       if (quotes.length === 0) {
         setQuoteError("At least one quote is required.");
@@ -114,6 +103,38 @@ function JobDetailsContent({ job }) {
         return;
       }
 
+
+
+          //check if there is at least one before or one after image (including existing images)
+    if (beforeImages.length === 0 && job?.job_files.length === 0) {
+      setImageError("At least one before image is required.");
+      setIsSaving(false);
+      toast({
+        title: "Error",
+        description: "At least one before image is required.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+
+
+    if (afterImages.length === 0 && job.job_files.length === 0) {
+      setImageError("At least one after image is required.");
+      setIsSaving(false);
+      toast({
+        title: "Error",
+        description: "At least one after image is required.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+
       setIsSaving(true);
       setTitleError("");
       setCategoryError("");
@@ -121,6 +142,7 @@ function JobDetailsContent({ job }) {
       setLocationError("");
       setImageError("");
       setQuoteError("");
+
       const supabase = createClient();
       const {
         data: { session },
@@ -129,6 +151,7 @@ function JobDetailsContent({ job }) {
         console.error("User not logged in");
         return;
       }
+
 
       const userId = session.user.id;
       const newBeforeImages = beforeImages.filter((image) => !image.filePath);
@@ -154,6 +177,13 @@ function JobDetailsContent({ job }) {
       // Refresh the page or show a success message
     } catch (error) {
       console.error("Error updating job details", error);
+      toast({
+        title: "Error",
+        description: error.toString(),
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
       // Show an error message
     } finally {
       setIsSaving(false);

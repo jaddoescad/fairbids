@@ -80,7 +80,7 @@ export const QuotesList = ({ quotes }) => {
 
   return (
     <Box py={4}>
-            <Heading size="md" mb="4">
+      <Heading size="md" mb="4">
        Quotes
       </Heading>
       <VStack spacing={4} align="stretch">

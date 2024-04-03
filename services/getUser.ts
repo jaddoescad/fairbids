@@ -18,3 +18,18 @@ export async function getUserDisplayName() {
 
   return null;
 }
+
+export async function getUserId() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    return user.id;
+  }
+
+  return null;
+}

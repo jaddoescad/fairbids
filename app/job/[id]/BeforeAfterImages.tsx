@@ -110,14 +110,24 @@ export const BeforeAfterImages = ({ job }) => {
         </GridItem>
       ))}
     </Grid>
-    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
+    <Modal isOpen={isOpen} onClose={onClose}>
   <ModalOverlay />
-  <ModalContent maxHeight="90vh" maxWidth="90vw" display="flex" flexDirection="column">
+  <ModalContent maxHeight="90vh" maxWidth="90vw">
     <ModalHeader>
       <ModalCloseButton />
     </ModalHeader>
-    <ModalBody flex="1" overflowY="auto" p="4">
-      <ImageGallery items={selectedImages} />
+    <ModalBody p="0">
+      <ImageGallery
+        items={selectedImages}
+        thumbnailPosition="bottom"
+        showPlayButton={false}
+        showFullscreenButton={false}
+        renderItem={({ original }) => (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+            <img src={original} alt="Gallery Image" style={{ height:"100%" ,width: '100%', objectFit: 'contain' }} />
+          </div>
+        )}
+      />
     </ModalBody>
   </ModalContent>
 </Modal>
