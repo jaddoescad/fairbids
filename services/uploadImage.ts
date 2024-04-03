@@ -35,8 +35,7 @@ export const uploadImages = async (files, userId, jobId, imageType) => {
       return null;
     }
     
-    console.log("public url", fileData.publicUrl);
-    console.log("file path", filePath);
+
 
     return { publicUrl: fileData.publicUrl, filePath };
   });

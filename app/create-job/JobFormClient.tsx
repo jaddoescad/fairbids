@@ -54,15 +54,12 @@ const LocationAutocomplete = ({ isLoaded, error, locationValue, setLocationValue
   const [autocomplete, setAutocomplete] = useState(null);
 
   const onLoad = (autocompleteInstance) => {
-    console.log("Autocomplete loaded:", autocompleteInstance);
     setAutocomplete(autocompleteInstance);
   };
 
   const onPlaceChanged = () => {
-    console.log("Place changed");
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
-      console.log("Place:", place);
       setLocationValue(place.formatted_address);
     } else {
       console.error("Autocomplete is not loaded yet!");

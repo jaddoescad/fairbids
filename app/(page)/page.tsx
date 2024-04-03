@@ -1,5 +1,5 @@
-import DeployButton from '../components/DeployButton'
-import AuthButton from '../components/AuthButton'
+import DeployButton from '../../components/DeployButton'
+import AuthButton from '../../components/AuthButton'
 import { createClient } from '@/utils/supabase/server'
 import ConnectSupabaseSteps from '@/components/ConnectSupabaseSteps'
 import Header from '@/components/Header'
@@ -56,3 +56,6 @@ export default async function Index() {
     </div>
   );
 }
+
+
+

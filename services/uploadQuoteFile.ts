@@ -3,7 +3,6 @@ import { revalidateEditJobPathServer } from "./revalidatePath";
 
 const uploadQuoteFile = async (supabase, file, jobId, quoteId) => {
   try {
-    console.log("quoteId:", quoteId);
     const fileExt = file.name.split('.').pop();
     const filePath = `${jobId}/quotes/${quoteId}/files/${Date.now()}.${fileExt}`;
     const { error: uploadError, data } = await supabase.storage

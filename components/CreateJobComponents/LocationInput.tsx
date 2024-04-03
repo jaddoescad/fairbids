@@ -20,7 +20,6 @@ export function LocationAutocomplete({ initialLocation, setLocation, errorMessag
   });
 
   const onLoad = (autocompleteInstance) => {
-    console.log("Autocomplete loaded:", autocompleteInstance);
     setAutocomplete(autocompleteInstance);
   };
 

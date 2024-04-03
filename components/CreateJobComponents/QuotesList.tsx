@@ -4,9 +4,6 @@ import { Box, VStack, HStack, Text, Image, Button } from "@chakra-ui/react";
 import Link from 'next/navigation'
 
 export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
-  useEffect(() => {
-    console.log("QuotesList quotes", quotes);
-  }, [quotes]);
 
   const handleToggleDelete = (quoteId, index) => {
     if (quoteId) {
@@ -48,7 +45,7 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
       return fileName.toLowerCase().endsWith(".pdf");
     }
   };
-  
+
   return (
     <Box py={4}>
       <VStack spacing={4} align="stretch">

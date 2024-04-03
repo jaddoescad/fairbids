@@ -1,5 +1,4 @@
-// userService.ts
-
+'use server'
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from 'next/headers'
 
@@ -10,7 +9,6 @@ export async function getUserDisplayName() {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  console.log(user);
 
   if (user) {
     return user.user_metadata.full_name;
