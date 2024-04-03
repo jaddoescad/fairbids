@@ -24,7 +24,7 @@ export const BeforeImages = ({ job, onBeforeImagesChange, setImagesToDelete }) =
   );
 };
 
-export const AfterImages = ({ job, onAfterImagesChange, setImagesToDelete }) => {
+export const AfterImages = ({ job, onAfterImagesChange, setImagesToDelete, errorMessage }) => {
   const afterImages = job.job_files
     .filter((file) => file.file_type === "after")
     .map((file) => ({
@@ -41,6 +41,7 @@ export const AfterImages = ({ job, onAfterImagesChange, setImagesToDelete }) => 
         onImagesChange={onAfterImagesChange}
         setImagesToDelete={setImagesToDelete}
       />
+      {errorMessage && <Text color="red.500">{errorMessage}</Text>}
     </Box>
   );
 };

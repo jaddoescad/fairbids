@@ -11,7 +11,7 @@ export default async function QuoteButton() {
 
   return (
     <Link 
-      href={user ? '/create-job' : '/login'} 
+      href={user ? '/create-job' : '/signup'} 
       className="py-2 px-3 flex rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
     >
       Post  

@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Input, Box } from "@chakra-ui/react";
-import { updateJobTitle } from "../../services/updateTitle";
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { Input, Box, Text } from "@chakra-ui/react";
 import { TopTitle } from "./FormReusable/TopTitle";
 
-export function TitleInput({ initialTitle, setTitle }) {
+export function TitleInput({ initialTitle, setTitle, errorMessage }) {
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
@@ -23,6 +21,8 @@ export function TitleInput({ initialTitle, setTitle }) {
         maxW={"500px"}
         p={5}
       />
+      {errorMessage && <Text color="red.500">{errorMessage}</Text>}{" "}
+      {/* Display error message */}
     </Box>
   );
 }

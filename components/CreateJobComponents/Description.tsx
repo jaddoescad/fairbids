@@ -1,9 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Box, Textarea } from "@chakra-ui/react";
+import { Box, Textarea, Text } from "@chakra-ui/react";
 import { TopTitle } from "./FormReusable/TopTitle";
 
-export function DescriptionInput({ initialDescription, setDescription }) {
+export function DescriptionInput({ initialDescription, setDescription, errorMessage }) {
   const router = useRouter();
 
   const handleDescriptionChange = (event) => {
@@ -25,6 +25,7 @@ export function DescriptionInput({ initialDescription, setDescription }) {
         resize={"none"}
         p={5}
       />
+      {errorMessage && <Text color="red.500">{errorMessage}</Text>}
     </Box>
   );
 }

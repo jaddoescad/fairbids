@@ -12,6 +12,9 @@ import { updateJobDetails } from "@/services/updateJobDetails";
 import { deleteImages, uploadImages } from "@/services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
 import { deleteQuotes, uploadQuotes } from "@/services/uploadQuoteFile";
+import { useRouter } from "next/navigation";
+import { useToast } from "@chakra-ui/react";
+import { revalidateJobPathServer } from "@/services/revalidatePath";
 
 function JobDetailsContent({ job }) {
   const [updatedJob, setUpdatedJob] = useState(job);
@@ -20,9 +23,104 @@ function JobDetailsContent({ job }) {
   const [quotes, setQuotes] = useState(job.quotes || []);
   const [imagesToDelete, setImagesToDelete] = useState([]);
   const [quotesToDelete, setQuotesToDelete] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [titleError, setTitleError] = useState("");
+  const [categoryError, setCategoryError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+  const [locationError, setLocationError] = useState("");
+  const [quoteError, setQuoteError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const toast = useToast();
+  const router = useRouter();
 
   const handleSaveChanges = async () => {
     try {
+      if (updatedJob?.title && !updatedJob?.title.trim()) {
+        setTitleError("Title is required.");
+        setIsSaving(false); // Ensure to reset saving state
+        toast({
+          title: "Error",
+          description: "Title is required.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      if (!updatedJob?.location) {
+        setLocationError("Location is required.");
+        setIsSaving(false);
+        toast({
+          title: "Error",
+          description: "Location is required.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      if (!updatedJob?.category) {
+        setCategoryError("Category is required.");
+        setIsSaving(false);
+        toast({
+          title: "Error",
+          description: "Category is required.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      if (updatedJob.description == null || !updatedJob?.description.trim()) {
+        setDescriptionError("Description is required.");
+        setIsSaving(false);
+        toast({
+          title: "Error",
+          description: "Description is required.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      //check if there is at least one before or one after image
+      if (beforeImages.length === 0 || afterImages.length === 0) {
+        setImageError("At least one before or one after image is required.");
+        setIsSaving(false);
+        toast({
+          title: "Error",
+          description: "At least one before or one after image is required.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      if (quotes.length === 0) {
+        setQuoteError("At least one quote is required.");
+        setIsSaving(false);
+        toast({
+          title: "Error",
+          description: "At least one quote is required.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      setIsSaving(true);
+      setTitleError("");
+      setCategoryError("");
+      setDescriptionError("");
+      setLocationError("");
+      setImageError("");
+      setQuoteError("");
       const supabase = createClient();
       const {
         data: { session },
@@ -40,7 +138,7 @@ function JobDetailsContent({ job }) {
         uploadImages(newBeforeImages, userId, job.id, "before"),
         uploadImages(newAfterImages, userId, job.id, "after"),
         deleteImages(imagesToDelete, job.id),
-        deleteQuotes(supabase, quotesToDelete)
+        deleteQuotes(supabase, quotesToDelete),
       ]);
 
       // Filter out the quotes that already have an id (existing quotes)
@@ -50,12 +148,19 @@ function JobDetailsContent({ job }) {
       await uploadQuotes(localQuotes, job.id);
       await updateJobDetails(updatedJob);
 
+      await revalidateJobPathServer(job.id);
+      router.push(`/job/${job.id}`);
+
       // Refresh the page or show a success message
     } catch (error) {
       console.error("Error updating job details", error);
       // Show an error message
+    } finally {
+      setIsSaving(false);
     }
   };
+
+
 
   return (
     <Box marginTop={10} paddingBottom={"200px"}>
@@ -68,25 +173,38 @@ function JobDetailsContent({ job }) {
         <TitleInput
           initialTitle={updatedJob.title}
           setTitle={(title) => setUpdatedJob({ ...updatedJob, title })}
+          errorMessage={titleError}
         />
         <CategorySelect
           initialCategory={updatedJob.category}
           setCategory={(category) => setUpdatedJob({ ...updatedJob, category })}
+          errorMessage={categoryError}
         />
         <LocationAutocomplete
           initialLocation={updatedJob.location}
           setLocation={(location) => setUpdatedJob({ ...updatedJob, location })}
+          errorMessage={locationError}
         />
         <DescriptionInput
           initialDescription={updatedJob.description}
           setDescription={(description) =>
             setUpdatedJob({ ...updatedJob, description })
           }
+          errorMessage={descriptionError}
         />
       </Box>
       <Box background={"white"} padding={10} my={5}>
-        <BeforeImages job={job} onBeforeImagesChange={setBeforeImages} setImagesToDelete={setImagesToDelete}/>
-        <AfterImages job={job} onAfterImagesChange={setAfterImages} setImagesToDelete={setImagesToDelete}/>
+        <BeforeImages
+          job={job}
+          onBeforeImagesChange={setBeforeImages}
+          setImagesToDelete={setImagesToDelete}
+        />
+        <AfterImages
+          job={job}
+          onAfterImagesChange={setAfterImages}
+          setImagesToDelete={setImagesToDelete}
+          errorMessage={imageError}
+        />
       </Box>
       <Box background={"white"} padding={10} my={5}>
         <Quotes
@@ -94,13 +212,15 @@ function JobDetailsContent({ job }) {
           initialQuotes={job.quotes}
           setQuotes={setQuotes}
           setQuotesToDelete={setQuotesToDelete}
-          />
+          errorMessage={quoteError}
+        />
       </Box>
       <Button
         colorScheme="blue"
         size="lg"
         width="100%"
         marginBottom={5}
+        isLoading={isSaving}
         onClick={handleSaveChanges}
       >
         Save Changes

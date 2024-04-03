@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
-import { revalidatePathServer } from "./revalidatePath";
+import { revalidateEditJobPathServer } from "./revalidatePath";
 
 const uploadQuoteFile = async (supabase, file, jobId, quoteId) => {
   try {
@@ -27,7 +27,7 @@ const uploadQuoteFile = async (supabase, file, jobId, quoteId) => {
     if (publicUrlError) {
       throw publicUrlError;
     }
-    revalidatePathServer(jobId);
+    revalidateEditJobPathServer(jobId);
     return publicUrlData.publicUrl;
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -93,6 +93,6 @@ export const uploadQuotes = async (quotes, jobId) => {
       };
     })
   );
-  revalidatePathServer(jobId);
+  revalidateEditJobPathServer(jobId);
   return uploadedQuotes;
 };

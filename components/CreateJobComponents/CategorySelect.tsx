@@ -13,7 +13,7 @@ const categoryOptions = {
 };
 
 // CategorySelect.js
-export function CategorySelect({ initialCategory, setCategory }) {
+export function CategorySelect({ initialCategory, setCategory, errorMessage }) {
   const handleCategoryChange = (e) => {
     const newCategory = e.target.value;
     setCategory(newCategory);
@@ -35,6 +35,7 @@ export function CategorySelect({ initialCategory, setCategory }) {
           </option>
         ))}
       </Select>
+      {errorMessage && <Text color="red.500">{errorMessage}</Text>}
     </Box>
   );
 }

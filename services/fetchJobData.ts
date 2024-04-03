@@ -6,7 +6,7 @@ async function fetchJobData(id) {
 
   const { data, error } = await supabase
     .from("jobs")
-    .select("*, job_files(file_path, file_type)")
+    .select(`*, job_files(file_path, file_type), user_profiles(display_name)`)
     .eq("id", id)
     .single();
 
@@ -78,6 +78,7 @@ async function fetchJobData(id) {
     ...data,
     job_files: jobFiles.map((result) => result.value).filter(Boolean),
     quotes: updatedQuotesData?.map((result) => result.value) ?? [],
+    display_name: data.user_profiles?.display_name ?? null,
   };
 }
 

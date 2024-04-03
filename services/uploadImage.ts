@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from 'uuid';
-import { revalidatePathServer } from "./revalidatePath";
+import { revalidateEditJobPathServer } from "./revalidatePath";
 
 // services/uploadImageService.js
 import { createClient } from "@/utils/supabase/client";
@@ -101,7 +101,7 @@ const uploadImage = async (
     throw insertError;
   }
 
-  revalidatePathServer(jobId);
+  revalidateEditJobPathServer(jobId);
 
   return filePath; // Return the file path
 };
@@ -129,7 +129,7 @@ export const deleteImages = async (images, jobId) => {
 
   await Promise.all(deletePromises);
 
-  revalidatePathServer(jobId);
+  revalidateEditJobPathServer(jobId);
 
   return;
 };

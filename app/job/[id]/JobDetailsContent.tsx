@@ -25,9 +25,23 @@ export default async function JobDetailsContent({ jobId }) {
           >
           <FaMapMarkerAlt />
           </Box>
+          <Flex
+            direction={"row"}
+            gap={2}
+          >
+            
           <Text as="h2" fontSize="large" fontWeight="medium">
             {job.location}
           </Text>
+
+          -
+
+          {job.display_name && (
+            <Text as="span" fontSize="large" fontWeight="medium" color="gray.500">
+              Posted by: {job.display_name}
+            </Text>
+          )}
+          </Flex>
         </Flex>
         <Text
           fontSize="large"

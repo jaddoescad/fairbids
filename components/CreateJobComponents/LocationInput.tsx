@@ -10,7 +10,7 @@ const libraries = ["places"];
 
 
 
-export function LocationAutocomplete({ initialLocation, setLocation }) {
+export function LocationAutocomplete({ initialLocation, setLocation, errorMessage }) {
   const [autocomplete, setAutocomplete] = useState(null);
 
 
@@ -53,6 +53,7 @@ export function LocationAutocomplete({ initialLocation, setLocation }) {
               maxW={"500px"}
             />
           </Autocomplete>
+          {errorMessage && <Text color="red.500">{errorMessage}</Text>}
         </Box>
       )}
     </>
