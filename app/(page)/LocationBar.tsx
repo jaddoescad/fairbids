@@ -23,8 +23,8 @@ export const SearchBar = () => {
 import { Select } from "chakra-react-select";
 import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
 export const LocationBar = () => {
-  const [locationValue, setLocationValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [locationValue, setLocationValue] = useState("New York, NY, USA");
 
   const { isLoaded, loadError } = useGoogleMapsScript();
 
@@ -33,7 +33,7 @@ export const LocationBar = () => {
     if (isLoaded) {
       handleLocationChange(locationValue);
     }
-  }, [isLoaded]);
+  }, [isLoaded, locationValue]);
 
   const handleLocationChange = async (inputValue) => {
     setLocationValue(inputValue);
