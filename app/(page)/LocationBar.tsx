@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Input } from "@chakra-ui/react";
 import { Autocomplete, useLoadScript } from "@react-google-maps/api";
-import { List, ListItem } from "@chakra-ui/react";
 
 export const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,17 +13,16 @@ export const SearchBar = () => {
 
   return (
     <Input
-      placeholder="Search..."
+      placeholder="Search Projects..."
       value={searchQuery}
       onChange={handleSearchChange}
     />
   );
 };
 
+const libraries = ["places"];
 
-
-
-
+import { Select } from "chakra-react-select";
 export const LocationBar = () => {
   const [locationValue, setLocationValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -34,42 +32,61 @@ export const LocationBar = () => {
     libraries: ["places"],
   });
 
-  const handleLocationChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setLocationValue(value);
+  const handleLocationChange = async (inputValue) => {
+    setLocationValue(inputValue);
 
-    if (isLoaded) {
+    if (isLoaded && inputValue) {
       const service = new window.google.maps.places.AutocompleteService();
-      const predictions = await service.getPlacePredictions({ input: value });
-      setSuggestions(predictions.predictions);
+      const predictions = await service.getPlacePredictions({
+        input: inputValue,
+      });
+
+      if (predictions && predictions.predictions.length > 0) {
+        console.log(predictions);
+        setSuggestions(
+          predictions.predictions.map((prediction) => ({
+            value: prediction.place_id,
+            label: prediction.description,
+          }))
+        );
+      } else {
+        setSuggestions([]);
+      }
+    } else {
+      setSuggestions([]);
     }
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    setLocationValue(suggestion.description);
-    setSuggestions([]);
+  const handleLocationSelect = (selectedOption) => {
+    setLocationValue(selectedOption.label);
+  };
+
+  const handleInputChange = (inputValue) => {
+    setLocationValue(inputValue);
+    handleLocationChange(inputValue);
   };
 
   return (
-    <div>
-      <Input
-        placeholder="Location"
-        value={locationValue}
-        onChange={handleLocationChange}
-      />
-      {suggestions.length > 0 && (
-        <List>
-          {suggestions.map((suggestion) => (
-            <ListItem
-              key={suggestion.place_id}
-              onClick={() => handleSuggestionClick(suggestion)}
-              cursor="pointer"
-            >
-              {suggestion.description}
-            </ListItem>
-          ))}
-        </List>
-      )}
-    </div>
+    <Select
+      placeholder="Location"
+      value={{ label: locationValue, value: locationValue }}
+      onInputChange={handleInputChange}
+      onChange={handleLocationSelect}
+      options={suggestions}
+      isClearable
+      chakraStyles={{
+        container: (provided) => ({
+          ...provided,
+          minWidth: "300px", // Adjust the value as needed
+        }),
+        control: (provided) => ({
+          ...provided,
+          cursor: 'text', // Changes cursor to text input type on hover
+          '&:hover': {
+            cursor: 'text', // Ensure the cursor remains text type even on hover
+          },
+        }),
+      }}
+    />
   );
 };
