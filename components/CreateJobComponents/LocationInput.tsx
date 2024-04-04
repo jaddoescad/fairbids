@@ -1,23 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Autocomplete, useLoadScript } from "@react-google-maps/api";
+import { useState } from "react";
+import { Autocomplete } from "@react-google-maps/api";
 import { Input, Box, Text } from "@chakra-ui/react";
-import { updateJobLocation } from "../../services/updateLocation";
-import { useRouter } from "next/navigation";
 import { TopTitle } from "./FormReusable/TopTitle";
+import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
 
 const libraries = ["places"];
-
-
 
 export function LocationAutocomplete({ initialLocation, setLocation, errorMessage }) {
   const [autocomplete, setAutocomplete] = useState(null);
 
 
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    libraries,
-  });
+  const { isLoaded, loadError } = useGoogleMapsScript();
+
 
   const onLoad = (autocompleteInstance) => {
     setAutocomplete(autocompleteInstance);
@@ -28,13 +23,18 @@ export function LocationAutocomplete({ initialLocation, setLocation, errorMessag
       const place = autocomplete.getPlace();
       if (place && place.formatted_address) {
         const newLocation = place.formatted_address;
-        setLocation(newLocation);
+        const latitude = place.geometry.location.lat();
+        const longitude = place.geometry.location.lng();
+        setLocation({
+          address: newLocation,
+          latitude,
+          longitude,
+        });
       }
     } else {
       console.error("Autocomplete is not loaded yet!");
     }
-  }
-
+  };
 
   return (
     <>

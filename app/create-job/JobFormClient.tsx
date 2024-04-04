@@ -7,6 +7,7 @@ import { Autocomplete, useLoadScript } from "@react-google-maps/api";
 import { saveJobToSupabase } from "@/services/createJobSupabase";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
 
 const libraries = ["places"];
 
@@ -50,7 +51,14 @@ const CategorySelect = ({ category, setCategory, error }) => (
   </>
 );
 
-const LocationAutocomplete = ({ isLoaded, error, locationValue, setLocationValue }) => {
+const LocationAutocomplete = ({
+  isLoaded,
+  error,
+  locationValue,
+  setLocationValue,
+  setLatitude,
+  setLongitude,
+}) => {
   const [autocomplete, setAutocomplete] = useState(null);
 
   const onLoad = (autocompleteInstance) => {
@@ -61,6 +69,12 @@ const LocationAutocomplete = ({ isLoaded, error, locationValue, setLocationValue
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
       setLocationValue(place.formatted_address);
+
+      // Extract latitude and longitude
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      setLatitude(lat);
+      setLongitude(lng);
     } else {
       console.error("Autocomplete is not loaded yet!");
     }
@@ -92,11 +106,12 @@ export default function JobForm() {
   const [categoryError, setCategoryError] = useState(false);
   const [locationError, setLocationError] = useState(false);
   const [locationValue, setLocationValue] = useState("");
+  const [latitute, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // Added loading state
 
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    libraries,
-  });
+  const { isLoaded, loadError } = useGoogleMapsScript();
+
 
   const router = useRouter();
 
@@ -121,31 +136,40 @@ export default function JobForm() {
   };
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    try {
+      if (locationValue.trim() === "") {
+        setLocationError(true);
+        return;
+      }
 
-    if (locationValue.trim() === "") {
-      setLocationError(true);
-      return;
-    }
+      setIsLoading(true);
 
-    const supabase = createClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) {
-      console.error("User not logged in");
-      return;
-    }
-    const userId = session.user.id;
-    const savedJob = await saveJobToSupabase(
-      supabase,
-      title,
-      category,
-      locationValue,
-      userId
-    );
-    if (savedJob) {
-      router.push(`/edit-job/${savedJob.id}`);
-    }
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        console.error("User not logged in");
+        setIsLoading(false);
+        return;
+      }
+      const userId = session.user.id;
+      const savedJob = await saveJobToSupabase(
+        supabase,
+        title,
+        category,
+        locationValue,
+        latitute,
+        longitude,
+        userId
+      );
+      if (savedJob) {
+        router.push(`/edit-job/${savedJob.id}`);
+      }
+    } catch (error) {
+      console.error("Error saving job", error);
+      setIsLoading(false);
+    } 
   };
 
   return (
@@ -194,12 +218,19 @@ export default function JobForm() {
               error={locationError}
               locationValue={locationValue}
               setLocationValue={setLocationValue}
+              setLatitude={setLatitude}
+              setLongitude={setLongitude}
             />
             <div className="flex justify-between w-full">
               <Button onClick={handleBack} colorScheme="gray">
                 Back
               </Button>
-              <Button type="submit" colorScheme="blue">
+              <Button
+                type="submit"
+                colorScheme="blue"
+                isLoading={isLoading} // Disable button when loading
+                loadingText="Creating Job..." // Show loading text
+              >
                 Create Job
               </Button>
             </div>

@@ -1,9 +1,5 @@
-
-import { createClient } from "@/utils/supabase/client";
-
-export async function saveJobToSupabase(supabase, title, category, location, userId) {
+export async function saveJobToSupabase(supabase, title, category, location, latitude, longitude, userId) {
   
-
   const { data, error } = await supabase
     .from("jobs")
     .insert([
@@ -11,6 +7,8 @@ export async function saveJobToSupabase(supabase, title, category, location, use
         title,
         category,
         location,
+        latitude,
+        longitude,
         user_id: userId,
       },
     ])
@@ -18,6 +16,7 @@ export async function saveJobToSupabase(supabase, title, category, location, use
 
   if (error) {
     console.error("Error inserting data", error);
+    throw error;
     return null;
   }
 

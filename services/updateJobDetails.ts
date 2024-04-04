@@ -13,6 +13,8 @@ export async function updateJobDetails(updatedJob) {
       title: updatedJob.title,
       category: updatedJob.category,
       location: updatedJob.location,
+      latitude: updatedJob.latitude,
+      longitude: updatedJob.longitude,
       description: updatedJob.description,
     })
     .eq("id", updatedJob.id);

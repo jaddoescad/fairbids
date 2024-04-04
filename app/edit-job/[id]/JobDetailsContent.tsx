@@ -103,9 +103,7 @@ function JobDetailsContent({ job }) {
         return;
       }
 
-
-
-          //check if there is at least one before or one after image (including existing images)
+    //check if there is at least one before or one after image (including existing images)
     if (beforeImages.length === 0 && job?.job_files.length === 0) {
       setImageError("At least one before image is required.");
       setIsSaving(false);
@@ -118,8 +116,6 @@ function JobDetailsContent({ job }) {
       });
       return;
     }
-
-
 
     if (afterImages.length === 0 && job.job_files.length === 0) {
       setImageError("At least one after image is required.");

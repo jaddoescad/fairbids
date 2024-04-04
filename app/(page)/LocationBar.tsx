@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@chakra-ui/react";
-import { Autocomplete, useLoadScript } from "@react-google-maps/api";
 
 export const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,17 +19,21 @@ export const SearchBar = () => {
   );
 };
 
-const libraries = ["places"];
 
 import { Select } from "chakra-react-select";
+import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
 export const LocationBar = () => {
   const [locationValue, setLocationValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    libraries: ["places"],
-  });
+  const { isLoaded, loadError } = useGoogleMapsScript();
+
+
+  useEffect(() => {
+    if (isLoaded) {
+      handleLocationChange(locationValue);
+    }
+  }, [isLoaded]);
 
   const handleLocationChange = async (inputValue) => {
     setLocationValue(inputValue);
@@ -42,7 +45,7 @@ export const LocationBar = () => {
       });
 
       if (predictions && predictions.predictions.length > 0) {
-        console.log(predictions);
+        console.log("predictions", predictions);
         setSuggestions(
           predictions.predictions.map((prediction) => ({
             value: prediction.place_id,
@@ -62,28 +65,31 @@ export const LocationBar = () => {
   };
 
   const handleInputChange = (inputValue) => {
-    setLocationValue(inputValue);
-    handleLocationChange(inputValue);
+    if (inputValue) {
+      setLocationValue(inputValue);
+      handleLocationChange(inputValue);
+    }
   };
 
   return (
-    <Select
+<Select
       placeholder="Location"
       value={{ label: locationValue, value: locationValue }}
       onInputChange={handleInputChange}
       onChange={handleLocationSelect}
+    //   defaultInputValue
       options={suggestions}
-      isClearable
+      isClearable={false}
       chakraStyles={{
         container: (provided) => ({
           ...provided,
-          minWidth: "300px", // Adjust the value as needed
+          minWidth: "300px",
         }),
         control: (provided) => ({
           ...provided,
-          cursor: 'text', // Changes cursor to text input type on hover
+          cursor: 'text',
           '&:hover': {
-            cursor: 'text', // Ensure the cursor remains text type even on hover
+            cursor: 'text',
           },
         }),
       }}
