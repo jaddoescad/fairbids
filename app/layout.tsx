@@ -1,6 +1,7 @@
 import './globals.css'
 import * as React from "react";
 import { ChakraProvider } from "@chakra-ui/react";
+import { LocationProvider } from "@/context/LocationContext";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -22,7 +23,9 @@ export default function RootLayout({
     <html lang="en" className={"h-full"}>
       <body className="bg-background text-foreground h-full">
         <main className="h-full flex flex-col items-center">
-        <ChakraProvider>{children}</ChakraProvider>
+          <LocationProvider>
+            <ChakraProvider>{children}</ChakraProvider>
+          </LocationProvider>
         </main>
       </body>
     </html>

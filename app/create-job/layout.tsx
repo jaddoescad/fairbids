@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Box, Flex, Spacer, Button } from "@chakra-ui/react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function RootLayout({
   children,
@@ -23,12 +24,14 @@ export default function RootLayout({
         </Flex>
         <Spacer />
         <Box>
+        <Link href="/">
           <Button size="lg" fontSize="2xl">
             Exit
           </Button>
+        </Link>
         </Box>
       </Flex>
-      <div className="flex-grow flex flex-col items-center">{children}</div>
+      <div className="h-full flex flex-col items-center">{children}</div>
     </div>
   );
 }

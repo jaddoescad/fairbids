@@ -83,3 +83,30 @@ async function fetchJobData(id) {
 }
 
 export { fetchJobData };
+
+async function fetchNearestJobs(location, limit = 10) {
+  const supabase = createClient();
+
+  if (
+    location.latitude === undefined ||
+    location.longitude === undefined
+  ) {
+    console.error("Invalid location");
+    return [];
+  }
+
+  const { data, error } = await supabase.rpc('nearby_jobs', {
+    user_lat: location.latitude,
+    user_long: location.longitude,
+    lim: 10,
+  });
+
+  if (error) {
+    console.error("Error fetching nearby jobs", error);
+    return [];
+  }
+
+  return data;
+}
+
+export { fetchNearestJobs };
