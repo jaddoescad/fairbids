@@ -1,15 +1,9 @@
 'use client';
 
 import React, { useContext, useEffect, useState } from "react";
-import { Flex } from "@chakra-ui/react";
-import Image from "next/image";
-import Link from "next/link";
 import { fetchNearestJobs } from "@/services/fetchJobData";
 import JobList from '@/components/JobList';
 import { LocationContext } from "@/context/LocationContext";
-import { SearchBar, LocationBar } from "./LocationBar";
-import PostButton from "@/components/PostQuoteButton";
-import AuthButton from '../../components/AuthButton';
 
 export default function Index() {
   const { location } = useContext(LocationContext);

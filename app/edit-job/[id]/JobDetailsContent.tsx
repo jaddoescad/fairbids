@@ -36,6 +36,13 @@ function JobDetailsContent({ job }) {
   const handleSaveChanges = async () => {
     try {
 
+      setTitleError("");
+      setCategoryError("");
+      setDescriptionError("");
+      setLocationError("");
+      setImageError("");
+      setQuoteError("");
+
       if (updatedJob?.title && !updatedJob?.title.trim()) {
         setTitleError("Title is required.");
         setIsSaving(false); // Ensure to reset saving state
@@ -132,12 +139,7 @@ function JobDetailsContent({ job }) {
 
 
       setIsSaving(true);
-      setTitleError("");
-      setCategoryError("");
-      setDescriptionError("");
-      setLocationError("");
-      setImageError("");
-      setQuoteError("");
+
 
       const supabase = createClient();
       const {

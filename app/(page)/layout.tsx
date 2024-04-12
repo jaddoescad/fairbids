@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import AuthButton from "@/components/AuthButton";
 import { LocationBar, SearchBar } from "./LocationBar";
-import { cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
 import PostButton from "@/components/PostQuoteButton";
 
 export default function RootLayout({

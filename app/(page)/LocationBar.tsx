@@ -1,22 +1,43 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from "react";
-import { Input, Box } from "@chakra-ui/react";
-// import { updateUserLocation } from "@/services/updateUserLocation";
+import { useContext } from "react";
+import React, { useState } from "react";
+import { Input, FormControl, FormLabel } from "@chakra-ui/react";
+import { useRouter } from 'next/navigation';
 
 export const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (searchQuery.trim() !== "") {
+        router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
+      }
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
+  };
+
   return (
-    <Input
-      placeholder="Search Projects..."
-      value={searchQuery}
-      onChange={handleSearchChange}
-    />
+    <form onSubmit={handleSubmit}>
+      <FormControl>
+        <Input
+          placeholder="Search Projects..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          onKeyDown={handleKeyDown}
+        />
+      </FormControl>
+    </form>
   );
 };
 
@@ -71,10 +92,6 @@ export const LocationBar = () => {
 
   return (
     <>
-      <Box>{location?.address}</Box>
-      <Box>{location?.latitude}</Box>
-      <Box>{location?.longitude}</Box>
-      <Box>{"yo"}</Box>
       <Select
         placeholder="Location"
         value={{ label: location?.address, value: location?.address }}

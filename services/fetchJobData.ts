@@ -83,14 +83,10 @@ async function fetchJobData(id) {
 }
 
 export { fetchJobData };
-
 async function fetchNearestJobs(location, limit = 10) {
   const supabase = createClient();
 
-  if (
-    location.latitude === undefined ||
-    location.longitude === undefined
-  ) {
+  if (location.latitude === undefined || location.longitude === undefined) {
     console.error("Invalid location");
     return [];
   }
@@ -98,7 +94,7 @@ async function fetchNearestJobs(location, limit = 10) {
   const { data, error } = await supabase.rpc('nearby_jobs', {
     user_lat: location.latitude,
     user_long: location.longitude,
-    lim: 10,
+    lim: limit,
   });
 
   if (error) {
@@ -106,7 +102,96 @@ async function fetchNearestJobs(location, limit = 10) {
     return [];
   }
 
-  return data;
+  const jobsWithImages = await Promise.all(
+    data.map(async (job) => {
+      const imageUrls = await Promise.all(
+        job.image_urls.map(async (filePath) => {
+          const { data: fileData, error: fileError } = await supabase.storage
+            .from("job_files")
+            .getPublicUrl(filePath, {
+              transform: {
+                width: 500,
+                height: 500,
+              },
+            });
+
+          if (fileError) {
+            console.error("Error fetching file URL", fileError);
+            return null;
+          }
+
+          return fileData.publicUrl;
+        })
+      );
+
+      return {
+        ...job,
+        imageUrls: imageUrls.filter(Boolean),
+      };
+    })
+  );
+
+  return jobsWithImages;
 }
 
 export { fetchNearestJobs };
+
+
+async function fetchQueryData(query) {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc('search_jobs', { query });
+
+  if (error) {
+    console.error("Error fetching job data", error);
+    return null;
+  }
+
+  return data;
+}
+
+export { fetchQueryData };
+
+
+async function fetchNearbyQueryData(query, latitude, longitude, lim = 10) {
+  console.log("fetchNearbyQueryData", query, latitude, longitude);
+  const supabase = createClient();
+
+  const { data, error } = await supabase.rpc('search_nearby_jobs', {
+    lim: 10,
+    query: query,
+    user_lat: latitude,
+    user_long: longitude
+  });
+
+  if (error) {
+    console.error("Error fetching job data", error);
+    return null;
+  }
+
+  const jobsWithImages = await Promise.all(
+    data.map(async (job) => {
+      const imageUrls = await Promise.all(
+        job.image_urls.map(async (filePath) => {
+          const { data: fileData, error: fileError } = await supabase.storage
+            .from("job_files")
+            .getPublicUrl(filePath, {
+              transform: {
+                width: 500,
+                height: 500,
+              },
+            });
+          if (fileError) {
+            console.error("Error fetching file URL", fileError);
+            return null;
+          }
+          return fileData.publicUrl;
+        })
+      );
+      return { ...job, imageUrls: imageUrls.filter(Boolean) };
+    })
+  );
+
+  return jobsWithImages;
+}
+
+export { fetchNearbyQueryData };
