@@ -59,6 +59,7 @@ const CategorySelect = ({ category, setCategory, error, onEnter }) => (
   </>
 );
 
+
 const LocationAutocomplete = ({
   isLoaded,
   error,
@@ -66,42 +67,62 @@ const LocationAutocomplete = ({
   setLocationValue,
   setLatitude,
   setLongitude,
-  onEnter,
+  isValidLocation,
+  setIsValidLocation,
+  onSubmit,
 }) => {
   const [autocomplete, setAutocomplete] = useState(null);
-  const [locationError, setLocationError] = useState(false);
 
   const onLoad = (autocompleteInstance) => {
     setAutocomplete(autocompleteInstance);
   };
 
+  const handleBlur = () => {
+    console.log("Blur");
+    onPlaceChanged();
+  };
+
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
-  
+
       // Check if the selected place is a city, county, or a more specific location
       const isValidLocation = place?.types?.some((type) =>
-        ["locality", "administrative_area_level_2", "administrative_area_level_3"].includes(type)
+        [
+          "locality",
+          "administrative_area_level_2",
+          "administrative_area_level_3",
+        ].includes(type)
       );
-  
+
+      setIsValidLocation(isValidLocation);
+
+
       if (isValidLocation) {
         setLocationValue(place.formatted_address);
-        setLocationError(false); // Clear the error state
-  
+
         // Extract latitude and longitude
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
         setLatitude(lat);
         setLongitude(lng);
       } else {
-        // Set the error state if an invalid location is selected
-        setLocationError(true);
         setLocationValue("");
         setLatitude(null);
         setLongitude(null);
       }
     } else {
       console.error("Autocomplete is not loaded yet!");
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      if (isValidLocation) {
+        onSubmit(e);
+      } else {
+        setIsValidLocation(false);
+      }
     }
   };
 
@@ -118,14 +139,12 @@ const LocationAutocomplete = ({
           placeholder="Type a city"
           value={locationValue}
           onChange={(e) => setLocationValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              onEnter();
-            }
-          }}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+          
         />
       </Autocomplete>
-      {error && locationError && (
+      {error && !isValidLocation && (
         <Box color="red" mt="2">
           Please enter a valid city.
         </Box>
@@ -147,6 +166,7 @@ export default function JobForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { isLoaded, loadError } = useGoogleMapsScript();
+  const [isValidLocation, setIsValidLocation] = useState(false);
 
   const router = useRouter();
 
@@ -173,11 +193,12 @@ export default function JobForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      if (locationValue.trim() === "") {
+      setLocationError(false); // Reset locationError state
+      console.log("Submitting job", title, category, locationValue);
+      if (locationValue.trim() === "" || !isValidLocation) {
         setLocationError(true);
         return;
       }
-
       setIsLoading(true);
 
       const supabase = createClient();
@@ -244,7 +265,7 @@ export default function JobForm() {
               <Button onClick={handleBack} colorScheme="gray">
                 Back
               </Button>
-              <Button onClick={handleNext} colorScheme="green">
+              <Button onClick={handleNext} colorScheme="blue">
                 Next
               </Button>
             </div>
@@ -262,7 +283,9 @@ export default function JobForm() {
               setLocationValue={setLocationValue}
               setLatitude={setLatitude}
               setLongitude={setLongitude}
-              onEnter={handleSubmit}
+              setIsValidLocation={setIsValidLocation}
+              isValidLocation={isValidLocation}
+              onSubmit={handleSubmit}
             />
             <div className="flex justify-between w-full">
               <Button onClick={handleBack} colorScheme="gray">
