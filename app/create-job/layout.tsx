@@ -2,6 +2,8 @@ import * as React from "react";
 import { Box, Flex, Spacer, Button } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
+import Logo from "@/components/Logo";
+import HeaderWrapper from "@/components/wrappers/HeaderWrapper";
 
 export default function RootLayout({
   children,
@@ -10,27 +12,19 @@ export default function RootLayout({
 }) {
   return (
     <div className="h-full w-full">
-      <Flex
-        as="nav"
-        align="center"
-        justify="space-between"
-        wrap="wrap"
-        padding="1.5rem"
-        bg="white"
-        borderBottom="1px solid black"
-      >
+      <HeaderWrapper>
         <Flex align="center" mr={5}>
-          <Image src={"/logo.png"} alt="Logo" width={125} height={125} priority={true}/>
+          <Logo />
         </Flex>
         <Spacer />
         <Box>
-        <Link href="/">
-          <Button size="lg" fontSize="2xl">
-            Exit
-          </Button>
-        </Link>
+          <Link href="/">
+            <Button size="lg" fontSize="2xl">
+              Exit
+            </Button>
+          </Link>
         </Box>
-      </Flex>
+      </HeaderWrapper>
       <div className="h-full flex flex-col items-center">{children}</div>
     </div>
   );

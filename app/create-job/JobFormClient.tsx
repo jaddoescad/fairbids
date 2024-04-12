@@ -1,6 +1,4 @@
-"use client";
-
-// JobForm.tsx
+'use client'
 import React, { FormEvent, useEffect, useState } from "react";
 import { Input, Select, Button, Box } from "@chakra-ui/react";
 import { Autocomplete, useLoadScript } from "@react-google-maps/api";
@@ -11,7 +9,7 @@ import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
 
 const libraries = ["places"];
 
-const TitleInput = ({ title, setTitle, error }) => (
+const TitleInput = ({ title, setTitle, error, onEnter }) => (
   <>
     <Input
       value={title}
@@ -21,6 +19,11 @@ const TitleInput = ({ title, setTitle, error }) => (
       width="100%"
       borderRadius="0px"
       border="1px solid #000"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          onEnter();
+        }
+      }}
     />
     {error && (
       <Box color="red" mt="2">
@@ -30,13 +33,18 @@ const TitleInput = ({ title, setTitle, error }) => (
   </>
 );
 
-const CategorySelect = ({ category, setCategory, error }) => (
+const CategorySelect = ({ category, setCategory, error, onEnter }) => (
   <>
     <Select
       placeholder="Select category"
       className="rounded-md px-4 py-2 bg-inherit border"
       value={category}
       onChange={(e) => setCategory(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          onEnter();
+        }
+      }}
     >
       <option value="kitchen">Kitchen</option>
       <option value="bathroom">Bathroom</option>
@@ -58,8 +66,10 @@ const LocationAutocomplete = ({
   setLocationValue,
   setLatitude,
   setLongitude,
+  onEnter,
 }) => {
   const [autocomplete, setAutocomplete] = useState(null);
+  const [locationError, setLocationError] = useState(false);
 
   const onLoad = (autocompleteInstance) => {
     setAutocomplete(autocompleteInstance);
@@ -68,13 +78,28 @@ const LocationAutocomplete = ({
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
-      setLocationValue(place.formatted_address);
-
-      // Extract latitude and longitude
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      setLatitude(lat);
-      setLongitude(lng);
+  
+      // Check if the selected place is a city, county, or a more specific location
+      const isValidLocation = place?.types?.some((type) =>
+        ["locality", "administrative_area_level_2", "administrative_area_level_3"].includes(type)
+      );
+  
+      if (isValidLocation) {
+        setLocationValue(place.formatted_address);
+        setLocationError(false); // Clear the error state
+  
+        // Extract latitude and longitude
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setLatitude(lat);
+        setLongitude(lng);
+      } else {
+        // Set the error state if an invalid location is selected
+        setLocationError(true);
+        setLocationValue("");
+        setLatitude(null);
+        setLongitude(null);
+      }
     } else {
       console.error("Autocomplete is not loaded yet!");
     }
@@ -82,16 +107,27 @@ const LocationAutocomplete = ({
 
   return (
     <>
-      <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+      <Autocomplete
+        onLoad={onLoad}
+        onPlaceChanged={onPlaceChanged}
+        options={{
+          types: ["(cities)"],
+        }}
+      >
         <Input
           placeholder="Type a city"
-          defaultValue={locationValue}
-          onChange={(e) => setLocationValue("")}
+          value={locationValue}
+          onChange={(e) => setLocationValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onEnter();
+            }
+          }}
         />
       </Autocomplete>
-      {error && (
+      {error && locationError && (
         <Box color="red" mt="2">
-          Please enter a location.
+          Please enter a valid city.
         </Box>
       )}
     </>
@@ -108,10 +144,9 @@ export default function JobForm() {
   const [locationValue, setLocationValue] = useState("");
   const [latitute, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // Added loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   const { isLoaded, loadError } = useGoogleMapsScript();
-
 
   const router = useRouter();
 
@@ -132,8 +167,9 @@ export default function JobForm() {
 
   const handleBack = () => {
     setStep(step - 1);
-    setLocationError(false); // Clear the location error if any
+    setLocationError(false);
   };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
@@ -169,7 +205,7 @@ export default function JobForm() {
     } catch (error) {
       console.error("Error saving job", error);
       setIsLoading(false);
-    } 
+    }
   };
 
   return (
@@ -180,9 +216,14 @@ export default function JobForm() {
             <Box fontSize="lg" mb="4">
               What are you working on?
             </Box>
-            <TitleInput title={title} setTitle={setTitle} error={titleError} />
+            <TitleInput
+              title={title}
+              setTitle={setTitle}
+              error={titleError}
+              onEnter={handleNext}
+            />
             <div className="self-end mt-2">
-              <Button onClick={handleNext} colorScheme="green">
+              <Button onClick={handleNext} colorScheme="blue">
                 Next
               </Button>
             </div>
@@ -197,6 +238,7 @@ export default function JobForm() {
               category={category}
               setCategory={setCategory}
               error={categoryError}
+              onEnter={handleNext}
             />
             <div className="flex justify-between w-full">
               <Button onClick={handleBack} colorScheme="gray">
@@ -220,6 +262,7 @@ export default function JobForm() {
               setLocationValue={setLocationValue}
               setLatitude={setLatitude}
               setLongitude={setLongitude}
+              onEnter={handleSubmit}
             />
             <div className="flex justify-between w-full">
               <Button onClick={handleBack} colorScheme="gray">
@@ -228,8 +271,8 @@ export default function JobForm() {
               <Button
                 type="submit"
                 colorScheme="blue"
-                isLoading={isLoading} // Disable button when loading
-                loadingText="Creating Job..." // Show loading text
+                isLoading={isLoading}
+                loadingText="Creating Job..."
               >
                 Create Job
               </Button>

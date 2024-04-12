@@ -93,7 +93,6 @@ export const LocationBar = () => {
   return (
     <>
       <Select
-        instanceId="location"
         placeholder="Location"
         value={{ label: location?.address, value: location?.address }}
         onInputChange={handleInputChange}

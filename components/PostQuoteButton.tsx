@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
+import { Button, ButtonGroup } from "@chakra-ui/react";
 
 export default async function QuoteButton() {
   const cookieStore = cookies();
@@ -9,11 +10,10 @@ export default async function QuoteButton() {
   const { data: { user }, } = await supabase.auth.getUser();
 
   return (
-    <Link 
-      href={user ? '/create-job' : '/signup'} 
-      className="py-2 px-3 flex rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
+    <Link href={user ? "/create-job" : "/signup"}
+      style={{ display: "flex", alignItems: "center", marginRight: "20px"}}
     >
-      Post  
+      <Button colorScheme="blue">Post</Button>
     </Link>
-  )
+  );
 } 

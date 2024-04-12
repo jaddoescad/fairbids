@@ -1,3 +1,4 @@
+"use client";
 // components/JobList.js
 import { useState } from "react";
 import Link from "next/link";
@@ -10,21 +11,17 @@ import {
   Flex,
   Image,
   Spinner,
+  Center,
 } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 
 export default function JobList({ jobs }) {
   return (
-    <Box w="100%">
-      <Heading as="h2" size="xl" mb={8}>
-        Nearest Jobs
-      </Heading>
-      <VStack spacing={6} align="stretch">
-        {jobs.map((job) => (
-          <JobItem key={job.id} job={job} />
-        ))}
-      </VStack>
-    </Box>
+    <VStack spacing={6} align="stretch">
+      {jobs.map((job) => (
+        <JobItem key={job.id} job={job} />
+      ))}
+    </VStack>
   );
 }
 
@@ -50,14 +47,7 @@ function JobItem({ job }) {
 
   return (
     <Link href={`/job/${job.id}`}>
-      <Flex
-        borderWidth={1}
-        borderRadius="lg"
-        p={6}
-        boxShadow="md"
-        bg="white"
-        w="100%"
-      >
+      <Flex borderWidth={1} borderRadius="lg" p={6} boxShadow="md" bg="white">
         {job.imageUrls && job.imageUrls.length > 0 && (
           <Flex mb={4} align="center">
             <Button
@@ -107,7 +97,7 @@ function JobItem({ job }) {
         )}
         <Box>
           <Heading as="h3" size="lg" mb={2}>
-            <Link href={`/job/${job.id}`}>{job.title}</Link>
+            {job.title}
           </Heading>
           <Text fontSize="lg" mb={2}>
             {job.company}
@@ -133,24 +123,20 @@ function JobItem({ job }) {
                   }`}
             </Text>
           </Box>
-          <Text>
-            {job?.description && (
-              <>
-                <Text
-                  fontSize="x-large"
-                  whiteSpace="pre-wrap"
-                  color="gray.600"
-                  mb={4}
-                  wordBreak="break-word"
-                  width={"100%"}
-                  maxW={"1000px"}
-                >
-                  {job.description.slice(0, 300)}...
-                </Text>
-              </>
-            )}
-          </Text>
-          {/* Display quote information */}
+
+          {job?.description && (
+            <Text
+              fontSize="x-large"
+              whiteSpace="pre-wrap"
+              color="gray.600"
+              mb={4}
+              wordBreak="break-word"
+              width={"100%"}
+              maxW={"1000px"}
+            >
+              {job.description.slice(0, 300)}...
+            </Text>
+          )}
         </Box>
       </Flex>
     </Link>

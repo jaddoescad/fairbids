@@ -1,51 +1,48 @@
-"use server";
+'use client';
 
-// pages/my-jobs.tsx
-import { Box, Text, Heading, VStack, Button } from "@chakra-ui/react";
+import { Box, Center, Heading, Spinner, VStack } from "@chakra-ui/react";
 import { getUserId } from "@/services/getUser";
-import { fetchUserJobs } from "@/services/myjobs";
-import Link from "next/link";
+import { fetchUserJobs } from "@/services/fetchJobData";
+import JobList from "@/components/JobList";
+import React, { useContext, useEffect, useState } from "react";
+import { LocationContext } from "@/context/LocationContext";
 
-export default async function MyJobs() {
-  const userId = await getUserId();
-  const jobs = await fetchUserJobs(userId);
+
+export default function Index() {
+  const { location } = useContext(LocationContext);
+  const [myJobs, setMyJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchJobs() {
+      if (location.latitude && location.longitude) {
+        setIsLoading(true);
+        const userId = await getUserId();
+        const jobs = await fetchUserJobs(userId);
+        setMyJobs(jobs);
+        setIsLoading(false);
+      }
+    }
+
+    fetchJobs();
+  }, [location.latitude, location.longitude]);
 
   return (
-    <Box marginTop={10} paddingBottom={"200px"}>
-      <Box background={"white"} padding={10}>
-        <Heading as="h1" size="xl" mb={8}>
-          My Jobs
-        </Heading>
-        {jobs.length === 0 ? (
-          <Text>You haven't created any jobs yet.</Text>
-        ) : (
-          <VStack spacing={4} align="stretch">
-            {jobs.map((job) => (
-              <Box
-                key={job.id}
-                borderWidth={1}
-                borderRadius="lg"
-                p={4}
-                boxShadow="md"
-                bg="white"
-              >
-                <Heading as="h2" size="lg" mb={2}>
-                  {job.title}
-                </Heading>
-                <Text mb={4}>{job.location}</Text>
-                <Button
-                  as={Link}
-                  href={`/job/${job.id}`}
-                  colorScheme="blue"
-                  size="sm"
-                >
-                  View Details
-                </Button>
-              </Box>
-            ))}
-          </VStack>
-        )}
-      </Box>
+    <Box maxW="2050px" mx="auto">
+      {isLoading ? (
+        <Center h="full">
+        <Spinner size="xl" />
+        </Center>
+      ) : (
+        <Box w="100%" h="100%" maxW={"2050px"} mt={10} paddingBottom={50}>
+        <Box>
+          <Heading as="h2" size="xl" mb={8} mt={2}>
+            My Jobs
+          </Heading>
+        <JobList jobs={myJobs} />
+        </Box>
+        </Box>
+      )}
     </Box>
   );
 }

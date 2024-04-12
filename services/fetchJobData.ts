@@ -195,3 +195,81 @@ async function fetchNearbyQueryData(query, latitude, longitude, lim = 10) {
 }
 
 export { fetchNearbyQueryData };
+
+
+async function fetchUserJobs(userId) {
+  const supabase = createClient();
+
+  const { data: jobsData, error: jobsError } = await supabase
+    .from("jobs")
+    .select(`*, job_files(file_path, file_type), quotes(*, quote_files(file_path))`)
+    .eq("user_id", userId);
+
+  if (jobsError) {
+    console.error("Error fetching user jobs", jobsError);
+    return [];
+  }
+
+  const jobsWithImagesAndQuotes = await Promise.all(
+    jobsData.map(async (job) => {
+      const imageUrls = await Promise.all(
+        job.job_files.map(async (file) => {
+          const { data: fileData, error: fileError } = await supabase.storage
+            .from("job_files")
+            .getPublicUrl(file.file_path, {
+              transform: {
+                width: 500,
+                height: 500,
+              },
+            });
+
+          if (fileError) {
+            console.error("Error fetching file URL", fileError);
+            return null;
+          }
+
+          return fileData.publicUrl;
+        })
+      );
+
+      const quotesWithFiles = await Promise.all(
+        job.quotes.map(async (quote) => {
+          const quoteFileUrls = await Promise.all(
+            quote.quote_files.map(async (file) => {
+              const { data: fileData, error: fileError } = await supabase.storage
+                .from("job_files")
+                .getPublicUrl(file.file_path);
+
+              if (fileError) {
+                console.error("Error fetching file URL", fileError);
+                return null;
+              }
+
+              return fileData.publicUrl;
+            })
+          );
+
+          return {
+            ...quote,
+            quote_files: quoteFileUrls.filter(Boolean),
+          };
+        })
+      );
+
+      const quoteCount = quotesWithFiles.length;
+      const averageQuoteValue = quotesWithFiles.reduce((sum, quote) => sum + quote.value, 0) / quoteCount;
+
+      return {
+        ...job,
+        imageUrls: imageUrls.filter(Boolean),
+        quotes: quotesWithFiles,
+        quote_count: quoteCount,
+        average_quote_value: averageQuoteValue,
+      };
+    })
+  );
+
+  return jobsWithImagesAndQuotes;
+}
+
+export { fetchUserJobs };

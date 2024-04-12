@@ -3,6 +3,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { fetchNearbyQueryData } from "@/services/fetchJobData";
 import JobList from '@/components/JobList';
 import { LocationContext } from "@/context/LocationContext";
+import { Box, Center, Heading } from "@chakra-ui/react";
 
 export default function SearchPage({ searchParams }) {
   const { query } = searchParams;
@@ -20,12 +21,14 @@ export default function SearchPage({ searchParams }) {
   }, [query, location]);
 
   return (
-    <>
-      <div style={{ maxWidth: "2050px", width: "100%" }}>
-        <div className="flex-1 w-full flex flex-col gap-20 items-center">
-          {searchResults && <JobList jobs={searchResults} />}
-        </div>
-      </div>
-    </>
+    <Box maxW="2050px" mx="auto">
+
+      <Box>
+        <Heading as="h2" size="xl" mb={8} mt={2}>
+          Search Results
+        </Heading>
+        <JobList jobs={searchResults} />
+      </Box>
+    </Box>
   );
 }
