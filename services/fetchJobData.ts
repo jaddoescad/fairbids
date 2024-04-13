@@ -153,7 +153,6 @@ export { fetchQueryData };
 
 
 async function fetchNearbyQueryData(query, latitude, longitude, lim = 10) {
-  console.log("fetchNearbyQueryData", query, latitude, longitude);
   const supabase = createClient();
 
   const { data, error } = await supabase.rpc('search_nearby_jobs', {

@@ -25,7 +25,7 @@ export default function SearchPage({ searchParams }) {
 
       <Box>
         <Heading as="h2" size="xl" mb={8} mt={2}>
-          Search Results
+          Search results for "{query}"
         </Heading>
         <JobList jobs={searchResults} />
       </Box>

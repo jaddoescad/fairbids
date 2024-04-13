@@ -18,6 +18,7 @@ export async function updateJobDetails(updatedJob) {
       latitude: updatedJob.location.latitude,
       longitude: updatedJob.location.longitude,
       description: updatedJob.description,
+      published: true
     })
     .eq("id", updatedJob.id);
 
