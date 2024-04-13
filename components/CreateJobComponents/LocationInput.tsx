@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 import { Input, Box, Text } from "@chakra-ui/react";
@@ -9,10 +10,8 @@ const libraries = ["places"];
 
 export function LocationAutocomplete({ initialLocation, setLocation, errorMessage }) {
   const [autocomplete, setAutocomplete] = useState(null);
-
-
+  const [inputLocation, setInputLocation] = useState(initialLocation?.address || "");
   const { isLoaded, loadError } = useGoogleMapsScript();
-
 
   const onLoad = (autocompleteInstance) => {
     setAutocomplete(autocompleteInstance);
@@ -25,11 +24,15 @@ export function LocationAutocomplete({ initialLocation, setLocation, errorMessag
         const newLocation = place.formatted_address;
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
+        console.log("New location", newLocation);
         setLocation({
           address: newLocation,
           latitude,
           longitude,
         });
+        setInputLocation(newLocation);
+
+        console.log("Place", newLocation);
       }
     } else {
       console.error("Autocomplete is not loaded yet!");
@@ -40,12 +43,13 @@ export function LocationAutocomplete({ initialLocation, setLocation, errorMessag
     <>
       {isLoaded && (
         <Box py={4}>
-          <TopTitle>
-            Location
-          </TopTitle>
+          <TopTitle>Location</TopTitle>
           <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
             <Input
-              value={initialLocation} onChange={(e) => setLocation(e.target.value)}
+              value={inputLocation}
+              onChange={(e) => {
+                setInputLocation(e.target.value);
+              }}
               placeholder="Enter location"
               p={5}
               size="lg"
@@ -58,5 +62,3 @@ export function LocationAutocomplete({ initialLocation, setLocation, errorMessag
     </>
   );
 }
-
-

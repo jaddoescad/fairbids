@@ -1,4 +1,5 @@
 'use client'
+
 import { CategorySelect } from "@/components/CreateJobComponents/CategorySelect";
 import { LocationAutocomplete } from "@/components/CreateJobComponents/LocationInput";
 import { TitleInput } from "@/components/CreateJobComponents/TitleInput";
@@ -15,6 +16,7 @@ import { deleteQuotes, uploadQuotes } from "@/services/uploadQuoteFile";
 import { useRouter } from "next/navigation";
 import { useToast } from "@chakra-ui/react";
 import { revalidateJobPathServer } from "@/services/revalidatePath";
+import { isValidLocation } from "@/services/isValidLocation";
 
 function JobDetailsContent({ job }) {
   const [updatedJob, setUpdatedJob] = useState(job);
@@ -30,12 +32,13 @@ function JobDetailsContent({ job }) {
   const [locationError, setLocationError] = useState("");
   const [quoteError, setQuoteError] = useState("");
   const [imageError, setImageError] = useState("");
+  const [isLocationValid, setIsLocationValid] = useState(true);
+
   const toast = useToast();
   const router = useRouter();
 
   const handleSaveChanges = async () => {
     try {
-
       setTitleError("");
       setCategoryError("");
       setDescriptionError("");
@@ -43,12 +46,12 @@ function JobDetailsContent({ job }) {
       setImageError("");
       setQuoteError("");
 
-      if (updatedJob?.title && !updatedJob?.title.trim()) {
-        setTitleError("Title is required.");
-        setIsSaving(false); // Ensure to reset saving state
+      if (!updatedJob?.location || !isLocationValid) {
+        setLocationError("Please select a valid location from the list.");
+        setIsSaving(false);
         toast({
           title: "Error",
-          description: "Title is required.",
+          description: "Please select a valid location from the list.",
           status: "error",
           duration: 3000,
           isClosable: true,
@@ -56,12 +59,27 @@ function JobDetailsContent({ job }) {
         return;
       }
 
-      if (!updatedJob?.location) {
-        setLocationError("Location is required.");
+      if (!updatedJob?.location || Object.keys(updatedJob.location).length === 0) {
+        setLocationError("Please select a valid location from the list.");
         setIsSaving(false);
         toast({
           title: "Error",
-          description: "Location is required.",
+          description: "Please select a valid location from the list.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      // Validate the location
+      const isValid = await isValidLocation(updatedJob.location);
+      if (!isValid) {
+        setLocationError("Invalid location. Please select a valid location.");
+        setIsSaving(false);
+        toast({
+          title: "Error",
+          description: "Invalid location. Please select a valid location.",
           status: "error",
           duration: 3000,
           isClosable: true,
@@ -82,7 +100,6 @@ function JobDetailsContent({ job }) {
         return;
       }
 
-
       if (updatedJob.description == null || !updatedJob?.description.trim()) {
         setDescriptionError("Description is required.");
         setIsSaving(false);
@@ -95,7 +112,6 @@ function JobDetailsContent({ job }) {
         });
         return;
       }
-
 
       if (quotes.length === 0) {
         setQuoteError("At least one quote is required.");
@@ -110,36 +126,34 @@ function JobDetailsContent({ job }) {
         return;
       }
 
-    //check if there is at least one before or one after image (including existing images)
-    if (beforeImages.length === 0 && job?.job_files.length === 0) {
-      setImageError("At least one before image is required.");
-      setIsSaving(false);
-      toast({
-        title: "Error",
-        description: "At least one before image is required.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
+      //check if there is at least one before or one after image (including existing images)
+      if (beforeImages.length === 0 && job?.job_files.length === 0) {
+        setImageError("At least one before image is required.");
+        setIsSaving(false);
+        toast({
+          title: "Error",
+          description: "At least one before image is required.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
 
-    if (afterImages.length === 0 && job.job_files.length === 0) {
-      setImageError("At least one after image is required.");
-      setIsSaving(false);
-      toast({
-        title: "Error",
-        description: "At least one after image is required.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
+      if (afterImages.length === 0 && job.job_files.length === 0) {
+        setImageError("At least one after image is required.");
+        setIsSaving(false);
+        toast({
+          title: "Error",
+          description: "At least one after image is required.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
 
       setIsSaving(true);
-
 
       const supabase = createClient();
       const {
@@ -149,7 +163,6 @@ function JobDetailsContent({ job }) {
         console.error("User not logged in");
         return;
       }
-
 
       const userId = session.user.id;
       const newBeforeImages = beforeImages.filter((image) => !image.filePath);
@@ -187,8 +200,6 @@ function JobDetailsContent({ job }) {
       setIsSaving(false);
     }
   };
-
-
 
   return (
     <Box marginTop={10} paddingBottom={"200px"}>
