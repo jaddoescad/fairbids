@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 import { Input, Box, Text } from "@chakra-ui/react";
 import { TopTitle } from "./FormReusable/TopTitle";
@@ -10,8 +10,9 @@ const libraries = ["places"];
 
 export function LocationAutocomplete({ initialLocation, setLocation, errorMessage }) {
   const [autocomplete, setAutocomplete] = useState(null);
-  const [inputLocation, setInputLocation] = useState(initialLocation?.address || "");
+  const [inputLocation, setInputLocation] = useState(initialLocation || "");
   const { isLoaded, loadError } = useGoogleMapsScript();
+
 
   const onLoad = (autocompleteInstance) => {
     setAutocomplete(autocompleteInstance);

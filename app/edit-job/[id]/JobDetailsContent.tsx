@@ -221,7 +221,7 @@ function JobDetailsContent({ job }) {
         />
         <LocationAutocomplete
           initialLocation={updatedJob.location}
-          setLocation={(location) => setUpdatedJob({ ...updatedJob, location })}
+          setLocation={(location) => setUpdatedJob({ ...updatedJob, location: location.address, latitude: location.latitude, longitude: location.longitude})}
           errorMessage={locationError}
         />
         <DescriptionInput

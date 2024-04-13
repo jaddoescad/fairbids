@@ -40,9 +40,7 @@ export default async function AuthButton() {
             My Jobs
           </MenuItem>{" "}
           <MenuItem as="form" action={signOut}>
-            <button className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
               Logout
-            </button>
           </MenuItem>
         </MenuList>
       </Menu>
