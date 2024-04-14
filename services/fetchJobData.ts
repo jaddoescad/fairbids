@@ -153,15 +153,17 @@ async function fetchQueryData(query) {
 export { fetchQueryData };
 
 
-async function fetchNearbyQueryData(query, latitude, longitude, lim = 10) {
+async function searchNearbyJobs(query, latitude, longitude, lim = 10) {
   const supabase = createClient();
 
   const { data, error } = await supabase.rpc('search_nearby_jobs', {
-    lim: 10,
+    lim: lim,
     query: query,
     user_lat: latitude,
     user_long: longitude
   });
+
+  console.log("data", data);
 
   if (error) {
     console.error("Error fetching job data", error);
@@ -191,10 +193,12 @@ async function fetchNearbyQueryData(query, latitude, longitude, lim = 10) {
     })
   );
 
+  console.log("jobsWithImages", jobsWithImages);
+
   return jobsWithImages;
 }
 
-export { fetchNearbyQueryData };
+export { searchNearbyJobs };
 
 
 async function fetchUserJobs(userId) {
