@@ -12,21 +12,24 @@ export default function SearchPage({ searchParams }) {
   const [searchResults, setSearchResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const perPage = 3;
 
   useEffect(() => {
     async function fetchData() {
       if (location && location.latitude && location.longitude) {
-        const data = await searchNearbyJobs(
+        const { jobs, totalCount } = await searchNearbyJobs(
           query,
           location.latitude,
           location.longitude,
-          20
+          currentPage,
+          perPage
         );
-        setSearchResults(data);
+        setSearchResults(jobs);
+        setTotalPages(Math.ceil(totalCount / perPage));
       }
     }
     fetchData();
-  }, [query, location]);
+  }, [query, location, currentPage]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);

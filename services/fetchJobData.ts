@@ -153,21 +153,22 @@ async function fetchQueryData(query) {
 export { fetchQueryData };
 
 
-async function searchNearbyJobs(query, latitude, longitude, lim = 10) {
+async function searchNearbyJobs(query, latitude, longitude, page = 1, perPage = 10) {
   const supabase = createClient();
 
   const { data, error } = await supabase.rpc('search_nearby_jobs', {
-    lim: lim,
     query: query,
     user_lat: latitude,
-    user_long: longitude
+    user_long: longitude,
+    page: page,
+    per_page: perPage,
   });
 
   console.log("data", data);
 
   if (error) {
     console.error("Error fetching job data", error);
-    return null;
+    return { jobs: null, totalCount: 0 };
   }
 
   const jobsWithImages = await Promise.all(
@@ -182,20 +183,25 @@ async function searchNearbyJobs(query, latitude, longitude, lim = 10) {
                 height: 500,
               },
             });
+
           if (fileError) {
             console.error("Error fetching file URL", fileError);
             return null;
           }
+
           return fileData.publicUrl;
         })
       );
+
       return { ...job, imageUrls: imageUrls.filter(Boolean) };
     })
   );
 
   console.log("jobsWithImages", jobsWithImages);
 
-  return jobsWithImages;
+  const totalCount = data.length > 0 ? data[0].total_count : 0;
+
+  return { jobs: jobsWithImages, totalCount: totalCount };
 }
 
 export { searchNearbyJobs };

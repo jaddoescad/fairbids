@@ -1,11 +1,11 @@
 import React from "react";
-import { Box, Button, HStack } from "@chakra-ui/react";
-
+import { Button, HStack } from "@chakra-ui/react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pageNumbers = [];
 
-  if (totalPages <= 7) {
+  if (totalPages <= 4) {
     for (let i = 1; i <= totalPages; i++) {
       pageNumbers.push(i);
     }
@@ -14,13 +14,13 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     const lastPage = totalPages;
 
     if (currentPage <= 4) {
-      for (let i = 1; i <= 4; i++) {
+      for (let i = 1; i <= 5; i++) {
         pageNumbers.push(i);
       }
       pageNumbers.push("...", lastPage);
     } else if (currentPage >= totalPages - 3) {
       pageNumbers.push(firstPage, "...");
-      for (let i = totalPages - 3; i <= totalPages; i++) {
+      for (let i = totalPages - 4; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
@@ -29,25 +29,36 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   }
 
   return (
-    <HStack spacing={2}>
+    <HStack spacing={2} justifyContent="center" alignItems="center" pt={10}>
       <Button
         onClick={() => onPageChange(currentPage - 1)}
         isDisabled={currentPage === 1}
+        leftIcon={<ChevronLeftIcon />}
+        size="md"
+        variant="outline"
       >
-        Back
+        Previous
       </Button>
+
       {pageNumbers.map((pageNumber, index) => (
         <Button
           key={index}
           onClick={() => onPageChange(pageNumber)}
           isDisabled={pageNumber === currentPage || pageNumber === "..."}
+          size="md"
+          variant={pageNumber === currentPage ? "solid" : "outline"}
+          colorScheme={pageNumber === currentPage ? "blue" : "gray"}
         >
           {pageNumber}
         </Button>
       ))}
+
       <Button
         onClick={() => onPageChange(currentPage + 1)}
         isDisabled={currentPage === totalPages}
+        rightIcon={<ChevronRightIcon />}
+        size="md"
+        variant="outline"
       >
         Next
       </Button>
