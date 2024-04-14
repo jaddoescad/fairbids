@@ -83,7 +83,7 @@ async function fetchJobData(id) {
 }
 
 export { fetchJobData };
-async function fetchNearestJobs(location, limit = 10) {
+async function fetchNearestJobs(location, limit = 2, offset = 0) {
   const supabase = createClient();
 
   if (location.latitude === undefined || location.longitude === undefined) {
@@ -91,10 +91,11 @@ async function fetchNearestJobs(location, limit = 10) {
     return [];
   }
 
-  const { data, error } = await supabase.rpc('nearby_jobs', {
+  const { data, error } = await supabase.rpc('get_nearby_jobs', {
     user_lat: location.latitude,
     user_long: location.longitude,
     lim: limit,
+    off: offset,
   });
 
   if (error) {

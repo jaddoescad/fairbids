@@ -4,39 +4,52 @@ import React, { useContext, useEffect, useState } from "react";
 import { fetchNearestJobs } from "@/services/fetchJobData";
 import JobList from '@/components/JobList';
 import { LocationContext } from "@/context/LocationContext";
-import { Box, Center, Heading, Spinner } from "@chakra-ui/react";
+import { Box, Button, Center, Heading, Spinner } from "@chakra-ui/react";
 
-export default function Index() {
+export default function Index({ limit = 2 }) {
   const { location } = useContext(LocationContext);
   const [nearestJobs, setNearestJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     async function fetchJobs() {
       if (location.latitude && location.longitude) {
-        const jobs = await fetchNearestJobs(location);
-        setNearestJobs(jobs);
+        const jobs = await fetchNearestJobs(location, limit, offset);
+        setNearestJobs(offset === 0 ? jobs : (prevJobs) => [...prevJobs, ...jobs]);
         setIsLoading(false);
+        setHasMore(jobs.length === limit);
       }
     }
-
     fetchJobs();
-  }, [location.latitude, location.longitude]);
+  }, [location.latitude, location.longitude, offset, limit]);
+
+  const handleShowMore = () => {
+    setOffset((prevOffset) => prevOffset + limit);
+  };
 
   return (
     <Box maxW="2050px" mx="auto">
       {isLoading ? (
         <Center h="full">
-        <Spinner size="xl" />
+          <Spinner size="xl" />
         </Center>
       ) : (
         <Box w="100%" h="100%" maxW={"2050px"} mt={10} paddingBottom={50}>
-        <Box>
-          <Heading as="h2" size="xl" mb={8} mt={2}>
-            Nearest Jobs
-          </Heading>
-        <JobList jobs={nearestJobs} />
-        </Box>
+          <Box>
+            <Heading as="h2" size="xl" mb={8} mt={2}>
+              Nearest Jobs
+            </Heading>
+            <JobList jobs={nearestJobs} />
+            {hasMore && (
+              <Box width="100%" textAlign="center" mt={4}>
+                <Button onClick={handleShowMore} size={"lg"} colorScheme="blue">
+                  Show More
+                </Button>
+              </Box>
+            )}
+          </Box>
         </Box>
       )}
     </Box>
