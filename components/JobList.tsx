@@ -17,11 +17,16 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 
 export default function JobList({ jobs }) {
   return (
-    <VStack spacing={6} align="stretch">
-      {jobs.map((job) => (
-        <JobItem key={job.id} job={job} />
-      ))}
-    </VStack>
+    <Box>
+      <VStack spacing={6} align="stretch">
+        {jobs.map((job) => (
+          <JobItem key={job.id} job={job} />
+        ))}
+      </VStack>
+      <Box width="100%" textAlign="center" mt={4}>
+        <Button size={'lg'} colorScheme="blue">Show More</Button>
+      </Box>
+    </Box>
   );
 }
 

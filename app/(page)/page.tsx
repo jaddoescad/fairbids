@@ -9,12 +9,11 @@ import { Box, Center, Heading, Spinner } from "@chakra-ui/react";
 export default function Index() {
   const { location } = useContext(LocationContext);
   const [nearestJobs, setNearestJobs] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchJobs() {
       if (location.latitude && location.longitude) {
-        setIsLoading(true);
         const jobs = await fetchNearestJobs(location);
         setNearestJobs(jobs);
         setIsLoading(false);
