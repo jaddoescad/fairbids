@@ -5,8 +5,8 @@ import Link from "next/link";
 import AuthButton from "@/components/AuthButton";
 import HeaderWrapper from "@/components/wrappers/HeaderWrapper";
 import Logo from "@/components/Logo";
-import { LocationBar, SearchBar } from "@/app/(page)/LocationBar";
 import PostButton from "@/components/PostQuoteButton";
+import { LocationBar, SearchBar } from "@/components/LocationBar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

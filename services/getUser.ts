@@ -31,3 +31,20 @@ export async function getUserId() {
 
   return null;
 }
+
+
+import { redirect } from "next/navigation";
+
+export async function authGuard() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/signin");
+  }
+
+  return user;
+}

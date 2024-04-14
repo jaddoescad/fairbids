@@ -1,11 +1,11 @@
 import * as React from "react";
 import { Box, Flex } from "@chakra-ui/react";
 import AuthButton from "@/components/AuthButton";
-import { LocationBar, SearchBar } from "./LocationBar";
 import PostButton from "@/components/PostQuoteButton";
 import Logo from "@/components/Logo";
 import HeaderWrapper from "@/components/wrappers/HeaderWrapper";
 import MainWrapper from "@/components/wrappers/MainWrapper";
+import { LocationBar, SearchBar } from "@/components/LocationBar";
 
 export default function RootLayout({
   children,

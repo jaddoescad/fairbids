@@ -12,6 +12,9 @@ import {
 } from "@chakra-ui/react";
 import { getUserDisplayName } from "@/services/getUser";
 import NextLink from "next/link";
+import { LogoutButton } from "./Signout";
+
+
 
 export default async function AuthButton() {
   const cookieStore = cookies();
@@ -20,14 +23,6 @@ export default async function AuthButton() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const signOut = async () => {
-    "use server";
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-    await supabase.auth.signOut();
-    return redirect("/signin");
-  };
 
   return user ? (
     <Box>
@@ -38,10 +33,8 @@ export default async function AuthButton() {
         <MenuList>
           <MenuItem as={NextLink} href="/my-jobs">
             My Jobs
-          </MenuItem>{" "}
-          <MenuItem as="form" action={signOut}>
-              Logout
           </MenuItem>
+          <LogoutButton />
         </MenuList>
       </Menu>
     </Box>
