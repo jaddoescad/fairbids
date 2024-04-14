@@ -32,7 +32,6 @@ function JobDetailsContent({ job }) {
   const [locationError, setLocationError] = useState("");
   const [quoteError, setQuoteError] = useState("");
   const [imageError, setImageError] = useState("");
-  const [isLocationValid, setIsLocationValid] = useState(true);
 
   const toast = useToast();
   const router = useRouter();
@@ -46,20 +45,12 @@ function JobDetailsContent({ job }) {
       setImageError("");
       setQuoteError("");
 
-      if (!updatedJob?.location || !isLocationValid) {
-        setLocationError("Please select a valid location from the list.");
-        setIsSaving(false);
-        toast({
-          title: "Error",
-          description: "Please select a valid location from the list.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-        return;
-      }
-
-      if (!updatedJob?.location || Object.keys(updatedJob.location).length === 0) {
+      console.log("updatedJob", updatedJob.location);
+      if (
+        !updatedJob?.location ||
+        !updatedJob?.latitude ||
+        !updatedJob?.longitude
+      ) {
         setLocationError("Please select a valid location from the list.");
         setIsSaving(false);
         toast({
@@ -74,6 +65,7 @@ function JobDetailsContent({ job }) {
 
       // Validate the location
       const isValid = await isValidLocation(updatedJob.location);
+      console.log("isValid", isValid);
       if (!isValid) {
         setLocationError("Invalid location. Please select a valid location.");
         setIsSaving(false);
@@ -221,7 +213,14 @@ function JobDetailsContent({ job }) {
         />
         <LocationAutocomplete
           initialLocation={updatedJob.location}
-          setLocation={(location) => setUpdatedJob({ ...updatedJob, location: location.address, latitude: location.latitude, longitude: location.longitude})}
+          setLocation={(newLocation) =>
+            setUpdatedJob({
+              ...updatedJob,
+              location: newLocation.location,
+              latitude: newLocation.latitude,
+              longitude: newLocation.longitude,
+            })
+          }
           errorMessage={locationError}
         />
         <DescriptionInput

@@ -25,9 +25,8 @@ export function LocationAutocomplete({ initialLocation, setLocation, errorMessag
         const newLocation = place.formatted_address;
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
-        console.log("New location", newLocation);
         setLocation({
-          address: newLocation,
+          location: newLocation,
           latitude,
           longitude,
         });
@@ -50,6 +49,7 @@ export function LocationAutocomplete({ initialLocation, setLocation, errorMessag
               value={inputLocation}
               onChange={(e) => {
                 setInputLocation(e.target.value);
+                setLocation({});
               }}
               placeholder="Enter location"
               p={5}
