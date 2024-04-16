@@ -11,7 +11,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-full w-full">
+    <Box w={"full"} h={"full"} display={"flex"} flexDirection={"column"}>
       <HeaderWrapper>
         <Flex align="center" mr={5}>
           <Logo />
@@ -26,6 +26,6 @@ export default function RootLayout({
         </Box>
       </HeaderWrapper>
       <div className="h-full flex flex-col items-center">{children}</div>
-    </div>
+    </Box>
   );
 }

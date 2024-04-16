@@ -7,7 +7,10 @@ import { FormEvent, use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithGoogle } from "@/services/authClient";
 import useAuth from "@/hooks/authClientHook";
-import {Spinner} from "@chakra-ui/react";
+import {Box, Spinner} from "@chakra-ui/react";
+import Logo from "@/components/Logo";
+import Image from "next/image";
+
 export default function Client() {
   const supabase = createClient();
 
@@ -70,7 +73,17 @@ export default function Client() {
 
 
   return (
-    <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
+    <>
+      <Box padding={4} my={50} display="flex" justifyContent="center" alignItems="center">
+        <Image
+          src={"/logo.png"}
+          alt="Logo"
+          width={200}
+          height={200}
+          priority={true}
+          style={{ width: "auto" }}
+        />
+      </Box>
       <div>
         <form
           className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
@@ -105,7 +118,6 @@ export default function Client() {
           </button>
         </form>
 
-        {/* OAuth */}
         <div className={"flex items-center w-full space-x-2 text-foreground"}>
           <button
             onClick={handleSignInWithGoogle}
@@ -115,7 +127,6 @@ export default function Client() {
           </button>
         </div>
 
-        {/* Sign Up Message */}
         <p className="mt-4 text-center text-foreground">
           Don't have an account?{" "}
           <Link href="/signup" className="text-blue-500 hover:underline">
@@ -123,13 +134,12 @@ export default function Client() {
           </Link>
         </p>
 
-        {/* Message */}
         {message && (
           <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
             {message}
           </p>
         )}
       </div>
-    </div>
+    </>
   );
 }
