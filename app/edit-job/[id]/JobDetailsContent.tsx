@@ -6,7 +6,7 @@ import { TitleInput } from "@/components/CreateJobComponents/TitleInput";
 import { AfterImages, BeforeImages } from "@/components/CreateJobComponents/BeforeAfterImageUpload";
 import { DescriptionInput } from "@/components/CreateJobComponents/Description";
 import { Quotes } from "@/components/CreateJobComponents/Quotes";
-import { Box, Text, Center, Button } from "@chakra-ui/react";
+import { Box, Text, Center, Button, Flex, Spinner } from "@chakra-ui/react";
 import { fetchJobData } from "@/services/fetchJobData";
 import { useEffect, useState } from "react";
 import { updateJobDetails } from "@/services/updateJobDetails";
@@ -281,7 +281,11 @@ export default function JobDetails({ jobId }) {
   }, [jobId]);
 
   if (!job) {
-    return <div>Loading...</div>;
+    return (
+      <Flex align="center" justify="center" height="100vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
   }
 
   return <JobDetailsContent job={job} />;

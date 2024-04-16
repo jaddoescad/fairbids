@@ -6,10 +6,19 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 
 export default async function JobDetailsContent({ jobId }) {
   const job = await fetchJobData(jobId);
+  const userId = await getUserId();
+  const isOwner = job.user_id === userId;
 
   return (
     <Box marginTop={10} paddingBottom={"200px"}>
       <Box background={"white"} padding={10}>
+        {isOwner && (
+          <Box>
+            <Button as="a" href={`/edit-job/${jobId}`} colorScheme="blue" mb={5}>
+              Edit Job
+            </Button>
+          </Box>
+        )}
         <Text as="h1" fontSize="3xl" fontWeight="bold">
           {job.title}
         </Text>
@@ -23,24 +32,23 @@ export default async function JobDetailsContent({ jobId }) {
             mr={2}
             fontSize={"larger"}
           >
-          <FaMapMarkerAlt />
+            <FaMapMarkerAlt />
           </Box>
-          <Flex
-            direction={"row"}
-            gap={2}
-          >
-            
-          <Text as="h2" fontSize="large" fontWeight="medium">
-            {job.location}
-          </Text>
-
-          -
-
-          {job.display_name && (
-            <Text as="span" fontSize="large" fontWeight="medium" color="gray.500">
-              Posted by: {job.display_name}
+          <Flex direction={"row"} gap={2}>
+            <Text as="h2" fontSize="large" fontWeight="medium">
+              {job.location}
             </Text>
-          )}
+            -
+            {job.display_name && (
+              <Text
+                as="span"
+                fontSize="large"
+                fontWeight="medium"
+                color="gray.500"
+              >
+                Posted by: {job.display_name}
+              </Text>
+            )}
           </Flex>
         </Flex>
         <Text
@@ -62,11 +70,10 @@ export default async function JobDetailsContent({ jobId }) {
   );
 }
 
-
-
 // QuotesList.js
 import { VStack, HStack } from "@chakra-ui/react";
 import { BeforeAfterImages } from "./BeforeAfterImages";
+import { getUserId } from "@/services/authServer";
 
 export const QuotesList = ({ quotes }) => {
   const getFileName = (filePath) => {
