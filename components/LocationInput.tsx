@@ -3,10 +3,18 @@ import { Autocomplete } from "@react-google-maps/api";
 import { Input, Box, Text } from "@chakra-ui/react";
 import { TopTitle } from "./CreateJobComponents/FormReusable/TopTitle";
 
-export function GooglePlacesAutocomplete({ initialLocation, onLocationChange, errorMessage }) {
-  const [autocomplete, setAutocomplete] = useState(null);
+export function GooglePlacesAutocomplete({
+  initialLocation,
+  onLocationChange,
+  errorMessage,
+}: {
+  initialLocation: string;
+  onLocationChange: (location: string) => void;
+  errorMessage?: string;
+}) {
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
-  const onLoad = (autocompleteInstance) => {
+  const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
     setAutocomplete(autocompleteInstance);
   };
 
@@ -21,7 +29,7 @@ export function GooglePlacesAutocomplete({ initialLocation, onLocationChange, er
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onLocationChange(e.target.value);
   };
 

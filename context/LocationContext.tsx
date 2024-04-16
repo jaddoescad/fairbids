@@ -1,25 +1,27 @@
-'use client'
-
+'use client';
+import { LocationContextType, LocationProviderProps } from '@/types/types';
 import React, { createContext, useState, useEffect } from 'react';
 
-export const LocationContext = createContext(
-  {
-    location: {
-      latitude: null,
-      longitude: null,
-      address: "",
-    },
-    setLocation: () => {},
-  }
-);
 
-
-
-export const LocationProvider = ({ children }) => {
-  const [location, setLocation] = useState({
+export const LocationContext = createContext<LocationContextType>({
+  location: {
     latitude: null,
     longitude: null,
-    address: null,
+    address: '',
+  },
+  setLocation: () => {},
+});
+
+
+export const LocationProvider = ({ children }: LocationProviderProps) => {
+  const [location, setLocation] = useState<{
+    latitude: number | null;
+    longitude: number | null;
+    address: string;
+  }>({
+    latitude: null,
+    longitude: null,
+    address: '',
   });
 
   const fetchDefaultLocation = async () => {

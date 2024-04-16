@@ -14,7 +14,6 @@ export async function getUserDisplayName() {
 
   const { data: { user } } = await supabase.auth.getUser();
   
-  console.log(user)
 
   if (user) {
     return user.user_metadata.full_name || user.user_metadata.display_name

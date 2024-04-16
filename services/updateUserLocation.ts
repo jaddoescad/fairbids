@@ -1,14 +1,14 @@
 // services/userProfileService.js
+import { Location } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
 
-async function updateUserLocation(userId, location) {
+async function updateUserLocation(userId: string, location: Location) {
   const supabase = createClient();
-  console.log("hello");
 
   const { data, error } = await supabase
     .from("user_profiles")
     .update({
-      location: location.address,
+      address: location.address,
       latitude: location.latitude,
       longitude: location.longitude,
     })

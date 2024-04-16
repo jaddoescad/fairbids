@@ -14,8 +14,13 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
+import { Job } from "@/types/types";
 
-export default function JobList({ jobs }) {
+interface JobListProps {
+  jobs: Job[];
+}
+
+export default function JobList({ jobs }: JobListProps) {
   return (
     <VStack spacing={6} align="stretch">
       {jobs.map((job) => (
@@ -25,30 +30,34 @@ export default function JobList({ jobs }) {
   );
 }
 
-function JobItem({ job }) {
+interface JobItemProps {
+  job: Job;
+}
+
+function JobItem({ job }: JobItemProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoading, setIsImageLoading] = useState(true);
 
-  const handlePrevImage = (e) => {
+  const handlePrevImage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsImageLoading(true);
     setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? job.imageUrls.length - 1 : prevIndex - 1
+      prevIndex === 0 ? job.image_urls.length - 1 : prevIndex - 1
     );
   };
 
-  const handleNextImage = (e) => {
+  const handleNextImage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsImageLoading(true);
     setCurrentImageIndex((prevIndex) =>
-      prevIndex === job.imageUrls.length - 1 ? 0 : prevIndex + 1
+      prevIndex === job.image_urls.length - 1 ? 0 : prevIndex + 1
     );
   };
 
   return (
     <Link href={`/job/${job.id}`}>
       <Flex borderWidth={1} borderRadius="lg" p={6} boxShadow="md" bg="white">
-        {job.imageUrls && job.imageUrls.length > 0 && (
+        {job.image_urls && job.image_urls.length > 0 && (
           <Flex mb={4} align="center">
             <Button
               onClick={(e) => handlePrevImage(e)}
@@ -75,7 +84,7 @@ function JobItem({ job }) {
                 </Box>
               ) : null}
               <Image
-                src={job.imageUrls[currentImageIndex]}
+                src={job.image_urls[currentImageIndex]}
                 alt={`Job Image ${currentImageIndex + 1}`}
                 width={350}
                 height={350}
@@ -103,7 +112,7 @@ function JobItem({ job }) {
             {job.company}
           </Text>
           <Text mb={4} fontSize="lg" color="gray.600">
-            {job.location}
+            {job.address}
           </Text>
           <Box display="inline-block">
             <Text
@@ -123,7 +132,6 @@ function JobItem({ job }) {
                   }`}
             </Text>
           </Box>
-
           {job?.description && (
             <Text
               fontSize="x-large"

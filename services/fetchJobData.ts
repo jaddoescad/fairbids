@@ -1,7 +1,9 @@
 // services/jobService.js
+import { FileInfo, Job, Quote } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
+import { getUserId } from "./authServer";
 
-async function fetchJobData(id) {
+async function fetchJobData(id: string) {
   const supabase = createClient();
 
   const { data, error } = await supabase
@@ -11,13 +13,12 @@ async function fetchJobData(id) {
     .single();
 
   if (error) {
-    console.error("Error fetching job data", error);
-    return null;
+    throw new Error("Error fetching job data");
   }
 
   const jobFiles = await Promise.allSettled(
-    data.job_files.map(async (file) => {
-      const { data: fileData, error: fileError } = await supabase.storage
+    data.job_files.map(async (file: FileInfo) => {
+      const { data: fileData } = await supabase.storage
         .from("job_files")
         .getPublicUrl(file.file_path, {
           transform: {
@@ -25,11 +26,6 @@ async function fetchJobData(id) {
             height: 200,
           },
         });
-
-      if (fileError) {
-        console.error("Error fetching file URL", fileError);
-        return null;
-      }
 
       return {
         ...file,
@@ -44,54 +40,78 @@ async function fetchJobData(id) {
     .eq("job_id", id);
 
   if (quotesError) {
-    console.error("Error fetching quotes data", quotesError);
+    throw new Error("Error fetching quotes data");
   }
 
-  const updatedQuotesData = await Promise.allSettled(
-    quotesData.map(async (quote) => {
-      const updatedQuoteFiles = await Promise.allSettled(
-        quote.quote_files.map(async (file) => {
-          const { data: fileData, error: fileError } = await supabase.storage
-            .from("job_files")
-            .getPublicUrl(file.file_path);
+  const updatedQuotesData = quotesData
+    ? await Promise.allSettled(
+        quotesData.map(async (quote) => {
+          const updatedQuoteFiles = await Promise.allSettled(
+            quote.quote_files.map(async (file: FileInfo) => {
+              const { data: quoteData } = await supabase.storage
+                .from("job_files")
+                .getPublicUrl(file.file_path);
 
-          if (fileError) {
-            console.error("Error fetching file URL", fileError);
-            return null;
-          }
+              return {
+                ...file,
+                file_url: quoteData.publicUrl,
+              };
+            })
+          );
 
           return {
-            ...file,
-            file_url: fileData.publicUrl,
+            ...quote,
+            quote_files: updatedQuoteFiles
+              .map((result) => {
+                if (result.status === "fulfilled") {
+                  return (result as PromiseFulfilledResult<any>).value;
+                }
+                return null;
+              })
+              .filter(Boolean),
           };
         })
-      );
-
-      return {
-        ...quote,
-        quote_files: updatedQuoteFiles.map((result) => result.value).filter(Boolean),
-      };
-    })
-  );
+      )
+    : [];
 
   return {
     ...data,
-    job_files: jobFiles.map((result) => result.value).filter(Boolean),
-    quotes: updatedQuotesData?.map((result) => result.value) ?? [],
+    job_files: jobFiles
+      .map((result) => {
+        if (result.status === "fulfilled") {
+          return (result as PromiseFulfilledResult<any>).value;
+        }
+        return null;
+      })
+      .filter(Boolean),
+    quotes: updatedQuotesData
+      .map((result) => {
+        if (result.status === "fulfilled") {
+          return (result as PromiseFulfilledResult<any>).value;
+        }
+        return null;
+      })
+      .filter(Boolean),
     display_name: data.user_profiles?.display_name ?? null,
   };
 }
 
 export { fetchJobData };
-async function fetchNearestJobs(location, limit = 2, offset = 0) {
+
+
+
+async function fetchNearestJobs(
+  location: { latitude: number; longitude: number },
+  limit = 2,
+  offset = 0
+) {
   const supabase = createClient();
 
   if (location.latitude === undefined || location.longitude === undefined) {
-    console.error("Invalid location");
-    return [];
+    throw new Error("Location is required");
   }
 
-  const { data, error } = await supabase.rpc('get_nearby_jobs', {
+  const { data, error } = await supabase.rpc("get_nearby_jobs", {
     user_lat: location.latitude,
     user_long: location.longitude,
     lim: limit,
@@ -99,15 +119,14 @@ async function fetchNearestJobs(location, limit = 2, offset = 0) {
   });
 
   if (error) {
-    console.error("Error fetching nearby jobs", error);
-    return [];
+    throw new Error("Error fetching nearby jobs");
   }
 
   const jobsWithImages = await Promise.all(
-    data.map(async (job) => {
-      const imageUrls = await Promise.all(
-        job.image_urls.map(async (filePath) => {
-          const { data: fileData, error: fileError } = await supabase.storage
+    data.map(async (job: Job) => {
+      const image_urls = await Promise.all(
+        job.image_urls.map(async (filePath: string) => {
+          const { data: fileData } = await supabase.storage
             .from("job_files")
             .getPublicUrl(filePath, {
               transform: {
@@ -116,18 +135,13 @@ async function fetchNearestJobs(location, limit = 2, offset = 0) {
               },
             });
 
-          if (fileError) {
-            console.error("Error fetching file URL", fileError);
-            return null;
-          }
-
           return fileData.publicUrl;
         })
       );
 
       return {
         ...job,
-        imageUrls: imageUrls.filter(Boolean),
+        image_urls: image_urls.filter(Boolean),
       };
     })
   );
@@ -137,13 +151,11 @@ async function fetchNearestJobs(location, limit = 2, offset = 0) {
 
 export { fetchNearestJobs };
 
-
-async function fetchQueryData(query) {
+async function fetchQueryData(query: string) {
   const supabase = createClient();
-  const { data, error } = await supabase.rpc('search_jobs', { query });
+  const { data, error } = await supabase.rpc("search_jobs", { query });
 
   if (error) {
-    console.error("Error fetching job data", error);
     return null;
   }
 
@@ -152,11 +164,16 @@ async function fetchQueryData(query) {
 
 export { fetchQueryData };
 
-
-async function searchNearbyJobs(query, latitude, longitude, page = 1, perPage = 10) {
+async function searchNearbyJobs(
+  query: string,
+  latitude: number,
+  longitude: number,
+  page = 1,
+  perPage = 10
+): Promise<{ jobs: Job[]; totalCount: number }> {
   const supabase = createClient();
 
-  const { data, error } = await supabase.rpc('search_nearby_jobs', {
+  const { data, error } = await supabase.rpc("search_nearby_jobs", {
     query: query,
     user_lat: latitude,
     user_long: longitude,
@@ -164,18 +181,16 @@ async function searchNearbyJobs(query, latitude, longitude, page = 1, perPage = 
     per_page: perPage,
   });
 
-  console.log("data", data);
 
   if (error) {
-    console.error("Error fetching job data", error);
-    return { jobs: null, totalCount: 0 };
+    throw new Error("Error fetching nearby jobs");
   }
 
   const jobsWithImages = await Promise.all(
-    data.map(async (job) => {
-      const imageUrls = await Promise.all(
-        job.image_urls.map(async (filePath) => {
-          const { data: fileData, error: fileError } = await supabase.storage
+    data.map(async (job: Job) => {
+      const image_urls = await Promise.all(
+        job.image_urls.map(async (filePath: string) => {
+          const { data: fileData } = await supabase.storage
             .from("job_files")
             .getPublicUrl(filePath, {
               transform: {
@@ -184,20 +199,13 @@ async function searchNearbyJobs(query, latitude, longitude, page = 1, perPage = 
               },
             });
 
-          if (fileError) {
-            console.error("Error fetching file URL", fileError);
-            return null;
-          }
-
           return fileData.publicUrl;
         })
       );
 
-      return { ...job, imageUrls: imageUrls.filter(Boolean) };
+      return { ...job, image_urls: image_urls.filter(Boolean) };
     })
   );
-
-  console.log("jobsWithImages", jobsWithImages);
 
   const totalCount = data.length > 0 ? data[0].total_count : 0;
 
@@ -206,25 +214,26 @@ async function searchNearbyJobs(query, latitude, longitude, page = 1, perPage = 
 
 export { searchNearbyJobs };
 
-
-async function fetchUserJobs(userId) {
+async function fetchUserJobs() {
   const supabase = createClient();
+  const userId = await getUserId();
 
   const { data: jobsData, error: jobsError } = await supabase
     .from("jobs")
-    .select(`*, job_files(file_path, file_type), quotes(*, quote_files(file_path))`)
+    .select(
+      `*, job_files(file_path, file_type), quotes(*, quote_files(file_path))`
+    )
     .eq("user_id", userId);
 
   if (jobsError) {
-    console.error("Error fetching user jobs", jobsError);
-    return [];
+    throw new Error("Error fetching user jobs");
   }
 
   const jobsWithImagesAndQuotes = await Promise.all(
     jobsData.map(async (job) => {
-      const imageUrls = await Promise.all(
-        job.job_files.map(async (file) => {
-          const { data: fileData, error: fileError } = await supabase.storage
+      const image_urls = await Promise.all(
+        job.job_files.map(async (file: FileInfo) => {
+          const { data: fileData } = await supabase.storage
             .from("job_files")
             .getPublicUrl(file.file_path, {
               transform: {
@@ -233,27 +242,17 @@ async function fetchUserJobs(userId) {
               },
             });
 
-          if (fileError) {
-            console.error("Error fetching file URL", fileError);
-            return null;
-          }
-
           return fileData.publicUrl;
         })
       );
 
       const quotesWithFiles = await Promise.all(
-        job.quotes.map(async (quote) => {
+        job.quotes.map(async (quote: Quote) => {
           const quoteFileUrls = await Promise.all(
-            quote.quote_files.map(async (file) => {
-              const { data: fileData, error: fileError } = await supabase.storage
+            quote.quote_files.map(async (file: FileInfo) => {
+              const { data: fileData } = await supabase.storage
                 .from("job_files")
                 .getPublicUrl(file.file_path);
-
-              if (fileError) {
-                console.error("Error fetching file URL", fileError);
-                return null;
-              }
 
               return fileData.publicUrl;
             })
@@ -267,11 +266,13 @@ async function fetchUserJobs(userId) {
       );
 
       const quoteCount = quotesWithFiles.length;
-      const averageQuoteValue = quotesWithFiles.reduce((sum, quote) => sum + quote.value, 0) / quoteCount;
+      const averageQuoteValue =
+        quotesWithFiles.reduce((sum, quote) => sum + quote.value, 0) /
+        quoteCount;
 
       return {
         ...job,
-        imageUrls: imageUrls.filter(Boolean),
+        image_urls: image_urls.filter(Boolean),
         quotes: quotesWithFiles,
         quote_count: quoteCount,
         average_quote_value: averageQuoteValue,

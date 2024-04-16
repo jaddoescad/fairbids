@@ -1,9 +1,12 @@
-'use client'
-
+'use client';
 import { useContext } from "react";
 import React, { useState } from "react";
 import { Input, FormControl, FormLabel } from "@chakra-ui/react";
 import { useRouter } from 'next/navigation';
+import { Select, SingleValue } from "chakra-react-select";
+import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
+import { LocationContext } from "@/context/LocationContext";
+import { Suggestion } from "@/types/types";
 
 export const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,16 +44,12 @@ export const SearchBar = () => {
   );
 };
 
-import { Select } from "chakra-react-select";
-import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
-import { LocationContext } from "@/context/LocationContext";
-
 export const LocationBar = () => {
   const { isLoaded, loadError } = useGoogleMapsScript();
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const { setLocation, location } = useContext(LocationContext);
 
-  const handleLocationChange = async (inputValue) => {
+  const handleLocationChange = async (inputValue: string) => {
     if (isLoaded && inputValue) {
       const service = new window.google.maps.places.AutocompleteService();
       const predictions = await service.getPlacePredictions({ input: inputValue });
@@ -69,23 +68,27 @@ export const LocationBar = () => {
     }
   };
 
-  const handleLocationSelect = async (selectedOption) => {
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ placeId: selectedOption.value }, async (results, status) => {
-      if (status === "OK" && results[0]) {
-        const { lat, lng } = results[0].geometry.location;
-        setLocation({
-          latitude: lat(),
-          longitude: lng(),
-          address: selectedOption.label,
-        });
-      }
-    });
+  const handleLocationSelect = async (newValue: SingleValue<Suggestion>) => {
+    if (newValue) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ placeId: newValue.value }, async (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          const { lat, lng } = results[0].geometry.location;
+          setLocation({
+            latitude: lat(),
+            longitude: lng(),
+            address: newValue.label,
+          });
+        }
+      });
+    }
   };
-
-  const handleInputChange = (inputValue) => {
+  const handleInputChange = (inputValue: string) => {
     if (inputValue) {
-      setLocation({ ...location, address: inputValue });
+      setLocation({
+        ...location,
+        address: inputValue,
+      });
       handleLocationChange(inputValue);
     }
   };

@@ -17,11 +17,12 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@chakra-ui/react";
 import { revalidateJobPathServer } from "@/services/revalidatePath";
 import { isValidLocation } from "@/services/isValidLocation";
+import { Job, Image, Quote, Location, JobDetails } from "@/types/types";
 
-function JobDetailsContent({ job }) {
+function JobDetailsContent({ job }: { job: Job }) {
   const [updatedJob, setUpdatedJob] = useState(job);
-  const [beforeImages, setBeforeImages] = useState([]);
-  const [afterImages, setAfterImages] = useState([]);
+  const [beforeImages, setBeforeImages] = useState<Image[]>([]);
+  const [afterImages, setAfterImages] = useState<Image[]>([]);
   const [quotes, setQuotes] = useState(job.quotes || []);
   const [imagesToDelete, setImagesToDelete] = useState([]);
   const [quotesToDelete, setQuotesToDelete] = useState([]);
@@ -45,9 +46,8 @@ function JobDetailsContent({ job }) {
       setImageError("");
       setQuoteError("");
 
-      console.log("updatedJob", updatedJob.location);
       if (
-        !updatedJob?.location ||
+        !updatedJob?.address ||
         !updatedJob?.latitude ||
         !updatedJob?.longitude
       ) {
@@ -64,8 +64,7 @@ function JobDetailsContent({ job }) {
       }
 
       // Validate the location
-      const isValid = await isValidLocation(updatedJob.location);
-      console.log("isValid", isValid);
+      const isValid = await isValidLocation(updatedJob.address);
       if (!isValid) {
         setLocationError("Invalid location. Please select a valid location.");
         setIsSaving(false);
@@ -168,11 +167,25 @@ function JobDetailsContent({ job }) {
       ]);
 
       // Filter out the quotes that already have an id (existing quotes)
-      const localQuotes = quotes.filter((quote) => !quote.id);
+      const localQuotes = quotes.filter((quote: Quote) => !quote.id);
 
       // Upload only the local quotes
       await uploadQuotes(localQuotes, job.id);
-      await updateJobDetails(updatedJob);
+
+      const updatedJobDetails: JobDetails = {
+        id: updatedJob.id,
+        title: updatedJob.title,
+        category: updatedJob.category,
+        location: {
+          address: updatedJob.address,
+          latitude: updatedJob.latitude,
+          longitude: updatedJob.longitude,
+        },
+        description: updatedJob.description,
+        published: true,
+      };
+
+      await updateJobDetails(updatedJobDetails);
 
       await revalidateJobPathServer(job.id);
       router.push(`/job/${job.id}`);
@@ -182,7 +195,7 @@ function JobDetailsContent({ job }) {
       console.error("Error updating job details", error);
       toast({
         title: "Error",
-        description: error.toString(),
+        description: "Error updating job details",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -203,20 +216,20 @@ function JobDetailsContent({ job }) {
       <Box background={"white"} padding={10}>
         <TitleInput
           initialTitle={updatedJob.title}
-          setTitle={(title) => setUpdatedJob({ ...updatedJob, title })}
+          setTitle={(title: string) => setUpdatedJob({ ...updatedJob, title })}
           errorMessage={titleError}
         />
         <CategorySelect
           initialCategory={updatedJob.category}
-          setCategory={(category) => setUpdatedJob({ ...updatedJob, category })}
+          setCategory={(category: string) => setUpdatedJob({ ...updatedJob, category })}
           errorMessage={categoryError}
         />
         <LocationAutocomplete
-          initialLocation={updatedJob.location}
-          setLocation={(newLocation) =>
+          initialLocation={updatedJob.address}
+          setLocation={(newLocation: Location) =>
             setUpdatedJob({
               ...updatedJob,
-              location: newLocation.location,
+              address: newLocation.address,
               latitude: newLocation.latitude,
               longitude: newLocation.longitude,
             })
@@ -225,7 +238,7 @@ function JobDetailsContent({ job }) {
         />
         <DescriptionInput
           initialDescription={updatedJob.description}
-          setDescription={(description) =>
+          setDescription={(description: string) =>
             setUpdatedJob({ ...updatedJob, description })
           }
           errorMessage={descriptionError}
@@ -267,7 +280,7 @@ function JobDetailsContent({ job }) {
   );
 }
 
-export default function JobDetails({ jobId }) {
+export default function JobDetails({ jobId }: { jobId: string }) {
   const [job, setJob] = useState(null);
 
   useEffect(() => {

@@ -3,7 +3,6 @@ import { getURL } from "next/dist/shared/lib/utils";
 
 export async function signInWithGoogle() {
     const supabase = createClient();
-    console.log(`${getURL()}`);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {

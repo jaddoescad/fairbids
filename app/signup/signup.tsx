@@ -39,7 +39,7 @@ export default function Signup() {
     if (data) router.push("/");
   }
 
-  async function handleSignInWithGoogle(e) {
+  async function handleSignInWithGoogle(e: FormEvent) {
     e.preventDefault();
 
     const { data, error } = await signInWithGoogle();

@@ -1,9 +1,11 @@
 import React from "react";
 import { Button, HStack } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { PaginationProps } from "@/types/types";
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  const pageNumbers = [];
+
+const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+    const pageNumbers: (number | string)[] = [];
 
   if (totalPages <= 4) {
     for (let i = 1; i <= totalPages; i++) {
@@ -39,12 +41,15 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       >
         Previous
       </Button>
-
       {pageNumbers.map((pageNumber, index) => (
         <Button
           key={index}
-          onClick={() => onPageChange(pageNumber)}
-          isDisabled={pageNumber === currentPage || pageNumber === "..."}
+          onClick={() => {
+            if (typeof pageNumber === "number") {
+              onPageChange(pageNumber);
+            }
+          }}
+          isDisabled={pageNumber === currentPage || typeof pageNumber === "string"}
           size="md"
           variant={pageNumber === currentPage ? "solid" : "outline"}
           colorScheme={pageNumber === currentPage ? "blue" : "gray"}
@@ -52,7 +57,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           {pageNumber}
         </Button>
       ))}
-
       <Button
         onClick={() => onPageChange(currentPage + 1)}
         isDisabled={currentPage === totalPages}

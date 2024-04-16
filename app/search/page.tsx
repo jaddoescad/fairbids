@@ -5,11 +5,13 @@ import JobList from "@/components/JobList";
 import { LocationContext } from "@/context/LocationContext";
 import { Box, Center, Heading } from "@chakra-ui/react";
 import Pagination from "@/components/Pagination";
+import { Job, SearchParams } from "@/types/types";
 
-export default function SearchPage({ searchParams }) {
+
+export default function SearchPage({ searchParams }: { searchParams: SearchParams }) {
   const { query } = searchParams;
   const { location } = useContext(LocationContext);
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<Job[]>([]); // Specify the type of searchResults as Job[]
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const perPage = 3;
@@ -24,14 +26,14 @@ export default function SearchPage({ searchParams }) {
           currentPage,
           perPage
         );
-        setSearchResults(jobs);
+        setSearchResults(jobs || []); // Set an empty array if jobs is undefined
         setTotalPages(Math.ceil(totalCount / perPage));
       }
     }
     fetchData();
   }, [query, location, currentPage]);
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => { // Specify the type of page as number
     setCurrentPage(page);
   };
 

@@ -1,9 +1,11 @@
 import { createClient } from '@/utils/supabase/client';
+import { User } from '@supabase/supabase-js';
 import { useState, useEffect } from 'react';
 
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
+
   const supabase = createClient();
 
   useEffect(() => {

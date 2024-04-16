@@ -6,10 +6,10 @@ import { saveJobToSupabase } from "@/services/createJobSupabase";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
+import { CategorySelectProps, LocationAutocompleteProps, TitleInputProps } from "@/types/types";
 
-const libraries = ["places"];
 
-const TitleInput = ({ title, setTitle, error, onEnter }) => (
+const TitleInput = ({ title, setTitle, error, onEnter }: TitleInputProps) => (
   <>
     <Input
       value={title}
@@ -33,7 +33,7 @@ const TitleInput = ({ title, setTitle, error, onEnter }) => (
   </>
 );
 
-const CategorySelect = ({ category, setCategory, error, onEnter }) => (
+const CategorySelect = ({ category, setCategory, error, onEnter }: CategorySelectProps) => (
   <>
     <Select
       placeholder="Select category"
@@ -70,22 +70,21 @@ const LocationAutocomplete = ({
   isValidLocation,
   setIsValidLocation,
   onSubmit,
-}) => {
-  const [autocomplete, setAutocomplete] = useState(null);
+}: LocationAutocompleteProps) => {
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
-  const onLoad = (autocompleteInstance) => {
+const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
     setAutocomplete(autocompleteInstance);
   };
 
   const handleBlur = () => {
-    console.log("Blur");
     onPlaceChanged();
   };
 
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
-      const place = autocomplete.getPlace();
-
+      const place = autocomplete?.getPlace();
+  
       // Check if the selected place is a city, county, or a more specific location
       const isValidLocation = place?.types?.some((type) =>
         [
@@ -94,18 +93,19 @@ const LocationAutocomplete = ({
           "administrative_area_level_3",
         ].includes(type)
       );
-
-      setIsValidLocation(isValidLocation);
-
-
+  
+      setIsValidLocation(!!isValidLocation); // Convert to boolean
+  
       if (isValidLocation) {
-        setLocationValue(place.formatted_address);
-
+        setLocationValue(place.formatted_address || ""); // Provide default value
+  
         // Extract latitude and longitude
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        setLatitude(lat);
-        setLongitude(lng);
+        if (place?.geometry?.location) {
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          setLatitude(lat);
+          setLongitude(lng);
+        }
       } else {
         setLocationValue("");
         setLatitude(null);
@@ -116,7 +116,7 @@ const LocationAutocomplete = ({
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (isValidLocation) {
         onSubmit(e);
@@ -160,9 +160,9 @@ export default function JobForm() {
   const [titleError, setTitleError] = useState(false);
   const [categoryError, setCategoryError] = useState(false);
   const [locationError, setLocationError] = useState(false);
-  const [locationValue, setLocationValue] = useState("");
-  const [latitute, setLatitude] = useState(null);
-  const [longitude, setLongitude] = useState(null);
+  const [address, setAddress] = useState("");
+  const [latitute, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const { isLoaded, loadError } = useGoogleMapsScript();
@@ -175,7 +175,7 @@ export default function JobForm() {
       setTitleError(true);
     } else if (step === 2 && category === "") {
       setCategoryError(true);
-    } else if (step === 3 && locationValue.trim() === "") {
+    } else if (step === 3 && address.trim() === "") {
       setLocationError(true);
     } else {
       setTitleError(false);
@@ -194,8 +194,7 @@ export default function JobForm() {
     e.preventDefault();
     try {
       setLocationError(false); // Reset locationError state
-      console.log("Submitting job", title, category, locationValue);
-      if (locationValue.trim() === "" || !isValidLocation) {
+      if (address.trim() === "" || !isValidLocation) {
         setLocationError(true);
         return;
       }
@@ -211,11 +210,18 @@ export default function JobForm() {
         return;
       }
       const userId = session.user.id;
+
+      if (latitute === null || longitude === null) {
+        console.error("Latitude or longitude is missing");
+        setIsLoading(false);
+        return;
+      }
+
       const savedJob = await saveJobToSupabase(
         supabase,
         title,
         category,
-        locationValue,
+        address,
         latitute,
         longitude,
         userId
@@ -279,8 +285,8 @@ export default function JobForm() {
             <LocationAutocomplete
               isLoaded={isLoaded}
               error={locationError}
-              locationValue={locationValue}
-              setLocationValue={setLocationValue}
+              locationValue={address}
+              setLocationValue={setAddress}
               setLatitude={setLatitude}
               setLongitude={setLongitude}
               setIsValidLocation={setIsValidLocation}

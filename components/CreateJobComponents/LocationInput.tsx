@@ -1,38 +1,45 @@
 "use client";
-
 import { use, useEffect, useState } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 import { Input, Box, Text } from "@chakra-ui/react";
 import { TopTitle } from "./FormReusable/TopTitle";
 import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
+import { Location } from "@/types/types";
 
 const libraries = ["places"];
 
-export function LocationAutocomplete({ initialLocation, setLocation, errorMessage }) {
-  const [autocomplete, setAutocomplete] = useState(null);
+interface LocationAutocompleteProps {
+  initialLocation?: string;
+  setLocation: (location: Location) => void;
+  errorMessage?: string;
+}
+
+export function LocationAutocomplete({
+  initialLocation,
+  setLocation,
+  errorMessage,
+}: LocationAutocompleteProps) {
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const [inputLocation, setInputLocation] = useState(initialLocation || "");
   const { isLoaded, loadError } = useGoogleMapsScript();
 
-
-  const onLoad = (autocompleteInstance) => {
+  const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
     setAutocomplete(autocompleteInstance);
   };
 
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
-      if (place && place.formatted_address) {
+      if (place && place.formatted_address && place.geometry && place.geometry.location) {
         const newLocation = place.formatted_address;
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
         setLocation({
-          location: newLocation,
+          address: newLocation,
           latitude,
           longitude,
         });
         setInputLocation(newLocation);
-
-        console.log("Place", newLocation);
       }
     } else {
       console.error("Autocomplete is not loaded yet!");
@@ -49,7 +56,7 @@ export function LocationAutocomplete({ initialLocation, setLocation, errorMessag
               value={inputLocation}
               onChange={(e) => {
                 setInputLocation(e.target.value);
-                setLocation({});
+                setLocation({} as Location);
               }}
               placeholder="Enter location"
               p={5}

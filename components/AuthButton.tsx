@@ -20,7 +20,6 @@ export default async function AuthButton() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   const name = await getUserDisplayName();
-  console.log("name",name);
   const {
     data: { user },
   } = await supabase.auth.getUser();

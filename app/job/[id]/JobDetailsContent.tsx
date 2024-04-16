@@ -4,7 +4,7 @@ import { Box, Text, Center, Button, Heading, Image, Flex } from "@chakra-ui/reac
 import { fetchJobData } from "@/services/fetchJobData";
 import { FaMapMarkerAlt } from "react-icons/fa";
 
-export default async function JobDetailsContent({ jobId }) {
+export default async function JobDetailsContent({ jobId }: { jobId: string }) {
   const job = await fetchJobData(jobId);
   const userId = await getUserId();
   const isOwner = job.user_id === userId;
@@ -14,7 +14,12 @@ export default async function JobDetailsContent({ jobId }) {
       <Box background={"white"} padding={10}>
         {isOwner && (
           <Box>
-            <Button as="a" href={`/edit-job/${jobId}`} colorScheme="blue" mb={5}>
+            <Button
+              as="a"
+              href={`/edit-job/${jobId}`}
+              colorScheme="blue"
+              mb={5}
+            >
               Edit Job
             </Button>
           </Box>
@@ -36,7 +41,7 @@ export default async function JobDetailsContent({ jobId }) {
           </Box>
           <Flex direction={"row"} gap={2}>
             <Text as="h2" fontSize="large" fontWeight="medium">
-              {job.location}
+              {job.address}
             </Text>
             -
             {job.display_name && (
@@ -75,20 +80,19 @@ import { VStack, HStack } from "@chakra-ui/react";
 import { BeforeAfterImages } from "./BeforeAfterImages";
 import { getUserId } from "@/services/authServer";
 
-export const QuotesList = ({ quotes }) => {
-  const getFileName = (filePath) => {
+export const QuotesList = ({ quotes }: { quotes: any[] }) => {
+  const getFileName = (filePath: string) => {
     return filePath.split("/").pop();
   };
-
-  const isPdfFile = (file) => {
+  const isPdfFile = (file: any) => {
     const fileName = getFileName(file.file_path);
-    return fileName.toLowerCase().endsWith(".pdf");
+    return fileName?.toLowerCase().endsWith(".pdf");
   };
 
   return (
     <Box py={4}>
       <Heading size="md" mb="4">
-       Quotes
+        Quotes
       </Heading>
       <VStack spacing={4} align="stretch">
         {quotes.map((quote, index) => (
@@ -112,7 +116,7 @@ export const QuotesList = ({ quotes }) => {
                 <Text fontWeight="medium">Attachments:</Text>
               </HStack>
               {quote.quote_files &&
-                quote.quote_files.map((file, index) => (
+                quote.quote_files.map((file: any, index: number) => (
                   <Box key={index} display="flex" alignItems="center" mb={2}>
                     <Box width="100px" height="100px" mr={4}>
                       {isPdfFile(file) ? (

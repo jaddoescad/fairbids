@@ -4,8 +4,7 @@ import MyJobsPage from "./MyJobsPage";
 
 export default async function Page() {
   await authGuard();
-  const userId = await getUserId();
-  const jobs = await fetchUserJobs(userId);
+  const jobs = await fetchUserJobs();
 
   return <MyJobsPage jobs={jobs} />;
 }

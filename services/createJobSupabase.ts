@@ -1,12 +1,21 @@
-export async function saveJobToSupabase(supabase, title, category, location, latitude, longitude, userId) {
-  
+import { SupabaseClient } from '@supabase/supabase-js';
+
+export async function saveJobToSupabase(
+  supabase: SupabaseClient,
+  title: string,
+  category: string,
+  address: string,
+  latitude: number,
+  longitude: number,
+  userId: string
+) {
   const { data, error } = await supabase
     .from("jobs")
     .insert([
       {
         title,
         category,
-        location,
+        address,
         latitude,
         longitude,
         user_id: userId,
