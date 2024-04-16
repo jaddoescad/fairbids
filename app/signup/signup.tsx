@@ -5,6 +5,7 @@ import { getURL } from "@/utils/getURL";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { signInWithGoogle } from "@/services/authClient";
 
 export default function Signup() {
   const supabase = createClient();
@@ -33,6 +34,15 @@ export default function Signup() {
 
     if (error) setMessage("Could not create account");
     if (data) router.push("/");
+  }
+
+  async function handleSignInWithGoogle(e) {
+    e.preventDefault();
+
+    const { data, error } = await signInWithGoogle();
+  
+    if (error) setMessage("Could not authenticate user");
+    if (data) setMessage("Redirecting...");
   }
 
   return (
@@ -91,9 +101,17 @@ export default function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2">
+          <button className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2 text-white">
             Sign Up
           </button>
+          <div className={"flex items-center w-full space-x-2 text-foreground"}>
+            <button
+              onClick={handleSignInWithGoogle}
+              className="flex-grow w-3/9 border border-foreground/20 rounded-md px-4 py-2 text-foreground mb-2"
+            >
+              Google
+            </button>
+          </div>
         </form>
         {/* Sign Up Message */}
         <p className="mt-4 text-center text-foreground">

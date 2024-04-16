@@ -10,7 +10,7 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { getUserDisplayName } from "@/services/getUser";
+import { getUserDisplayName } from "@/services/authServer";
 import NextLink from "next/link";
 import { LogoutButton } from "./Signout";
 
@@ -20,6 +20,7 @@ export default async function AuthButton() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   const name = await getUserDisplayName();
+  console.log("name",name);
   const {
     data: { user },
   } = await supabase.auth.getUser();

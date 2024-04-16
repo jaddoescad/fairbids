@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Signup from "./signup";
-import { notAuthGuard } from "@/services/getUser";
+import { notAuthGuard } from "@/services/authServer";
 
 
 export default async function SignUpPage() {

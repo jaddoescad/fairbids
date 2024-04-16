@@ -1,4 +1,4 @@
-import { authGuard } from "@/services/getUser";
+import { authGuard } from "@/services/authServer";
 import JobDetailsContent from "./JobDetailsContent";
 
 

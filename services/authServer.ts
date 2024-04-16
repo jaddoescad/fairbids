@@ -2,17 +2,21 @@
 import { createClient } from "@/utils/supabase/server";
 import { getURL } from "next/dist/shared/lib/utils";
 import { cookies } from 'next/headers'
+import { redirect } from "next/navigation";
+
 
 
 export async function getUserDisplayName() {
+  
   const cookieStore = cookies()
   const supabase = createClient(cookieStore);
 
   const { data: { user } } = await supabase.auth.getUser();
-
+  
+  console.log(user)
 
   if (user) {
-    return user.user_metadata.full_name;
+    return user.user_metadata.full_name || user.user_metadata.display_name
   }
 
   return null;
@@ -34,7 +38,6 @@ export async function getUserId() {
 }
 
 
-import { redirect } from "next/navigation";
 
 export async function authGuard() {
   const cookieStore = cookies();
@@ -66,16 +69,3 @@ export async function notAuthGuard() {
 }
 
 
-export async function signInWithGoogle() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${getURL()}auth/callback`,
-      },
-    });
-  
-    return { data, error };
-  }

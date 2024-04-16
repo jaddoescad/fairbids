@@ -12,12 +12,15 @@ export default function Index({ limit = 2 }) {
   const [isLoading, setIsLoading] = useState(true);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     async function fetchJobs() {
       if (location.latitude && location.longitude) {
         const jobs = await fetchNearestJobs(location, limit, offset);
-        setNearestJobs(offset === 0 ? jobs : (prevJobs) => [...prevJobs, ...jobs]);
+        setNearestJobs(
+          offset === 0 ? jobs : (prevJobs) => [...prevJobs, ...jobs]
+        );
         setIsLoading(false);
         setHasMore(jobs.length === limit);
       }
@@ -25,8 +28,13 @@ export default function Index({ limit = 2 }) {
     fetchJobs();
   }, [location.latitude, location.longitude, offset, limit]);
 
-  const handleShowMore = () => {
+  const handleShowMore = async () => {
+    setIsLoadingMore(true);
     setOffset((prevOffset) => prevOffset + limit);
+    const jobs = await fetchNearestJobs(location, limit, offset + limit);
+    setNearestJobs((prevJobs) => [...prevJobs, ...jobs]);
+    setIsLoadingMore(false);
+    setHasMore(jobs.length === limit);
   };
 
   return (
@@ -44,7 +52,12 @@ export default function Index({ limit = 2 }) {
             <JobList jobs={nearestJobs} />
             {hasMore && (
               <Box width="100%" textAlign="center" mt={4}>
-                <Button onClick={handleShowMore} size={"lg"} colorScheme="blue">
+                <Button
+                  onClick={handleShowMore}
+                  size={"lg"}
+                  colorScheme="blue"
+                  isLoading={isLoadingMore}
+                >
                   Show More
                 </Button>
               </Box>

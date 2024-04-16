@@ -3,10 +3,11 @@
 import { createClient } from "@/utils/supabase/client";
 import { getURL } from "@/utils/getURL";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithGoogle } from "@/services/getUser";
-
+import { signInWithGoogle } from "@/services/authClient";
+import useAuth from "@/hooks/authClientHook";
+import {Spinner} from "@chakra-ui/react";
 export default function Client() {
   const supabase = createClient();
 
@@ -15,6 +16,8 @@ export default function Client() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const { isAuthenticated, user } = useAuth();
+  const [showLoader, setShowLoader] = useState<boolean>(true);
 
   async function signIn(event: FormEvent) {
     event.preventDefault();
@@ -25,15 +28,47 @@ export default function Client() {
     });
 
     if (error) setMessage("Could not authenticate user");
-    if (data) router.push("/");
+    if (data) setMessage("Redirecting...");
+
+    if (data) {
+      router.push("/");
+    }
   }
 
-  async function handleSignInWithGoogle() {
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const loadingAuth = urlParams.get("loading_auth");
+
+    if (loadingAuth === "true") {
+      setShowLoader(true);
+
+      const timer = setTimeout(() => {
+        setShowLoader(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowLoader(false);
+    }
+  }, []);
+
+  async function handleSignInWithGoogle(e) {
+    e.preventDefault();
+
     const { data, error } = await signInWithGoogle();
-  
-    if (error) setMessage("Could not authenticate user");
-    if (data) setMessage("Redirecting...");
   }
+
+  if (showLoader) {
+    return <Spinner />;
+  }
+
+
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
       <div>
@@ -70,19 +105,15 @@ export default function Client() {
           </button>
         </form>
 
-
         {/* OAuth */}
-        <form className="animate-in pt-2">
-          <div className={"flex items-center w-full space-x-2 text-foreground"}>
-            <button
-              onClick={handleSignInWithGoogle}
-              className="flex-grow w-3/9 border border-foreground/20 rounded-md px-4 py-2 text-foreground mb-2"
-            >
-              Google
-            </button>
-          </div>
-        </form>
-
+        <div className={"flex items-center w-full space-x-2 text-foreground"}>
+          <button
+            onClick={handleSignInWithGoogle}
+            className="flex-grow w-3/9 border border-foreground/20 rounded-md px-4 py-2 text-foreground mb-2"
+          >
+            Google
+          </button>
+        </div>
 
         {/* Sign Up Message */}
         <p className="mt-4 text-center text-foreground">
