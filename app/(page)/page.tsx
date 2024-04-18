@@ -5,13 +5,14 @@ import JobList from '@/components/JobList';
 import { LocationContext } from "@/context/LocationContext";
 import { Box, Button, Center, Heading, Spinner } from "@chakra-ui/react";
 
-export default function Index({ limit = 2 }) {
+export default function Index() {
   const { location } = useContext(LocationContext);
   const [nearestJobs, setNearestJobs] = useState<any[]>([]); // Specify the type as any[] or a more specific type
   const [isLoading, setIsLoading] = useState(true);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const limit = 2;
 
   useEffect(() => {
     async function fetchJobs() {
@@ -27,7 +28,7 @@ export default function Index({ limit = 2 }) {
       }
     }
     fetchJobs();
-  }, [location.latitude, location.longitude, limit, offset]);
+  }, [location.latitude, location.longitude]);
   
   const handleShowMore = async () => {
     if (location.latitude && location.longitude) {

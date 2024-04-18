@@ -1,84 +1,31 @@
 'use client'
+
 import { useState, useEffect } from "react";
 import { Heading, Box, Grid, GridItem, Image, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure, ModalHeader, ModalCloseButton } from "@chakra-ui/react";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
-import { createClient } from "@/utils/supabase/client";
+import { Job } from "@/types/types";
+import { fetchJobImages } from "@/services/fetchJobData";
 
-export const BeforeAfterImages = ({ job }) => {
-  const [beforeImages, setBeforeImages] = useState([]);
-  const [afterImages, setAfterImages] = useState([]);
-  const [selectedImages, setSelectedImages] = useState([]);
+export const BeforeAfterImages = ({ job }: { job: Job }) => {
+  const [beforeImages, setBeforeImages] = useState<{ original: string; thumbnail: string }[]>([]);
+  const [afterImages, setAfterImages] = useState<{ original: string; thumbnail: string }[]>([]);
+  const [selectedImages, setSelectedImages] = useState<{ original: string; thumbnail: string }[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const fetchImages = async () => {
-      const supabase = createClient();
+      const beforeImagesData = await fetchJobImages(job.job_files, "before");
+      const afterImagesData = await fetchJobImages(job.job_files, "after");
 
-      const beforeImagesData = await Promise.allSettled(
-        job.job_files
-          .filter((file) => file.file_type === "before")
-          .map(async (file) => {
-            const { data: originalData, error: originalError } = await supabase.storage
-              .from("job_files")
-              .getPublicUrl(file.file_path, {
-                transform: { width: 1000, height: 1000 },
-              });
-
-            const { data: thumbnailData, error: thumbnailError } = await supabase.storage
-              .from("job_files")
-              .getPublicUrl(file.file_path, {
-                transform: { width: 200, height: 200 },
-              });
-
-            if (originalError || thumbnailError) {
-              console.error("Error fetching file URLs", originalError, thumbnailError);
-              return null;
-            }
-
-            return {
-              original: originalData.publicUrl,
-              thumbnail: thumbnailData.publicUrl,
-            };
-          })
-      );
-
-      const afterImagesData = await Promise.allSettled(
-        job.job_files
-          .filter((file) => file.file_type === "after")
-          .map(async (file) => {
-            const { data: originalData, error: originalError } = await supabase.storage
-              .from("job_files")
-              .getPublicUrl(file.file_path, {
-                transform: { width: 1000, height: 1000 },
-              });
-
-            const { data: thumbnailData, error: thumbnailError } = await supabase.storage
-              .from("job_files")
-              .getPublicUrl(file.file_path, {
-                transform: { width: 200, height: 200 },
-              });
-
-            if (originalError || thumbnailError) {
-              console.error("Error fetching file URLs", originalError, thumbnailError);
-              return null;
-            }
-
-            return {
-              original: originalData.publicUrl,
-              thumbnail: thumbnailData.publicUrl,
-            };
-          })
-      );
-
-      setBeforeImages(beforeImagesData.map((result) => result.value).filter(Boolean));
-      setAfterImages(afterImagesData.map((result) => result.value).filter(Boolean));
+      setBeforeImages(beforeImagesData);
+      setAfterImages(afterImagesData);
     };
 
     fetchImages();
   }, [job.job_files]);
 
-  const openModal = (images) => {
+  const openModal = (images: { original: string; thumbnail: string }[]) => {
     setSelectedImages(images);
     onOpen();
   };
@@ -105,7 +52,7 @@ export const BeforeAfterImages = ({ job }) => {
       {afterImages.map((image, index) => (
         <GridItem key={index} onClick={() => openModal(afterImages)}>
           <Box cursor="pointer">
-            <Image src={image.thumbnail} alt={`After ${index + 1}`} />
+            <Image src={image?.thumbnail} alt={`After ${index + 1}`} />
           </Box>
         </GridItem>
       ))}

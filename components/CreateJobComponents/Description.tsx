@@ -3,19 +3,26 @@ import { useRouter } from "next/navigation";
 import { Box, Textarea, Text } from "@chakra-ui/react";
 import { TopTitle } from "./FormReusable/TopTitle";
 
-export function DescriptionInput({ initialDescription, setDescription, errorMessage }) {
+interface DescriptionInputProps {
+  initialDescription: string;
+  setDescription: (value: string) => void;
+  errorMessage: string | undefined;
+}
+
+export function DescriptionInput({
+  initialDescription,
+  setDescription,
+  errorMessage,
+}: DescriptionInputProps) {
   const router = useRouter();
 
-  const handleDescriptionChange = (event) => {
+  const handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDescription(event.target.value);
   };
 
-
   return (
     <Box py={4}>
-      <TopTitle>
-        Description
-      </TopTitle>
+      <TopTitle>Description</TopTitle>
       <Textarea
         value={initialDescription}
         onChange={handleDescriptionChange}

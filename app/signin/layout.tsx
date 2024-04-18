@@ -1,10 +1,8 @@
 import * as React from "react";
 import { Box, Flex, Spacer, Button } from "@chakra-ui/react";
-import Image from "next/image";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import HeaderWrapper from "@/components/wrappers/HeaderWrapper";
-import MainWrapper from "@/components/wrappers/MainWrapper";
 
 export default function RootLayout({
   children,

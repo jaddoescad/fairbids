@@ -284,3 +284,49 @@ async function fetchUserJobs() {
 }
 
 export { fetchUserJobs };
+
+async function fetchJobImages(jobFiles: FileInfo[], fileType: string) {
+  const supabase = createClient();
+
+  const imagesData = await Promise.allSettled(
+    jobFiles
+      .filter((file: FileInfo) => file.file_type === fileType)
+      .map(async (file: FileInfo) => {
+        const { data: originalData } = await supabase.storage
+          .from("job_files")
+          .getPublicUrl(file.file_path, {
+            transform: { width: 1000, height: 1000 },
+          });
+
+        const { data: thumbnailData } = await supabase.storage
+          .from("job_files")
+          .getPublicUrl(file.file_path, {
+            transform: { width: 200, height: 200 },
+          });
+
+        return {
+          original: originalData.publicUrl,
+          thumbnail: thumbnailData.publicUrl,
+        };
+      })
+  );
+
+  return imagesData
+    .map((result) => {
+      if (result.status === "fulfilled") {
+        return (
+          result as PromiseFulfilledResult<{
+            original: string;
+            thumbnail: string;
+          }>
+        ).value;
+      }
+      return null;
+    })
+    .filter(
+      (image): image is { original: string; thumbnail: string } =>
+        image !== null
+    );
+}
+
+export { fetchJobImages };

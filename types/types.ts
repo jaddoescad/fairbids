@@ -60,9 +60,10 @@ export  interface CategorySelectProps {
     average_quote_value?: number; // Add this property
   }
 
-  export interface Image {
+  export interface ImageType {
     filePath: string;
-    // Add other properties if necessary
+    preview?: string;
+    publicUrl?: string;
   }
 
   export interface Quote {
@@ -122,9 +123,34 @@ export interface SearchResult {
   export interface FileInfo {
     file_path: string;
     file_type?: string;
+    file_url?: string;
   }
 
-  export interface Quote {
-    id: string;
-    quote_files: FileInfo[];
+export interface Quote {
+  id: string;
+  title: string;
+  value: number;
+  quote_files: (File | FileInfo)[];
+  markedForDelete?: boolean;
+}
+
+  export interface ImageUploadProps {
+    imageType: string;
+    initialImages: ImageType[];
+    onImagesChange: (images: ImageType[]) => void;
+    setImagesToDelete: (images: string[]) => void;
+  }
+
+  export interface AfterImagesProps {
+    job: Job;
+    onAfterImagesChange: (images: ImageType[]) => void;
+    setImagesToDelete: (imagePaths: string[]) => void;
+    errorMessage?: string;
+  }
+  
+
+  export interface BeforeImagesProps {
+    job: Job;
+    onBeforeImagesChange: (images: ImageType[]) => void;
+    setImagesToDelete: (imagePaths: string[]) => void;
   }

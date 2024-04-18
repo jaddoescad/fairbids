@@ -1,14 +1,12 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { getURL } from "@/utils/getURL";
 import Link from "next/link";
 import { FormEvent, use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithGoogle } from "@/services/authClient";
+import { signInWithGoogle, signInWithPassword } from "@/services/authClient";
 import useAuth from "@/hooks/authClientHook";
 import {Box, Spinner} from "@chakra-ui/react";
-import Logo from "@/components/Logo";
 import Image from "next/image";
 
 export default function Client() {
@@ -25,10 +23,7 @@ export default function Client() {
   async function signIn(event: FormEvent) {
     event.preventDefault();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await signInWithPassword({ email, password });
 
     if (error) setMessage("Could not authenticate user");
     if (data) setMessage("Redirecting...");
@@ -65,6 +60,9 @@ export default function Client() {
     e.preventDefault();
 
     const { data, error } = await signInWithGoogle();
+
+    if (error) setMessage("Could not authenticate user");
+    if (data) setMessage("Redirecting...");
   }
 
   if (showLoader) {

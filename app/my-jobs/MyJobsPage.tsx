@@ -1,8 +1,7 @@
 'use client';
 import { Box, Center, Heading, Spinner, VStack } from "@chakra-ui/react";
 import JobList from "@/components/JobList";
-import React, { useContext, useEffect, useState } from "react";
-import { LocationContext } from "@/context/LocationContext";
+import React from "react";
 import { Job } from "@/types/types";
 
 

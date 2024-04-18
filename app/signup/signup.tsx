@@ -5,8 +5,7 @@ import { getURL } from "@/utils/getURL";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithGoogle } from "@/services/authClient";
-import Logo from "@/components/Logo";
+import { signInWithGoogle, signUp } from "@/services/authClient";
 import Image from "next/image";
 import { Box } from "@chakra-ui/react";
 
@@ -21,18 +20,14 @@ export default function Signup() {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
 
-  async function signUp(event: FormEvent) {
+  async function handleSignUp(event: FormEvent) {
     event.preventDefault();
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: `${getURL()}auth/callback`,
-        data: {
-          display_name: `${firstName} ${lastName}`,
-        },
-      },
+      firstName,
+      lastName,
     });
 
     if (error) setMessage("Could not create account");
@@ -69,7 +64,7 @@ export default function Signup() {
 
       <form
         className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
-        onSubmit={signUp}
+        onSubmit={handleSignUp}
       >
         <label className="text-md" htmlFor="firstName">
           First Name

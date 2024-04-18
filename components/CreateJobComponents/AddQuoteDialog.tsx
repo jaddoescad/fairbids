@@ -23,25 +23,31 @@ import { useRef, useState } from "react";
 import { FaUpload } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
 
-export function AddQuoteDialog({ jobId, onAdd }) {
+export function AddQuoteDialog({
+  jobId,
+  onAdd,
+}: {
+  jobId: string;
+  onAdd: (newQuote: any) => void;
+}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef(null);
   const finalRef = useRef(null);
   const [quoteTitle, setQuoteTitle] = useState("");
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [quoteValue, setQuoteValue] = useState("");
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
 
-  const formatQuoteValue = (value) => {
+  const formatQuoteValue = (value: string) => {
     if (value === "") return "";
-  
+
     // Remove any non-digit characters from the input value
     const sanitizedValue = value.replace(/\D/g, "");
-  
+
     // Convert the sanitized value to a number and divide by 100 to move the decimal point
     const formattedValue = Number(sanitizedValue) / 100;
-  
+
     // Return the formatted value as a string with two decimal places
     return formattedValue.toFixed(2);
   };
@@ -63,40 +69,42 @@ export function AddQuoteDialog({ jobId, onAdd }) {
     onClose();
   };
 
-  const handleFileChange = (event) => {
-    const selectedFiles = Array.from(event.target.files);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files;
+    if (fileList) {
+      const selectedFiles = Array.from(fileList);
+      // Check the number of selected files
+      if (selectedFiles.length + files.length > 5) {
+        alert("You can select a maximum of 5 files.");
+        return;
+      }
 
-    // Check the number of selected files
-    if (selectedFiles.length + files.length > 5) {
-      alert("You can select a maximum of 5 files.");
-      return;
+      // Check the size and type of each file
+      const validFiles = selectedFiles.filter((file) => {
+        const fileSize = file.size / 1024 / 1024; // Convert bytes to MB
+        const fileType = file.type;
+
+        if (fileSize > 50) {
+          alert(`File "${file.name}" exceeds the maximum size of 50MB.`);
+          return false;
+        }
+
+        if (!fileType.startsWith("image/") && fileType !== "application/pdf") {
+          alert(`File "${file.name}" is not an image or PDF.`);
+          return false;
+        }
+
+        return true;
+      });
+
+      setFiles([...files, ...validFiles]);
     }
-
-    // Check the size and type of each file
-    const validFiles = selectedFiles.filter((file) => {
-      const fileSize = file.size / 1024 / 1024; // Convert bytes to MB
-      const fileType = file.type;
-
-      if (fileSize > 50) {
-        alert(`File "${file.name}" exceeds the maximum size of 50MB.`);
-        return false;
-      }
-
-      if (!fileType.startsWith("image/") && fileType !== "application/pdf") {
-        alert(`File "${file.name}" is not an image or PDF.`);
-        return false;
-      }
-
-      return true;
-    });
-
-    setFiles([...files, ...validFiles]);
   };
 
-  const FileList = ({ files }) => {
+  const FileList = ({ files }: { files: File[] }) => {
     return (
       <Box mt={4}>
-        {files.map((file, index) => (
+        {files.map((file: File, index: number) => (
           <Box key={index} display="flex" alignItems="center" mb={2}>
             <Box width="100px" height="100px" mr={4}>
               {file.type.startsWith("image/") ? (
@@ -238,7 +246,7 @@ export function AddQuoteDialog({ jobId, onAdd }) {
               </VStack>
             </ModalBody>
             <ModalFooter>
-            <Button onClick={handleClose}>Cancel</Button>
+              <Button onClick={handleClose}>Cancel</Button>
               <Button
                 onClick={() => {
                   handleAddClick();

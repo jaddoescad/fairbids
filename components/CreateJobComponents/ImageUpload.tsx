@@ -11,48 +11,57 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
+import { ImageUploadProps, ImageType } from "@/types/types";
 
 export const ImageUpload = ({
   imageType,
   initialImages,
   onImagesChange,
   setImagesToDelete,
-}) => {
-  const [images, setImages] = useState(initialImages || []);
-  const [markedForDelete, setMarkedForDelete] = useState([]);
+}: ImageUploadProps) => {
+  const [images, setImages] = useState<ImageType[]>(initialImages || []);
+  const [markedForDelete, setMarkedForDelete] = useState<ImageType[]>([]);
 
-  const handleImageChange = (event) => {
-    const files = Array.from(event.target.files);
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files as FileList);
     const newImages = files.map((file) => ({
-      file,
+      filePath: file.name,
       preview: URL.createObjectURL(file),
+      file,
     }));
     setImages((prevImages) => [...prevImages, ...newImages]);
-    onImagesChange((prevImages) => [...prevImages, ...newImages]);
+    onImagesChange([...images, ...newImages]);
   };
 
-  const handleDelete = (index) => {
+  const handleDelete = (index: number) => {
     const image = images[index];
-  
+
     if (image.preview) {
-      // If the image has a preview URL, it means it's a local image
+      // If the image has a preview property, it means it's a local image
       setImages((prevImages) => prevImages.filter((img) => img !== image));
-      onImagesChange((prevImages) => prevImages.filter((img) => img !== image));
+      onImagesChange(images.filter((img) => img !== image));
     } else {
-      // If the image doesn't have a preview URL, it means it's an uploaded image
+      // If the image doesn't have a preview property, it means it's an uploaded image
       const isMarked = markedForDelete.includes(image);
       if (isMarked) {
-        setMarkedForDelete((prevMarked) => prevMarked.filter((img) => img !== image));
-        setImagesToDelete((prevImagesToDelete) =>
-          prevImagesToDelete.filter((img) => img !== image)
+        setMarkedForDelete((prevMarked) =>
+          prevMarked.filter((img) => img !== image)
+        );
+        setImagesToDelete(
+          markedForDelete
+            .filter((img) => img !== image)
+            .map((img) => img.filePath)
         );
       } else {
         setMarkedForDelete((prevMarked) => [...prevMarked, image]);
-        setImagesToDelete((prevImagesToDelete) => [...prevImagesToDelete, image]);
+        setImagesToDelete([
+          ...markedForDelete.map((img) => img.filePath),
+          image.filePath,
+        ]);
       }
     }
   };
-  
+
   useEffect(() => {
     return () => {
       images.forEach((image) => {

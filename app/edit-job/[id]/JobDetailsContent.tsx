@@ -17,15 +17,15 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@chakra-ui/react";
 import { revalidateJobPathServer } from "@/services/revalidatePath";
 import { isValidLocation } from "@/services/isValidLocation";
-import { Job, Image, Quote, Location, JobDetails } from "@/types/types";
+import { Job, ImageType, Quote, Location, JobDetails } from "@/types/types";
 
 function JobDetailsContent({ job }: { job: Job }) {
   const [updatedJob, setUpdatedJob] = useState(job);
-  const [beforeImages, setBeforeImages] = useState<Image[]>([]);
-  const [afterImages, setAfterImages] = useState<Image[]>([]);
+  const [beforeImages, setBeforeImages] = useState<ImageType[]>([]);
+  const [afterImages, setAfterImages] = useState<ImageType[]>([]);
   const [quotes, setQuotes] = useState(job.quotes || []);
-  const [imagesToDelete, setImagesToDelete] = useState([]);
-  const [quotesToDelete, setQuotesToDelete] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
+  const [quotesToDelete, setQuotesToDelete] = useState<Quote[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [titleError, setTitleError] = useState("");
   const [categoryError, setCategoryError] = useState("");

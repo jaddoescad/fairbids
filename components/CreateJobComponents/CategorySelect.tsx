@@ -1,8 +1,6 @@
-"use client";
-import React, { useState, useEffect } from "react";
+// CategorySelect.js
+import React from "react";
 import { Select, Box, Text } from "@chakra-ui/react";
-import { updateJobCategory } from '../../services/updateCategory';
-import { useRouter } from "next/navigation";
 import { TopTitle } from "./FormReusable/TopTitle";
 
 const categoryOptions = {
@@ -12,12 +10,17 @@ const categoryOptions = {
   other: 'Other',
 };
 
-// CategorySelect.js
-export function CategorySelect({ initialCategory, setCategory, errorMessage }) {
-  const handleCategoryChange = (e) => {
+type CategorySelectProps = {
+  initialCategory: string;
+  setCategory: (category: string) => void;
+  errorMessage?: string;
+};
+
+export function CategorySelect({ initialCategory, setCategory, errorMessage }: CategorySelectProps) {
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCategory = e.target.value;
     setCategory(newCategory);
-  }
+  };
 
   return (
     <Box>

@@ -1,51 +1,52 @@
 // QuotesList.js
-import { useEffect, useState } from "react";
+import { FileInfo, Quote } from "@/types/types";
 import { Box, VStack, HStack, Text, Image, Button } from "@chakra-ui/react";
-import Link from 'next/navigation'
 
-export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
+export function QuotesList({
+  quotes,
+  setQuotes,
+  setQuotesToDelete,
+}: {
+  quotes: Quote[];
+  setQuotes: (quotes: Quote[]) => void;
+  setQuotesToDelete: (quotesToDelete: string[]) => void;
+}) {
+const handleToggleDelete = (quoteId: string | null, index?: number) => {
+  if (quoteId) {
+    setQuotes((prevQuotes: Quote[]) =>
+      prevQuotes.map((quote: Quote) =>
+        quote.id === quoteId
+          ? { ...quote, markedForDelete: !quote.markedForDelete }
+          : quote
+      )
+    );
 
-  const handleToggleDelete = (quoteId, index) => {
-    if (quoteId) {
-      // For existing quotes with an ID
-      setQuotes((prevQuotes) =>
-        prevQuotes.map((quote) =>
-          quote.id === quoteId
-            ? { ...quote, markedForDelete: !quote.markedForDelete }
-            : quote
-        )
-      );
+    setQuotesToDelete((prevQuotesToDelete: string[]) => {
+      if (prevQuotesToDelete.includes(quoteId)) {
+        return prevQuotesToDelete.filter((id: string) => id !== quoteId);
+      } else {
+        return [...prevQuotesToDelete, quoteId];
+      }
+    });
+  } else {
+    setQuotes((prevQuotes: Quote[]) => prevQuotes.filter((_, i) => i !== index));
+  }
+};
+  const isLocalFile = (file: File | FileInfo): file is File => file instanceof File;
 
-      setQuotesToDelete((prevQuotesToDelete) => {
-        if (prevQuotesToDelete.includes(quoteId)) {
-          return prevQuotesToDelete.filter((id) => id !== quoteId);
-        } else {
-          return [...prevQuotesToDelete, quoteId];
-        }
-      });
-    } else {
-      // For local quotes without an ID
-      setQuotes((prevQuotes) =>
-        prevQuotes.filter((_, i) => i !== index)
-      );
-    }
-  };
-
-  const isLocalFile = (file) => file instanceof File;
-
-  const getFileName = (filePath) => {
+  const getFileName = (filePath: string) => {
     return filePath.split("/").pop();
   };
 
-  const isPdfFile = (file) => {
+  const isPdfFile = (file: File | FileInfo) => {
     if (isLocalFile(file)) {
       return file.type === "application/pdf";
     } else {
       const fileName = getFileName(file.file_path);
-      return fileName.toLowerCase().endsWith(".pdf");
+      return fileName?.toLowerCase().endsWith(".pdf");
     }
   };
-
+  
   return (
     <Box py={4}>
       <VStack spacing={4} align="stretch">
@@ -70,50 +71,74 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
                 <Text fontWeight="medium">Attachments:</Text>
               </HStack>
               {quote.quote_files &&
-              quote.quote_files.map((file, index) => (
-                <Box
-                  key={index}
-                  display="flex"
-                  alignItems="center"
-                  mb={2}
-                  opacity={quote.markedForDelete ? 0.5 : 1}
-                >
-                  <Box width="100px" height="100px" mr={4}>
-                    {isPdfFile(file) ? (
-                      <a href={isLocalFile(file) ? URL.createObjectURL(file) : file.file_url} target="_blank">
-                        <Box
-                          bg="gray.100"
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                          width="100%"
-                          height="100%"
-                        >
-                          <Text>PDF</Text>
-                        </Box>
-                      </a>
-                    ) : (
-                      <a href={isLocalFile(file) ? URL.createObjectURL(file) : file.file_url} target="_blank">
-                        <Image
-                          src={isLocalFile(file) ? URL.createObjectURL(file) : file.file_url}
-                          alt={isLocalFile(file) ? file.name : file.file_path}
-                          width="100%"
-                          height="100%"
-                          objectFit="cover"
-                        />
-                      </a>
-                    )}
-                  </Box>
-                  <a
-                    href={isLocalFile(file) ? URL.createObjectURL(file) : file.file_url}
-                    target="_blank"
+                quote.quote_files.map((file, index) => (
+                  <Box
+                    key={index}
+                    display="flex"
+                    alignItems="center"
+                    mb={2}
+                    opacity={quote.markedForDelete ? 0.5 : 1}
                   >
-                    <Text color="blue.500" fontWeight="bold" cursor="pointer">
-                      {isLocalFile(file) ? file.name : getFileName(file.file_path)}
-                    </Text>
-                  </a>
-                </Box>
-              ))}
+                    <Box width="100px" height="100px" mr={4}>
+                      {isPdfFile(file) ? (
+                        <a
+                          href={
+                            isLocalFile(file)
+                              ? URL.createObjectURL(file)
+                              : file.file_url
+                          }
+                          target="_blank"
+                        >
+                          <Box
+                            bg="gray.100"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            width="100%"
+                            height="100%"
+                          >
+                            <Text>PDF</Text>
+                          </Box>
+                        </a>
+                      ) : (
+                        <a
+                          href={
+                            isLocalFile(file)
+                              ? URL.createObjectURL(file)
+                              : file.file_url
+                          }
+                          target="_blank"
+                        >
+                          <Image
+                            src={
+                              isLocalFile(file)
+                                ? URL.createObjectURL(file)
+                                : file.file_url
+                            }
+                            alt={isLocalFile(file) ? file.name : file.file_path}
+                            width="100%"
+                            height="100%"
+                            objectFit="cover"
+                          />
+                        </a>
+                      )}
+                    </Box>
+                    <a
+                      href={
+                        isLocalFile(file)
+                          ? URL.createObjectURL(file)
+                          : file.file_url
+                      }
+                      target="_blank"
+                    >
+                      <Text color="blue.500" fontWeight="bold" cursor="pointer">
+                        {isLocalFile(file)
+                          ? file.name
+                          : getFileName(file.file_path)}
+                      </Text>
+                    </a>
+                  </Box>
+                ))}
             </VStack>
             {quote.id ? (
               <Button
@@ -121,7 +146,9 @@ export function QuotesList({ quotes, setQuotes, setQuotesToDelete }) {
                 size="sm"
                 onClick={() => handleToggleDelete(quote.id)}
               >
-                {quote.markedForDelete ? "Unmark for Delete" : "Mark for Delete"}
+                {quote.markedForDelete
+                  ? "Unmark for Delete"
+                  : "Mark for Delete"}
               </Button>
             ) : (
               <Button
