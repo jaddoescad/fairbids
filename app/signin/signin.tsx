@@ -74,8 +74,8 @@ export default function Client() {
     <>
       <Box padding={4} my={50} display="flex" justifyContent="center" alignItems="center">
         <Image
-          src={"/logo.png"}
-          alt="Logo"
+        src={"/static/images/logo.png"}
+        alt="Logo"
           width={200}
           height={200}
           priority={true}

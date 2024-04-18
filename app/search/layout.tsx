@@ -24,8 +24,8 @@ export default function RootLayout({
         <Flex>
           <Link href="/" style={{ display: "flex", alignItems: "center" }}>
             <Image
-              src={"/logo.png"}
-              alt="Logo"
+        src={"/static/images/logo.png"}
+        alt="Logo"
               width={125}
               height={125}
               priority={true}

@@ -53,8 +53,8 @@ export default function Signup() {
         alignItems="center"
       >
         <Image
-          src={"/logo.png"}
-          alt="Logo"
+        src={"/static/images/logo.png"}
+        alt="Logo"
           width={200}
           height={200}
           priority={true}

@@ -23,8 +23,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Flex w="100%" mr={5}>
             <Link href="/">
               <Image
-                src={"/logo.png"}
-                alt="Logo"
+        src={"/static/images/logo.png"}
+        alt="Logo"
                 width={125}
                 height={125}
                 priority={true}
