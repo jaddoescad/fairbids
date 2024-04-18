@@ -10,7 +10,7 @@ import { cookies } from "next/headers";
 
 
 
-export async function updateJobCategory(jobId, newCategory) {
+export async function updateJobCategory(jobId: string, newCategory: string) {
     const cookieStore = cookies()
 
     const supabase = createClient(cookieStore);

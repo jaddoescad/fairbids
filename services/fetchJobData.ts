@@ -15,7 +15,7 @@ async function fetchJobData(id: string) {
   if (error) {
     throw new Error("Error fetching job data");
   }
-
+  
   const jobFiles = await Promise.allSettled(
     data.job_files.map(async (file: FileInfo) => {
       const { data: fileData } = await supabase.storage
@@ -232,29 +232,33 @@ async function fetchUserJobs() {
   const jobsWithImagesAndQuotes = await Promise.all(
     jobsData.map(async (job) => {
       const image_urls = await Promise.all(
-        job.job_files.map(async (file: FileInfo) => {
-          const { data: fileData } = await supabase.storage
-            .from("job_files")
-            .getPublicUrl(file.file_path, {
-              transform: {
-                width: 500,
-                height: 500,
-              },
-            });
-
-          return fileData.publicUrl;
+        job.job_files.map(async (file: FileInfo | File) => {
+          if ("file_path" in file) {
+            const { data: fileData } = await supabase.storage
+              .from("job_files")
+              .getPublicUrl(file.file_path, {
+                transform: {
+                  width: 500,
+                  height: 500,
+                },
+              });
+            return fileData.publicUrl;
+          }
+          return "";
         })
       );
 
       const quotesWithFiles = await Promise.all(
         job.quotes.map(async (quote: Quote) => {
           const quoteFileUrls = await Promise.all(
-            quote.quote_files.map(async (file: FileInfo) => {
-              const { data: fileData } = await supabase.storage
-                .from("job_files")
-                .getPublicUrl(file.file_path);
-
-              return fileData.publicUrl;
+            quote.quote_files.map(async (file: FileInfo | File) => {
+              if ("file_path" in file) {
+                const { data: fileData } = await supabase.storage
+                  .from("job_files")
+                  .getPublicUrl(file.file_path);
+                return fileData.publicUrl;
+              }
+              return "";
             })
           );
 

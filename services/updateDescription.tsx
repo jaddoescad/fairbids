@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
-export async function updateJobDescription(jobId, newDescription) {
+export async function updateJobDescription(jobId: string, newDescription: string) {
     const cookieStore = cookies();
   
     const supabase = createClient(cookieStore);

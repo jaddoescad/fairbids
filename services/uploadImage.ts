@@ -5,23 +5,29 @@ import { revalidateEditJobPathServer } from "./revalidatePath";
 // services/uploadImageService.js
 import { createClient } from "@/utils/supabase/client";
 
-export const uploadImages = async (files, userId, jobId, imageType) => {
+export const uploadImages = async (
+  files: File[],
+  userId: string,
+  jobId: string,
+  imageType: string
+) => {
   const supabase = createClient();
+
   const uploadPromises = files.map(async (file) => {
     const filePath = await uploadImage(
       supabase,
-      file.file,
+      file,
       userId,
       jobId,
       imageType
     );
     return filePath;
   });
+
   const uploadedFilePaths = await Promise.all(uploadPromises);
 
-
   const publicUrlPromises = uploadedFilePaths.map(async (filePath) => {
-    const { data: fileData, error: fileError } = await supabase.storage
+    const { data: fileData } = await supabase.storage
       .from("job_files")
       .getPublicUrl(filePath, {
         transform: {
@@ -29,24 +35,18 @@ export const uploadImages = async (files, userId, jobId, imageType) => {
           height: 200,
         },
       });
-  
-    if (fileError) {
-      console.error("Error fetching file URL", fileError);
-      return null;
-    }
-    
-
-
     return { publicUrl: fileData.publicUrl, filePath };
   });
 
   const publicUrlsWithFilePaths = await Promise.all(publicUrlPromises);
+
   const filteredPublicUrlsWithFilePaths = publicUrlsWithFilePaths.filter(
     (urlWithPath) => urlWithPath !== null
   );
-  
+
   return filteredPublicUrlsWithFilePaths;
 };
+
 
 const uploadImage = async (
   supabase: SupabaseClient,
@@ -106,29 +106,24 @@ const uploadImage = async (
 };
 
 
-export const deleteImages = async (images, jobId) => {
+export const deleteImages = async (imagePaths: string[], jobId: string) => {
   const supabase = createClient();
-
-  const deletePromises = images.map(async (image) => {
-    if (image.filePath) {
+  const deletePromises = imagePaths.map(async (filePath) => {
+    if (filePath) {
       const { error } = await supabase.storage
         .from("job_files")
-        .remove([image.filePath]);
-
+        .remove([filePath]);
       if (error) {
         console.error("Error deleting image", error);
       } else {
         await supabase
           .from("job_files")
           .delete()
-          .eq("file_path", image.filePath);
+          .eq("file_path", filePath);
       }
     }
   });
-
   await Promise.all(deletePromises);
-
   revalidateEditJobPathServer(jobId);
-
   return;
 };

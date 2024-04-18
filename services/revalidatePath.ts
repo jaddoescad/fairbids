@@ -5,10 +5,10 @@
 
 import { revalidatePath } from "next/cache";
 
-export async function revalidateEditJobPathServer(jobId) {
+export async function revalidateEditJobPathServer(jobId: string) {
   revalidatePath("/edit-job/" + jobId);
 }
 
-export async function revalidateJobPathServer(jobId) {
+export async function revalidateJobPathServer(jobId: string) {
   revalidatePath("/job/" + jobId);
 }
