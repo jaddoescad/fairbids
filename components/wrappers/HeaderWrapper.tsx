@@ -16,7 +16,7 @@ export default function HeaderWrapper({
       w={"100%"}
       borderBottom="1px solid black"
     >
-      <Flex w="100%" maxW={"2050px"} mx="auto" justify="space-between">
+      <Flex w="100%" maxW={"1800px"} mx="auto" justify="space-between">
         {children}
       </Flex>
     </Flex>

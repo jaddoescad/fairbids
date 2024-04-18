@@ -174,3 +174,12 @@ export interface Quote {
   
   
   
+
+  export interface JobListProps {
+    jobs: Job[];
+  }
+  
+  export interface JobItemProps {
+    job: Job;
+  }
+  

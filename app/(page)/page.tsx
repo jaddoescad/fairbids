@@ -27,6 +27,7 @@ export default function Index() {
         setHasMore(jobs.length === limit);
       }
     }
+    
     fetchJobs();
   }, [location.latitude, location.longitude]);
   
@@ -60,7 +61,7 @@ export default function Index() {
             <JobList jobs={nearestJobs} />
             {hasMore && (
               <Box width="100%" textAlign="center" mt={4}>
-                <Button onClick={handleShowMore} size={"lg"} colorScheme="blue" isLoading={isLoadingMore}>
+                <Button onClick={handleShowMore} size={"md"} colorScheme="blue" isLoading={isLoadingMore}>
                   Show More
                 </Button>
               </Box>

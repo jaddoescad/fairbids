@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { Button, ButtonGroup } from "@chakra-ui/react";
 
-export default async function QuoteButton() {
+export default async function PostButton() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 

@@ -8,10 +8,9 @@ export default function Logo() {
       <Image
         src={"/static/images/logo.png"}
         alt="Logo"
-        width={125}
-        height={125}
+        width={100}
+        height={100}
         priority={true}
-        style={{ width: "auto" }}
       />
     </Link>
   );

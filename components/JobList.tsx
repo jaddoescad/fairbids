@@ -14,11 +14,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
-import { Job } from "@/types/types";
-
-interface JobListProps {
-  jobs: Job[];
-}
+import { Job, JobItemProps, JobListProps } from "@/types/types";
 
 export default function JobList({ jobs }: JobListProps) {
   return (
@@ -30,9 +26,7 @@ export default function JobList({ jobs }: JobListProps) {
   );
 }
 
-interface JobItemProps {
-  job: Job;
-}
+
 
 function JobItem({ job }: JobItemProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -56,7 +50,14 @@ function JobItem({ job }: JobItemProps) {
 
   return (
     <Link href={`/job/${job.id}`}>
-      <Flex borderWidth={1} borderRadius="lg" p={6} boxShadow="md" bg="white">
+      <Flex
+        borderWidth={1}
+        borderRadius="md"
+        p={6}
+        boxShadow="md"
+        bg="white"
+        h="250px"
+      >
         {job.image_urls && job.image_urls.length > 0 && (
           <Flex mb={4} align="center">
             <Button
@@ -67,7 +68,7 @@ function JobItem({ job }: JobItemProps) {
             >
               <ArrowLeftIcon />
             </Button>
-            <Box position="relative" width={350} height={350}>
+            <Box position="relative" height={"100%"} w={"250px"}>
               {isImageLoading ? (
                 <Box
                   position="absolute"
@@ -79,15 +80,14 @@ function JobItem({ job }: JobItemProps) {
                   justifyContent="center"
                   alignItems="center"
                 >
-                  {/* Render your loader component here */}
                   <Spinner size="xl" />
                 </Box>
               ) : null}
               <Image
                 src={job.image_urls[currentImageIndex]}
                 alt={`Job Image ${currentImageIndex + 1}`}
-                width={350}
-                height={350}
+                width={"100%"}
+                height={"100%"}
                 objectFit="cover"
                 onLoad={() => setIsImageLoading(false)}
                 opacity={isImageLoading ? 0 : 1}
@@ -105,23 +105,34 @@ function JobItem({ job }: JobItemProps) {
           </Flex>
         )}
         <Box>
-          <Heading as="h3" size="lg" mb={2}>
+          <Heading as="h3" size="md" mb={2}>
             {job.title}
           </Heading>
-          <Text fontSize="lg" mb={2}>
-            {job.company}
-          </Text>
-          <Text mb={4} fontSize="lg" color="gray.600">
+          <Text fontSize="md" color="gray.600">
             {job.address}
           </Text>
+          {job?.description && (
+            <Text
+              fontSize="md"
+              whiteSpace="pre-wrap"
+              color="gray.600"
+              mb={4}
+              mt={2}
+              wordBreak="break-word"
+              width={"100%"}
+              maxW={"1000px"}
+            >
+              {job.description.slice(0, 300)}...
+            </Text>
+          )}
           <Box display="inline-block">
             <Text
-              fontSize="lg"
+              fontSize="sm"
               mb={2}
               backgroundColor="green"
               color="white"
               fontWeight="bold"
-              borderRadius="lg"
+              borderRadius="sm"
               px={2}
               py={1}
             >
@@ -132,19 +143,6 @@ function JobItem({ job }: JobItemProps) {
                   }`}
             </Text>
           </Box>
-          {job?.description && (
-            <Text
-              fontSize="x-large"
-              whiteSpace="pre-wrap"
-              color="gray.600"
-              mb={4}
-              wordBreak="break-word"
-              width={"100%"}
-              maxW={"1000px"}
-            >
-              {job.description.slice(0, 300)}...
-            </Text>
-          )}
         </Box>
       </Flex>
     </Link>

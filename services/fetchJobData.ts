@@ -118,6 +118,7 @@ async function fetchNearestJobs(
     off: offset,
   });
 
+
   if (error) {
     throw new Error("Error fetching nearby jobs");
   }
@@ -173,7 +174,7 @@ async function searchNearbyJobs(
 ): Promise<{ jobs: Job[]; totalCount: number }> {
   const supabase = createClient();
 
-  const { data, error } = await supabase.rpc("search_nearby_jobs", {
+  const { data, error } = await supabase.rpc("search_jobs_rank", {
     query: query,
     user_lat: latitude,
     user_long: longitude,
@@ -334,3 +335,6 @@ async function fetchJobImages(jobFiles: FileInfo[], fileType: string) {
 }
 
 export { fetchJobImages };
+
+
+
