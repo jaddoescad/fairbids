@@ -1,37 +1,41 @@
-// QuotesList.js
 import { FileInfo, Quote } from "@/types/types";
 import { Box, VStack, HStack, Text, Image, Button } from "@chakra-ui/react";
+
+interface QuotesListProps {
+  quotes: Quote[];
+  setQuotes: (quotes: Quote[] | ((prevQuotes: Quote[]) => Quote[])) => void;
+  setQuotesToDelete: React.Dispatch<React.SetStateAction<string[]>>; // Now expects string[]
+}
 
 export function QuotesList({
   quotes,
   setQuotes,
   setQuotesToDelete,
-}: {
-  quotes: Quote[];
-  setQuotes: (quotes: Quote[]) => void;
-  setQuotesToDelete: (quotesToDelete: string[]) => void;
-}) {
-const handleToggleDelete = (quoteId: string | null, index?: number) => {
-  if (quoteId) {
-    setQuotes((prevQuotes: Quote[]) =>
-      prevQuotes.map((quote: Quote) =>
-        quote.id === quoteId
-          ? { ...quote, markedForDelete: !quote.markedForDelete }
-          : quote
-      )
-    );
+}: QuotesListProps) {
+  
+  const handleToggleDelete = (quoteId: string | null, index?: number) => {
+    if (quoteId) {
+      setQuotes((prevQuotes: Quote[]) => 
+        prevQuotes.map((quote: Quote) => 
+          quote.id === quoteId ? {...quote, markedForDelete: !quote.markedForDelete} : quote
+        )
+      );
+  
+      setQuotesToDelete((prevQuotesToDelete) => {
+        const idx = prevQuotesToDelete.indexOf(quoteId);
+        if (idx > -1) {
+          return prevQuotesToDelete.filter((id: string) => id !== quoteId);
+        } else {
+          return [...prevQuotesToDelete, quoteId];
+        }
+      });
+    } else {
+      setQuotes((prevQuotes: Quote[]) => prevQuotes.filter((_: Quote, i: number) => i !== index));
+    }
+  };
+  
 
-    setQuotesToDelete((prevQuotesToDelete: string[]) => {
-      if (prevQuotesToDelete.includes(quoteId)) {
-        return prevQuotesToDelete.filter((id: string) => id !== quoteId);
-      } else {
-        return [...prevQuotesToDelete, quoteId];
-      }
-    });
-  } else {
-    setQuotes((prevQuotes: Quote[]) => prevQuotes.filter((_, i) => i !== index));
-  }
-};
+
   const isLocalFile = (file: File | FileInfo): file is File => file instanceof File;
 
   const getFileName = (filePath: string) => {

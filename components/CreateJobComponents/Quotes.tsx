@@ -5,7 +5,7 @@ import { AddQuoteDialog } from "./AddQuoteDialog";
 import { QuotesList } from "./QuotesList";
 import { TopTitle } from "./FormReusable/TopTitle";
 import { Text } from "@chakra-ui/react";
-import { Quote } from "@/types/types";
+import { Quote, QuotesProps } from "@/types/types";
 
 export function Quotes({
   jobId,
@@ -13,13 +13,7 @@ export function Quotes({
   setQuotes,
   setQuotesToDelete,
   errorMessage,
-}: {
-  jobId: string;
-  initialQuotes: Quote[];
-  setQuotes: (quotes: Quote[]) => void;
-  setQuotesToDelete: (quotesToDelete: Quote[]) => void;
-  errorMessage?: string;
-}) {
+}: QuotesProps) {
   const [quotes, setLocalQuotes] = useState<Quote[]>(initialQuotes || []);
 
   const handleQuoteAdd = (newQuote: Quote) => {

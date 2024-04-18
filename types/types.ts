@@ -154,3 +154,23 @@ export interface Quote {
     onBeforeImagesChange: (images: ImageType[]) => void;
     setImagesToDelete: (imagePaths: string[]) => void;
   }
+
+  export interface QuotesProps {
+    jobId: string;
+    initialQuotes: Quote[];
+    setQuotes: React.Dispatch<React.SetStateAction<Quote[]>>;
+    setQuotesToDelete: React.Dispatch<React.SetStateAction<string[]>>; // Should handle string[]
+    errorMessage?: string;
+  }
+  
+  
+  export interface QuotesListProps {
+    quotes: Quote[];
+    setQuotes: React.Dispatch<React.SetStateAction<Quote[]>>;
+    setQuotesToDelete: React.Dispatch<React.SetStateAction<Quote[]>>; // Accept string[]
+  }
+  
+  // No change needed inside QuotesList function since it's expecting
+  
+  
+  

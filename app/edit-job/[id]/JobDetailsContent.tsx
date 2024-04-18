@@ -25,7 +25,7 @@ function JobDetailsContent({ job }: { job: Job }) {
   const [afterImages, setAfterImages] = useState<ImageType[]>([]);
   const [quotes, setQuotes] = useState(job.quotes || []);
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
-  const [quotesToDelete, setQuotesToDelete] = useState<Quote[]>([]);
+  const [quotesToDelete, setQuotesToDelete] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [titleError, setTitleError] = useState("");
   const [categoryError, setCategoryError] = useState("");
