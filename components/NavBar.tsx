@@ -1,4 +1,4 @@
-import { Box, Flex, Stack } from "@chakra-ui/react";
+import { Flex, Stack } from "@chakra-ui/react";
 import HeaderWrapper from "./wrappers/HeaderWrapper";
 import Logo from "./Logo";
 import { LocationBar, SearchBar } from "./LocationBar";

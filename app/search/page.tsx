@@ -40,7 +40,7 @@ export default function SearchPage({ searchParams }: { searchParams: SearchParam
   return (
     <Box maxW="2050px" mx="auto">
       <Box>
-        <Heading as="h2" size="xl" mb={8} mt={2}>
+        <Heading as="h2" size="lg" mb={8} mt={2}>
           Search results for "{query}"
         </Heading>
         <JobList jobs={searchResults} />

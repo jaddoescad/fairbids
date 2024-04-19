@@ -9,10 +9,6 @@ export async function getJobById(jobId: string) {
     .eq("id", jobId)
     .single();
 
-  if (error) {
-    console.error("Error fetching job data", error);
-    return null;
-  }
 
   return data;
 }

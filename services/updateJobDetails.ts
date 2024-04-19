@@ -1,4 +1,5 @@
 "use server";
+
 import { JobDetails } from "@/types/types";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -8,7 +9,6 @@ export async function updateJobDetails(updatedJob: JobDetails) {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  console.log("Updating job details", updatedJob);
 
   const { error } = await supabase
     .from("jobs")

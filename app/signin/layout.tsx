@@ -17,11 +17,6 @@ export default function RootLayout({
         </Flex>
         <Spacer />
         <Box>
-          <Link href="/">
-            <Button size="lg" fontSize="2xl">
-              Exit
-            </Button>
-          </Link>
         </Box>
       </HeaderWrapper>
       <div className="h-full flex flex-col items-center">{children}</div>

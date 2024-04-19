@@ -21,8 +21,8 @@ import { Job, ImageType, Quote, Location, JobDetails } from "@/types/types";
 
 function JobDetailsContent({ job }: { job: Job }) {
   const [updatedJob, setUpdatedJob] = useState(job);
-  const [beforeImages, setBeforeImages] = useState<(ImageType | File)[]>([]);
-  const [afterImages, setAfterImages] = useState<(ImageType | File)[]>([]);
+  const [beforeImages, setBeforeImages] = useState<(ImageType)[]>([]);
+  const [afterImages, setAfterImages] = useState<(ImageType)[]>([]);
   const [quotes, setQuotes] = useState(job.quotes || []);
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   const [quotesToDelete, setQuotesToDelete] = useState<string[]>([]);
@@ -144,7 +144,7 @@ function JobDetailsContent({ job }: { job: Job }) {
         return;
       }
 
-      setIsSaving(true);
+      setIsSaving(true); 
 
       const supabase = createClient();
       const {
@@ -156,8 +156,14 @@ function JobDetailsContent({ job }: { job: Job }) {
       }
 
       const userId = session.user.id;
-      const newBeforeImages = beforeImages.filter((image): image is File => image instanceof File);
-      const newAfterImages = afterImages.filter((image): image is File => image instanceof File);
+
+
+
+      const newBeforeImages = beforeImages.filter((image): image is ImageType => image.file instanceof File);
+      const newAfterImages = afterImages.filter((image): image is ImageType => image.file instanceof File);
+
+
+
 
       await Promise.all([
         uploadImages(newBeforeImages, userId, job.id, "before"),

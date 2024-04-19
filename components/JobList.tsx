@@ -30,7 +30,7 @@ export default function JobList({ jobs }: JobListProps) {
 
 function JobItem({ job }: JobItemProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isImageLoading, setIsImageLoading] = useState(true);
+  const [isImageLoading, setIsImageLoading] = useState(false);
 
   const handlePrevImage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

@@ -27,7 +27,7 @@ export default function Index() {
         setHasMore(jobs.length === limit);
       }
     }
-    
+
     fetchJobs();
   }, [location.latitude, location.longitude]);
   
@@ -55,7 +55,7 @@ export default function Index() {
       ) : (
         <Box w="100%" h="100%" maxW={"2050px"} mt={10} paddingBottom={50}>
           <Box>
-            <Heading as="h2" size="xl" mb={8} mt={2}>
+            <Heading as="h2" size="lg" mb={8} mt={2}>
               Nearest Jobs
             </Heading>
             <JobList jobs={nearestJobs} />

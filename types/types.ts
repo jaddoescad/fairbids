@@ -61,6 +61,7 @@ export  interface CategorySelectProps {
   }
 
   export interface ImageType {
+    file?: File;
     filePath: string;
     preview?: string;
     publicUrl?: string;

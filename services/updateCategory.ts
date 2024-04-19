@@ -1,8 +1,4 @@
-
-
 "use server";
-
-
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -26,6 +22,4 @@ export async function updateJobCategory(jobId: string, newCategory: string) {
 
     revalidatePath('/edit-job/' + jobId);
 
-    
-    
   }

@@ -1,7 +1,5 @@
 import * as React from "react";
 import { Flex } from "@chakra-ui/react";
-import Image from "next/image";
-import Link from "next/link";
 import AuthButton from "@/components/AuthButton";
 import HeaderWrapper from "@/components/wrappers/HeaderWrapper";
 import Logo from "@/components/Logo";

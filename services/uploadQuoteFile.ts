@@ -15,16 +15,12 @@ const uploadQuoteFile = async (
     const { error: uploadError, data } = await supabase.storage
       .from("job_files")
       .upload(filePath, file);
-    if (uploadError) {
-      throw uploadError;
-    }
+
     const { error: insertError } = await supabase.from("quote_files").insert({
       quote_id: quoteId,
       file_path: filePath,
     });
-    if (insertError) {
-      throw insertError;
-    }
+
     const { data: publicUrlData } = await supabase.storage
       .from("job_files")
       .getPublicUrl(filePath);
@@ -54,21 +50,12 @@ export const deleteQuotes = async (
   supabase: SupabaseClient,
   quoteIds: string[]
 ) => {
-  try {
     const { data: deletedQuotes, error: deleteError } = await supabase
       .from("quotes")
       .delete()
       .in("id", quoteIds);
 
-    if (deleteError) {
-      throw deleteError;
-    }
-
     return deletedQuotes;
-  } catch (error) {
-    console.error("Error deleting quotes:", error);
-    throw error;
-  }
 };
 
 export const uploadQuotes = async (quotes: Quote[], jobId: string) => {
@@ -86,7 +73,6 @@ export const uploadQuotes = async (quotes: Quote[], jobId: string) => {
         .select("*");
 
       if (quoteError) {
-        console.error("Error uploading quote:", quoteError);
         throw quoteError;
       }
 

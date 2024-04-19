@@ -2,6 +2,7 @@
 import { FileInfo, Job, Quote } from "@/types/types";
 import { createClient } from "@/utils/supabase/client";
 import { getUserId } from "./authServer";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 async function fetchJobData(id: string) {
   const supabase = createClient();
@@ -15,21 +16,14 @@ async function fetchJobData(id: string) {
   if (error) {
     throw new Error("Error fetching job data");
   }
-  
+
   const jobFiles = await Promise.allSettled(
     data.job_files.map(async (file: FileInfo) => {
-      const { data: fileData } = await supabase.storage
-        .from("job_files")
-        .getPublicUrl(file.file_path, {
-          transform: {
-            width: 200,
-            height: 200,
-          },
-        });
+      const fileUrl = await getPublicUrl(supabase, file.file_path, 200, 200);
 
       return {
         ...file,
-        file_url: fileData.publicUrl,
+        file_url: fileUrl,
       };
     })
   );
@@ -48,13 +42,11 @@ async function fetchJobData(id: string) {
         quotesData.map(async (quote) => {
           const updatedQuoteFiles = await Promise.allSettled(
             quote.quote_files.map(async (file: FileInfo) => {
-              const { data: quoteData } = await supabase.storage
-                .from("job_files")
-                .getPublicUrl(file.file_path);
+              const fileUrl = await getPublicUrl(supabase, file.file_path);
 
               return {
                 ...file,
-                file_url: quoteData.publicUrl,
+                file_url: fileUrl,
               };
             })
           );
@@ -98,8 +90,6 @@ async function fetchJobData(id: string) {
 
 export { fetchJobData };
 
-
-
 async function fetchNearestJobs(
   location: { latitude: number; longitude: number },
   limit = 2,
@@ -118,25 +108,11 @@ async function fetchNearestJobs(
     off: offset,
   });
 
-
-  if (error) {
-    throw new Error("Error fetching nearby jobs");
-  }
-
   const jobsWithImages = await Promise.all(
     data.map(async (job: Job) => {
       const image_urls = await Promise.all(
         job.image_urls.map(async (filePath: string) => {
-          const { data: fileData } = await supabase.storage
-            .from("job_files")
-            .getPublicUrl(filePath, {
-              transform: {
-                width: 500,
-                height: 500,
-              },
-            });
-
-          return fileData.publicUrl;
+          return await getPublicUrl(supabase, filePath, 500, 500);
         })
       );
 
@@ -152,18 +128,6 @@ async function fetchNearestJobs(
 
 export { fetchNearestJobs };
 
-async function fetchQueryData(query: string) {
-  const supabase = createClient();
-  const { data, error } = await supabase.rpc("search_jobs", { query });
-
-  if (error) {
-    return null;
-  }
-
-  return data;
-}
-
-export { fetchQueryData };
 
 async function searchNearbyJobs(
   query: string,
@@ -181,7 +145,6 @@ async function searchNearbyJobs(
     page: page,
     per_page: perPage,
   });
-
 
   if (error) {
     throw new Error("Error fetching nearby jobs");
@@ -235,15 +198,7 @@ async function fetchUserJobs() {
       const image_urls = await Promise.all(
         job.job_files.map(async (file: FileInfo | File) => {
           if ("file_path" in file) {
-            const { data: fileData } = await supabase.storage
-              .from("job_files")
-              .getPublicUrl(file.file_path, {
-                transform: {
-                  width: 500,
-                  height: 500,
-                },
-              });
-            return fileData.publicUrl;
+            return await getPublicUrl(supabase, file.file_path, 500, 500);
           }
           return "";
         })
@@ -254,10 +209,7 @@ async function fetchUserJobs() {
           const quoteFileUrls = await Promise.all(
             quote.quote_files.map(async (file: FileInfo | File) => {
               if ("file_path" in file) {
-                const { data: fileData } = await supabase.storage
-                  .from("job_files")
-                  .getPublicUrl(file.file_path);
-                return fileData.publicUrl;
+                return await getPublicUrl(supabase, file.file_path);
               }
               return "";
             })
@@ -297,21 +249,22 @@ async function fetchJobImages(jobFiles: FileInfo[], fileType: string) {
     jobFiles
       .filter((file: FileInfo) => file.file_type === fileType)
       .map(async (file: FileInfo) => {
-        const { data: originalData } = await supabase.storage
-          .from("job_files")
-          .getPublicUrl(file.file_path, {
-            transform: { width: 1000, height: 1000 },
-          });
-
-        const { data: thumbnailData } = await supabase.storage
-          .from("job_files")
-          .getPublicUrl(file.file_path, {
-            transform: { width: 200, height: 200 },
-          });
+        const originalUrl = await getPublicUrl(
+          supabase,
+          file.file_path,
+          1000,
+          1000
+        );
+        const thumbnailUrl = await getPublicUrl(
+          supabase,
+          file.file_path,
+          200,
+          200
+        );
 
         return {
-          original: originalData.publicUrl,
-          thumbnail: thumbnailData.publicUrl,
+          original: originalUrl,
+          thumbnail: thumbnailUrl,
         };
       })
   );
@@ -336,5 +289,20 @@ async function fetchJobImages(jobFiles: FileInfo[], fileType: string) {
 
 export { fetchJobImages };
 
+async function getPublicUrl(
+  supabase: SupabaseClient,
+  filePath: string,
+  width = 500,
+  height = 500
+) {
+  const { data: fileData } = await supabase.storage
+    .from("job_files")
+    .getPublicUrl(filePath, {
+      transform: {
+        width: width,
+        height: height,
+      },
+    });
 
-
+  return fileData.publicUrl;
+}
