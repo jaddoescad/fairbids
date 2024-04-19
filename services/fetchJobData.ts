@@ -108,6 +108,10 @@ async function fetchNearestJobs(
     off: offset,
   });
 
+  if (error) {
+    throw new Error("Error fetching nearby jobs");
+  }
+
   const jobsWithImages = await Promise.all(
     data.map(async (job: Job) => {
       const image_urls = await Promise.all(

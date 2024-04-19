@@ -1,4 +1,4 @@
-import { authGuard, getUserId } from "@/services/authServer";
+import { authGuard } from "@/services/authServer";
 import { fetchUserJobs } from "@/services/fetchJobData";
 import MyJobsPage from "./MyJobsPage";
 

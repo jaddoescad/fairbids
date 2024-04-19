@@ -288,12 +288,23 @@ function JobDetailsContent({ job }: { job: Job }) {
 
 export default function JobDetails({ jobId }: { jobId: string }) {
   const [job, setJob] = useState(null);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       if (jobId) {
+        try {
         const jobData = await fetchJobData(jobId);
         setJob(jobData);
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Error fetching nearest jobs",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });  
+        }
       }
     };
     fetchData();

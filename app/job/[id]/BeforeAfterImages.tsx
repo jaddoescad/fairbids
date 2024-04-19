@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { Heading, Box, Grid, GridItem, Image, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure, ModalHeader, ModalCloseButton } from "@chakra-ui/react";
+import { Heading, Box, Grid, GridItem, Image, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure, ModalHeader, ModalCloseButton, useToast } from "@chakra-ui/react";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { Job } from "@/types/types";
@@ -12,14 +12,26 @@ export const BeforeAfterImages = ({ job }: { job: Job }) => {
   const [afterImages, setAfterImages] = useState<{ original: string; thumbnail: string }[]>([]);
   const [selectedImages, setSelectedImages] = useState<{ original: string; thumbnail: string }[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   useEffect(() => {
     const fetchImages = async () => {
-      const beforeImagesData = await fetchJobImages(job.job_files, "before");
-      const afterImagesData = await fetchJobImages(job.job_files, "after");
+      try {
+        const beforeImagesData = await fetchJobImages(job.job_files, "before");
+        const afterImagesData = await fetchJobImages(job.job_files, "after");
 
-      setBeforeImages(beforeImagesData);
-      setAfterImages(afterImagesData);
+        setBeforeImages(beforeImagesData);
+        setAfterImages(afterImagesData);
+      } catch (error) {
+        console.error("Error fetching job images:", error);
+        toast({
+          title: "Error",
+          description: "Error fetching job images",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     };
 
     fetchImages();

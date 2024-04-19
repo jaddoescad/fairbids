@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { fetchNearestJobs } from "@/services/fetchJobData";
 import JobList from '@/components/JobList';
 import { LocationContext } from "@/context/LocationContext";
-import { Box, Button, Center, Heading, Spinner } from "@chakra-ui/react";
+import { Box, Button, Center, Heading, Spinner, useToast } from "@chakra-ui/react";
 
 export default function Index() {
   const { location } = useContext(LocationContext);
@@ -13,21 +13,33 @@ export default function Index() {
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const limit = 2;
+  const toast = useToast();
 
   useEffect(() => {
     async function fetchJobs() {
       if (location.latitude && location.longitude) {
-        const jobs = await fetchNearestJobs(
-          { latitude: location.latitude, longitude: location.longitude },
-          limit,
-          offset
-        );
-        setNearestJobs(offset === 0 ? jobs : (prevJobs) => [...prevJobs, ...jobs]);
-        setIsLoading(false);
-        setHasMore(jobs.length === limit);
+        try {
+          const jobs = await fetchNearestJobs(
+            { latitude: location.latitude, longitude: location.longitude },
+            limit,
+            offset
+          );
+          setNearestJobs(offset === 0 ? jobs : (prevJobs) => [...prevJobs, ...jobs]);
+          setHasMore(jobs.length === limit);
+        } catch (error) {
+          console.error("Error fetching nearest jobs:", error);
+          toast({
+            title: "Error",
+            description: "Error fetching nearest jobs",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });          // Handle the error, e.g., show an error message to the user
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
-
     fetchJobs();
   }, [location.latitude, location.longitude]);
   
@@ -35,14 +47,26 @@ export default function Index() {
     if (location.latitude && location.longitude) {
       setIsLoadingMore(true);
       setOffset((prevOffset) => prevOffset + limit);
-      const jobs = await fetchNearestJobs(
-        { latitude: location.latitude, longitude: location.longitude },
-        limit,
-        offset + limit
-      );
-      setNearestJobs((prevJobs) => [...prevJobs, ...jobs]);
-      setIsLoadingMore(false);
-      setHasMore(jobs.length === limit);
+      try {
+        const jobs = await fetchNearestJobs(
+          { latitude: location.latitude, longitude: location.longitude },
+          limit,
+          offset + limit
+        );
+        setNearestJobs((prevJobs) => [...prevJobs, ...jobs]);
+        setHasMore(jobs.length === limit);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Error fetching nearest jobs",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        // Handle the error, e.g., show an error message to the user
+      } finally {
+        setIsLoadingMore(false);
+      }
     }
   };
 

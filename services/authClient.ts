@@ -58,9 +58,5 @@ export async function signUp({
 export async function signOut() {
   const supabase = createClient();
 
-  try {
     await supabase.auth.signOut();
-  } catch (error) {
-    throw error;
-  }
 }

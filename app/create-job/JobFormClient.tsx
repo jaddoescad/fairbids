@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
 import { CategorySelectProps, LocationAutocompleteProps, TitleInputProps } from "@/types/types";
+import { useToast } from "@chakra-ui/react";
 
 
 const TitleInput = ({ title, setTitle, error, onEnter }: TitleInputProps) => (
@@ -164,6 +165,7 @@ export default function JobForm() {
   const [latitute, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
 
   const { isLoaded, loadError } = useGoogleMapsScript();
   const [isValidLocation, setIsValidLocation] = useState(false);
@@ -231,6 +233,13 @@ export default function JobForm() {
       }
     } catch (error) {
       console.error("Error saving job", error);
+      toast({
+        title: "Error",
+        description: "Error saving job",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
       setIsLoading(false);
     }
   };

@@ -1,9 +1,10 @@
 'use client';
+
 import React, { useEffect, useState, useContext } from "react";
 import { searchNearbyJobs } from "@/services/fetchJobData";
 import JobList from "@/components/JobList";
 import { LocationContext } from "@/context/LocationContext";
-import { Box, Center, Heading } from "@chakra-ui/react";
+import { Box, Center, Heading, useToast } from "@chakra-ui/react";
 import Pagination from "@/components/Pagination";
 import { Job, SearchParams } from "@/types/types";
 
@@ -15,10 +16,12 @@ export default function SearchPage({ searchParams }: { searchParams: SearchParam
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const perPage = 3;
+  const toast = useToast();
 
   useEffect(() => {
     async function fetchData() {
       if (location && location.latitude && location.longitude) {
+        try {
         const { jobs, totalCount } = await searchNearbyJobs(
           query,
           location.latitude,
@@ -28,6 +31,15 @@ export default function SearchPage({ searchParams }: { searchParams: SearchParam
         );
         setSearchResults(jobs || []); // Set an empty array if jobs is undefined
         setTotalPages(Math.ceil(totalCount / perPage));
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Error fetching search results",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
       }
     }
     fetchData();

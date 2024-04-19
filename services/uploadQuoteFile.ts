@@ -16,10 +16,18 @@ const uploadQuoteFile = async (
       .from("job_files")
       .upload(filePath, file);
 
+    if (uploadError) {
+      throw uploadError;
+    }
+
     const { error: insertError } = await supabase.from("quote_files").insert({
       quote_id: quoteId,
       file_path: filePath,
     });
+
+    if (insertError) {
+      throw insertError;
+    }
 
     const { data: publicUrlData } = await supabase.storage
       .from("job_files")
