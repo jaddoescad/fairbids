@@ -27,7 +27,7 @@ export function DescriptionInput({
         value={initialDescription}
         onChange={handleDescriptionChange}
         placeholder="Enter job description"
-        size="lg"
+        size="md"
         h={"200px"}
         resize={"none"}
         p={5}

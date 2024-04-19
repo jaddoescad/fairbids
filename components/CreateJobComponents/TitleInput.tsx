@@ -17,7 +17,7 @@ export function TitleInput({ initialTitle, setTitle, errorMessage }: { initialTi
         value={initialTitle}
         onChange={handleTitleChange}
         placeholder="Kitchen remodel: Electrical, plumbing, and drywall"
-        size="lg"
+        size="md"
         maxW={"500px"}
         p={5}
       />

@@ -30,7 +30,7 @@ export function CategorySelect({ initialCategory, setCategory, errorMessage }: C
         onChange={handleCategoryChange}
         placeholder="Select a category"
         maxW={"500px"}
-        size={"lg"}
+        size={"md"}
       >
         {Object.entries(categoryOptions).map(([value, name]) => (
           <option key={value} value={value}>

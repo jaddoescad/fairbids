@@ -96,7 +96,7 @@ export const ImageUpload = ({
                 spacing="4"
               >
                 <Stack p="8" textAlign="center" spacing="1">
-                  <Heading fontSize="lg" color="gray.700" fontWeight="bold">
+                  <Heading fontSize="md" color="gray.700" fontWeight="bold">
                     Drop images here
                   </Heading>
                   <Text fontWeight="light">or click to upload</Text>

@@ -60,7 +60,7 @@ export function LocationAutocomplete({
               }}
               placeholder="Enter location"
               p={5}
-              size="lg"
+              size="md"
               maxW={"500px"}
             />
           </Autocomplete>

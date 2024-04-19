@@ -149,9 +149,9 @@ export function AddQuoteDialog({
         colorScheme="gray"
         onClick={onOpen}
         w="500px"
-        py={8}
+        py={6}
         justifyContent="flex-start"
-        fontSize={"larger"}
+        fontSize={"md"}
         borderRadius="14"
       >
         Add a quote
