@@ -176,7 +176,7 @@ function JobDetailsContent({ job }: { job: Job }) {
       const localQuotes = quotes.filter((quote: Quote) => !quote.id);
 
       // Upload only the local quotes
-      await uploadQuotes(localQuotes, job.id);
+      await uploadQuotes(localQuotes, job.id, userId);
 
       const updatedJobDetails: JobDetails = {
         id: updatedJob.id,

@@ -7,11 +7,12 @@ const uploadQuoteFile = async (
   supabase: SupabaseClient,
   file: File,
   jobId: string,
-  quoteId: string
+  quoteId: string,
+  userId: string
 ) => {
   try {
     const fileExt = file.name.split(".").pop();
-    const filePath = `${jobId}/quotes/${quoteId}/files/${Date.now()}.${fileExt}`;
+    const filePath = `${userId}/${jobId}/quotes/${quoteId}/files/${Date.now()}.${fileExt}`;
     const { error: uploadError, data } = await supabase.storage
       .from("job_files")
       .upload(filePath, file);
@@ -45,10 +46,11 @@ const uploadQuoteFiles = async (
   supabase: SupabaseClient,
   files: File[],
   jobId: string,
-  quoteId: string
+  quoteId: string,
+  userId: string
 ) => {
   const uploadPromises = files.map((file) =>
-    uploadQuoteFile(supabase, file, jobId, quoteId)
+    uploadQuoteFile(supabase, file, jobId, quoteId, userId)
   );
   const filePaths = await Promise.all(uploadPromises); // Rename to filePaths
   return filePaths;
@@ -66,7 +68,7 @@ export const deleteQuotes = async (
     return deletedQuotes;
 };
 
-export const uploadQuotes = async (quotes: Quote[], jobId: string) => {
+export const uploadQuotes = async (quotes: Quote[], jobId: string, userId: string) => {
   const supabase = createClient();
 
   const uploadedQuotes = await Promise.all(
@@ -92,7 +94,8 @@ export const uploadQuotes = async (quotes: Quote[], jobId: string) => {
         supabase,
         fileObjects,
         jobId,
-        quoteData[0].id
+        quoteData[0].id,
+        userId
       );
 
       return {

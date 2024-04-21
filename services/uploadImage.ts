@@ -53,7 +53,7 @@ const uploadImage = async (
   jobId: string,
   fileType: string
 ) => {
-  const filePath = `${jobId}/${fileType}/${file.name}`;
+  const filePath = `${userId}/${jobId}/${fileType}/${file.name}`;
 
   // check if file is empty
   if (!file) {
