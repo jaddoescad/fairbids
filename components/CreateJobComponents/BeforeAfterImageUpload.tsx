@@ -16,7 +16,7 @@ interface Job {
 
 
 
-export const BeforeImages = ({ job, onBeforeImagesChange, setImagesToDelete }: BeforeImagesProps) => {
+export const BeforeImages = ({ job, markedForDelete, setMarkedForDelete, onBeforeImagesChange, setImagesToDelete }: BeforeImagesProps) => {
   const beforeImages = job.job_files
     .filter((file: JobFile) => file.file_type === "before")
     .map((file: JobFile) => ({
@@ -32,13 +32,15 @@ export const BeforeImages = ({ job, onBeforeImagesChange, setImagesToDelete }: B
         initialImages={beforeImages}
         onImagesChange={onBeforeImagesChange}
         setImagesToDelete={setImagesToDelete}
+        markedForDelete={markedForDelete}
+        setMarkedForDelete={setMarkedForDelete}
       />
     </Box>
   );
 };
 
 
-export const AfterImages = ({ job, onAfterImagesChange, setImagesToDelete, errorMessage }: AfterImagesProps) => {
+export const AfterImages = ({ job, onAfterImagesChange, markedForDelete, setMarkedForDelete, setImagesToDelete, errorMessage }: AfterImagesProps) => {
   const afterImages = job.job_files
     .filter((file: JobFile) => file.file_type === "after")
     .map((file: JobFile) => ({
@@ -54,6 +56,8 @@ export const AfterImages = ({ job, onAfterImagesChange, setImagesToDelete, error
         initialImages={afterImages}
         onImagesChange={onAfterImagesChange}
         setImagesToDelete={setImagesToDelete}
+        markedForDelete={markedForDelete}
+        setMarkedForDelete={setMarkedForDelete}
       />
       {errorMessage && <Text color="red.500">{errorMessage}</Text>}
     </Box>

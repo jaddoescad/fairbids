@@ -18,9 +18,10 @@ export const ImageUpload = ({
   initialImages,
   onImagesChange,
   setImagesToDelete,
+  markedForDelete,
+  setMarkedForDelete,
 }: ImageUploadProps) => {
   const [images, setImages] = useState<ImageType[]>(initialImages || []);
-  const [markedForDelete, setMarkedForDelete] = useState<ImageType[]>([]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files as FileList);

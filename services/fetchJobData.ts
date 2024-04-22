@@ -227,9 +227,9 @@ async function fetchUserJobs() {
       );
 
       const quoteCount = quotesWithFiles.length;
-      const averageQuoteValue =
-        quotesWithFiles.reduce((sum, quote) => sum + quote.value, 0) /
-        quoteCount;
+      const averageQuoteValue = Math.round(
+        quotesWithFiles.reduce((sum, quote) => sum + quote.value, 0) / quoteCount
+      );
 
       return {
         ...job,

@@ -1,4 +1,4 @@
-import { FormEvent } from "react";
+import { Dispatch, FormEvent, SetStateAction } from "react";
 
 export interface TitleInputProps {
     title: string;
@@ -140,12 +140,16 @@ export interface Quote {
     initialImages: ImageType[];
     onImagesChange: (images: ImageType[]) => void;
     setImagesToDelete: (images: string[]) => void;
+    markedForDelete: ImageType[];
+    setMarkedForDelete: Dispatch<SetStateAction<ImageType[]>>;
   }
 
   export interface AfterImagesProps {
     job: Job;
     onAfterImagesChange: (images: ImageType[]) => void;
     setImagesToDelete: (imagePaths: string[]) => void;
+    markedForDelete: ImageType[];
+    setMarkedForDelete: Dispatch<SetStateAction<ImageType[]>>;
     errorMessage?: string;
   }
   
@@ -154,6 +158,8 @@ export interface Quote {
     job: Job;
     onBeforeImagesChange: (images: ImageType[]) => void;
     setImagesToDelete: (imagePaths: string[]) => void;
+    markedForDelete: ImageType[];
+    setMarkedForDelete: Dispatch<SetStateAction<ImageType[]>>;
   }
 
   export interface QuotesProps {

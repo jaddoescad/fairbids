@@ -33,6 +33,7 @@ function JobDetailsContent({ job }: { job: Job }) {
   const [locationError, setLocationError] = useState("");
   const [quoteError, setQuoteError] = useState("");
   const [imageError, setImageError] = useState("");
+  const [markedForDelete, setMarkedForDelete] = useState<ImageType[]>([]);
 
   const toast = useToast();
   const router = useRouter();
@@ -253,11 +254,15 @@ function JobDetailsContent({ job }: { job: Job }) {
       <Box background={"white"} padding={10} my={5}>
         <BeforeImages
           job={job}
+          markedForDelete={markedForDelete}
+          setMarkedForDelete={setMarkedForDelete}
           onBeforeImagesChange={setBeforeImages}
           setImagesToDelete={setImagesToDelete}
         />
         <AfterImages
           job={job}
+          markedForDelete={markedForDelete}
+          setMarkedForDelete={setMarkedForDelete}
           onAfterImagesChange={setAfterImages}
           setImagesToDelete={setImagesToDelete}
           errorMessage={imageError}

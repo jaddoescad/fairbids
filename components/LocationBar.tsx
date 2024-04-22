@@ -1,7 +1,7 @@
 'use client';
 import { useContext } from "react";
 import React, { useState } from "react";
-import { Input, FormControl, FormLabel } from "@chakra-ui/react";
+import { Input, FormControl, FormLabel, useId } from "@chakra-ui/react";
 import { useRouter } from 'next/navigation';
 import { Select, SingleValue } from "chakra-react-select";
 import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
@@ -96,6 +96,7 @@ export const LocationBar = () => {
   return (
     <>
       <Select
+        instanceId={useId()}
         placeholder="Location"
         value={{ label: location?.address, value: location?.address }}
         onInputChange={handleInputChange}
