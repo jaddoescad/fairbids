@@ -122,7 +122,7 @@ function JobItem({ job }: JobItemProps) {
               width={"100%"}
               maxW={"1000px"}
             >
-              {job.description.slice(0, 300)}...
+              {job.description.replace(/\n/g, " ").slice(0, 300)}...
             </Text>
           )}
           <Box display="inline-block">
