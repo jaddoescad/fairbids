@@ -92,7 +92,7 @@ export { fetchJobData };
 
 async function fetchNearestJobs(
   location: { latitude: number; longitude: number },
-  limit = 2,
+  limit = 10,
   offset = 0
 ) {
   const supabase = createClient();
