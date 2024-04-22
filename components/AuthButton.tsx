@@ -1,7 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
+"use client";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import {
   Avatar,
   Box,
@@ -10,19 +8,13 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { getUserDisplayName } from "@/services/authServer";
 import NextLink from "next/link";
 import { LogoutButton } from "./Signout";
+import { NavBarProps } from "@/types/types";
+import { useEffect, useState } from "react";
+import { getUserDisplayName } from "@/utils/getName";
 
-
-
-export default async function AuthButton() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-  const name = await getUserDisplayName();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function AuthButton({ user, name }: NavBarProps) {
 
   return user ? (
     <Box>

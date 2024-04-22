@@ -1,3 +1,4 @@
+import { User } from "@supabase/supabase-js";
 import { Dispatch, FormEvent, SetStateAction } from "react";
 
 export interface TitleInputProps {
@@ -190,3 +191,8 @@ export interface Quote {
     job: Job;
   }
   
+
+  export interface NavBarProps {
+    user: User | null;
+    name: string | null;
+  }

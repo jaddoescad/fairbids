@@ -1,26 +1,11 @@
 'use server'
 
 import { createClient } from "@/utils/supabase/server";
+import { User } from "@supabase/supabase-js";
 import { getURL } from "next/dist/shared/lib/utils";
 import { cookies } from 'next/headers'
 import { redirect } from "next/navigation";
 
-
-
-export async function getUserDisplayName() {
-  
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore);
-
-  const { data: { user } } = await supabase.auth.getUser();
-  
-
-  if (user) {
-    return user.user_metadata.full_name || user.user_metadata.display_name
-  }
-
-  return null;
-}
 
 export async function getUserId() {
   const cookieStore = cookies();
