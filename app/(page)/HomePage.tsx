@@ -6,7 +6,6 @@ import { LocationContext } from "@/context/LocationContext";
 import { Box, Button, Center, Heading, Spinner, useToast } from "@chakra-ui/react";
 import { Job } from "@/types/types";
 
-
 export default function Index() {
   const { location } = useContext(LocationContext);
   const [nearestJobs, setNearestJobs] = useState<Job[]>([]);
@@ -14,7 +13,7 @@ export default function Index() {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const limit = 2;
+  const limit = 10;
   const toast = useToast();
 
   useEffect(() => {
@@ -25,15 +24,17 @@ export default function Index() {
 
   const fetchJobs = async (newOffset = 0) => {
     if (location.latitude && location.longitude) {
-      setIsLoading(true);
+      if (newOffset === 0) {
+        setIsLoading(true);
+      }
       try {
-        const jobs = await fetchNearestJobs(
+        const { jobsWithImages, hasMore } = await fetchNearestJobs(
           { latitude: location.latitude, longitude: location.longitude },
           limit,
           newOffset
         );
-        setNearestJobs(newOffset === 0 ? jobs : (prevJobs) => [...prevJobs, ...jobs]);
-        setHasMore(jobs.length === limit);
+        setNearestJobs(newOffset === 0 ? jobsWithImages : (prevJobs) => [...prevJobs, ...jobsWithImages]);
+        setHasMore(hasMore);
       } catch (error) {
         console.error("Error fetching nearest jobs:", error);
         toast({
@@ -44,7 +45,9 @@ export default function Index() {
           isClosable: true,
         });
       } finally {
-        setIsLoading(false);
+        if (newOffset === 0) {
+          setIsLoading(false);
+        }
       }
     }
   };
@@ -69,14 +72,9 @@ export default function Index() {
             Nearest Jobs
           </Heading>
           <JobList jobs={nearestJobs} />
-          {(hasMore) && (
+          {hasMore && (
             <Box width="100%" textAlign="center" mt={4}>
-              <Button
-                onClick={handleShowMore}
-                size={"md"}
-                colorScheme="blue"
-                isLoading={isLoadingMore}
-              >
+              <Button onClick={handleShowMore} size={"md"} colorScheme="blue" isLoading={isLoadingMore}>
                 Show More
               </Button>
             </Box>

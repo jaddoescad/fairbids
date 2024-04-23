@@ -127,7 +127,9 @@ async function fetchNearestJobs(
     })
   );
 
-  return jobsWithImages;
+  const hasMore = data.length > 0 ? data[0].has_more : false;
+
+  return { jobsWithImages, hasMore };
 }
 
 export { fetchNearestJobs };
