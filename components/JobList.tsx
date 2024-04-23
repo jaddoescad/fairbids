@@ -59,7 +59,7 @@ function JobItem({ job }: JobItemProps) {
 <Link href={`/job/${job.id}`}>
   <Flex borderWidth={1} borderRadius="md" p={6} boxShadow="md" bg="white" h="250px">
     {job.image_urls && job.image_urls.length > 0 && (
-      <Box position="relative" height={"100%"} w={"200px"} mr={4} bg="red" flexShrink={0}>
+      <Box position="relative" height={"100%"} w={"200px"} mr={4} flexShrink={0}>
         <Stack position="relative" width="100%" height="100%">
           <Box position="absolute" width="100%" height="100%">
             <Image
