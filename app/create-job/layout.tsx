@@ -11,6 +11,7 @@ export default function RootLayout({
 }) {
   return (
     <Box w={"full"} h={"full"} display={"flex"} flexDirection={"column"}>
+      <Box px={"20px"}>
       <HeaderWrapper>
         <Flex align="center" mr={5}>
           <Logo />
@@ -24,6 +25,7 @@ export default function RootLayout({
           </Link>
         </Box>
       </HeaderWrapper>
+      </Box>
       <div className="h-full flex flex-col items-center">{children}</div>
     </Box>
   );
