@@ -11,11 +11,13 @@ export default function HeaderWrapper({
       as="nav"
       justify="space-between"
       wrap="wrap"
-      padding={5}
-      bg="white"
+      py={5}
       w={"100%"}
+      maxW={"2050px"}
+      mx={"auto"}
+      
     >
-      <Flex w="100%" maxW={"1800px"} mx="auto" justify="space-between">
+      <Flex w="100%" mx="auto" justify="space-between">
         {children}
       </Flex>
     </Flex>
