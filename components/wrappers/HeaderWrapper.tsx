@@ -15,7 +15,6 @@ export default function HeaderWrapper({
       w={"100%"}
       maxW={"2050px"}
       mx={"auto"}
-      
     >
       <Flex w="100%" mx="auto" justify="space-between">
         {children}

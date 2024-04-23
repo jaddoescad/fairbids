@@ -12,7 +12,7 @@ export default function NavBar({ user, name }: NavBarProps) {
   const isMobile = useBreakpointValue({ base: true, md: false }, {ssr: false});
 
   return (
-    <Box borderBottom="1px solid black" >
+    <Box borderBottom="1px solid black" px={"20px"}>
       <HeaderWrapper>
         <Flex alignItems="center" flexShrink={0}>
           <Logo />
