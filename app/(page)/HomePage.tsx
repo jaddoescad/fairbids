@@ -18,6 +18,8 @@ export default function Index() {
   const toast = useToast();
 
   useEffect(() => {
+    setNearestJobs([]); // Clear the nearestJobs state
+    setOffset(0); // Reset the offset
     fetchJobs();
   }, [location.latitude, location.longitude]);
 
@@ -30,7 +32,7 @@ export default function Index() {
           limit,
           newOffset
         );
-        setNearestJobs((prevJobs) => [...prevJobs, ...jobs]);
+        setNearestJobs(newOffset === 0 ? jobs : (prevJobs) => [...prevJobs, ...jobs]);
         setHasMore(jobs.length === limit);
       } catch (error) {
         console.error("Error fetching nearest jobs:", error);

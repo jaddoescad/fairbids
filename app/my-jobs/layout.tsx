@@ -6,12 +6,20 @@ import Logo from "@/components/Logo";
 import HeaderWrapper from "@/components/wrappers/HeaderWrapper";
 import MainWrapper from "@/components/wrappers/MainWrapper";
 import { LocationBar, SearchBar } from "@/components/LocationBar";
+import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
+import { getUserDisplayName } from "@/utils/getName";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+  const { data: { user }} = await supabase.auth.getUser();
+  const name = getUserDisplayName(user);
+
   return (
     <Box w={"full"} h={"full"} display={"flex"} flexDirection={"column"}>
       <HeaderWrapper>
@@ -24,7 +32,7 @@ export default function RootLayout({
         </Flex>
         <Flex alignItems={"center"}>
           <PostButton />
-          <AuthButton />
+          <AuthButton user={user} name={name} />
         </Flex>
       </HeaderWrapper>
       <MainWrapper>
