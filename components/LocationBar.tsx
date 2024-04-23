@@ -95,28 +95,27 @@ export const LocationBar = () => {
 
   return (
     <>
-      <Select
-        instanceId={useId()}
-        placeholder="Location"
-        value={{ label: location?.address, value: location?.address }}
-        onInputChange={handleInputChange}
-        onChange={handleLocationSelect}
-        options={suggestions}
-        isClearable={false}
-        chakraStyles={{
-          container: (provided) => ({
-            ...provided,
-            minWidth: "300px",
-          }),
-          control: (provided) => ({
-            ...provided,
+    <Select
+      instanceId={useId()}
+      placeholder="Location"
+      value={{ label: location?.address, value: location?.address }}
+      onInputChange={handleInputChange}
+      onChange={handleLocationSelect}
+      options={suggestions}
+      isClearable={false}
+      chakraStyles={{
+        container: (provided) => ({
+          ...provided,
+        }),
+        control: (provided) => ({
+          ...provided,
+          cursor: "text",
+          "&:hover": {
             cursor: "text",
-            "&:hover": {
-              cursor: "text",
-            },
-          }),
-        }}
-      />
-    </>
+          },
+        }),
+      }}
+    />
+  </>
   );
 };

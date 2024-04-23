@@ -114,15 +114,15 @@ function JobItem({ job }: JobItemProps) {
           {job?.description && (
             <Text
               fontSize="md"
-              whiteSpace="pre-wrap"
               color="gray.600"
               mb={4}
               mt={2}
               wordBreak="break-word"
               width={"100%"}
               maxW={"1000px"}
+              noOfLines={3}
             >
-              {job.description.replace(/\n/g, " ").slice(0, 300)}...
+              {job.description.replace(/\\n/g, " ")}
             </Text>
           )}
           <Box display="inline-block">

@@ -21,14 +21,14 @@ export default function Index() {
     fetchJobs();
   }, [location.latitude, location.longitude]);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (newOffset = 0) => {
     if (location.latitude && location.longitude) {
       setIsLoading(true);
       try {
         const jobs = await fetchNearestJobs(
           { latitude: location.latitude, longitude: location.longitude },
           limit,
-          offset
+          newOffset
         );
         setNearestJobs((prevJobs) => [...prevJobs, ...jobs]);
         setHasMore(jobs.length === limit);
@@ -49,8 +49,9 @@ export default function Index() {
 
   const handleShowMore = async () => {
     setIsLoadingMore(true);
-    setOffset((prevOffset) => prevOffset + limit);
-    await fetchJobs();
+    const newOffset = offset + limit;
+    setOffset(newOffset);
+    await fetchJobs(newOffset);
     setIsLoadingMore(false);
   };
 
@@ -66,9 +67,14 @@ export default function Index() {
             Nearest Jobs
           </Heading>
           <JobList jobs={nearestJobs} />
-          {hasMore && (
+          {(hasMore) && (
             <Box width="100%" textAlign="center" mt={4}>
-              <Button onClick={handleShowMore} size={"md"} colorScheme="blue" isLoading={isLoadingMore}>
+              <Button
+                onClick={handleShowMore}
+                size={"md"}
+                colorScheme="blue"
+                isLoading={isLoadingMore}
+              >
                 Show More
               </Button>
             </Box>
