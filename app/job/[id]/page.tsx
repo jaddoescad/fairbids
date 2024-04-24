@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: JobDetailsParams })
   const { id } = params;
   const job = await fetchJobData(id);
 
-  const defaultUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+  const defaultUrl = process.env.NEXT_PUBLIC_SITE_URL ? `https://${process.env.NEXT_PUBLIC_SITE_URL}` : 'http://localhost:3000';
   const imageUrl = job.before_images?.[0]?.image_url || job.after_images?.[0]?.image_url;
 
   return {
