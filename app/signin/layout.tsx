@@ -12,7 +12,7 @@ export default function RootLayout({
   return (
     <Box w={"full"} h={"full"} display={"flex"} flexDirection={"column"}>
       <HeaderWrapper>
-        <Flex align="center" mr={5}>
+        <Flex align="center" mr={5} px={5}>
           <Logo />
         </Flex>
         <Spacer />
