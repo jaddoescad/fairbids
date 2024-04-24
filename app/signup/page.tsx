@@ -7,7 +7,7 @@ import { Box } from "@chakra-ui/react";
 export default async function SignUpPage() {
   await notAuthGuard();
   return (
-    <Box mt={100}>
+    <Box >
       <Suspense fallback={<div>Loading...</div>}>
         <Signup />
       </Suspense>
