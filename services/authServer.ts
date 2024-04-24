@@ -1,8 +1,6 @@
 'use server'
 
 import { createClient } from "@/utils/supabase/server";
-import { User } from "@supabase/supabase-js";
-import { getURL } from "next/dist/shared/lib/utils";
 import { cookies } from 'next/headers'
 import { redirect } from "next/navigation";
 

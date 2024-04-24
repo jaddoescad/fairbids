@@ -1,3 +1,4 @@
+import { getURL } from "@/utils/getURL";
 import { createClient } from "@/utils/supabase/client";
 
 export async function signInWithGoogle() {
@@ -5,7 +6,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "http://localhost:3000/signin?loading_auth=true",
+      redirectTo: `${getURL()}/signin?loading_auth=true`,
     },
   });
 
