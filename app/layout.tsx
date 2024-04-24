@@ -7,11 +7,26 @@ const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : 'http://localhost:3000'
 
-export const metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: 'Fairbids',
-  description: 'Compare renovation quotes and make informed decisions. Post your quotes, browse others, and ensure fair prices for your projects.',
-}
+  export const metadata = {
+    metadataBase: new URL(defaultUrl),
+    title: 'Fairbids',
+    description: 'Compare renovation quotes and make informed decisions. Post your quotes, browse others, and ensure fair prices for your projects.',
+    openGraph: {
+      title: 'Fairbids',
+      description: 'Compare renovation quotes and make informed decisions. Post your quotes, browse others, and ensure fair prices for your projects.',
+      url: defaultUrl,
+      type: 'website',
+      images: [
+        {
+          url: `${defaultUrl}/static/images/logo.png`,
+          width: 1200,
+          height: 630,
+          alt: 'Fairbids Preview Image',
+        },
+      ],
+    },
+  };
+  
 
 export default function RootLayout({
   children,
