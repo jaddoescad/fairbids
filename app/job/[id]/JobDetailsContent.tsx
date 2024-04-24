@@ -44,17 +44,6 @@ export default async function JobDetailsContent({ jobId }: { jobId: string }) {
             <Text as="h2" fontSize="large" fontWeight="medium">
               {job.address}
             </Text>
-            -
-            {job.display_name && (
-              <Text
-                as="span"
-                fontSize="large"
-                fontWeight="medium"
-                color="gray.500"
-              >
-                Posted by: {job.display_name}
-              </Text>
-            )}
           </Flex>
         </Flex>
         <Text
