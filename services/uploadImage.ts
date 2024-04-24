@@ -1,8 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { v4 as uuidv4 } from 'uuid';
 import { revalidateEditJobPathServer } from "./revalidatePath";
-
-// services/uploadImageService.js
 import { createClient } from "@/utils/supabase/client";
 import { ImageType } from "@/types/types";
 
@@ -21,29 +18,10 @@ export const uploadImages = async (
       jobId,
       imageType
     );
-    return filePath;
+    return { filePath, fileType: imageType };
   });
   const uploadedFilePaths = await Promise.all(uploadPromises);
-
-  const publicUrlPromises = uploadedFilePaths.map(async (filePath) => {
-    const { data: fileData } = await supabase.storage
-      .from("job_files")
-      .getPublicUrl(filePath, {
-        transform: {
-          width: 200,
-          height: 200,
-        },
-      });
-
-    return { publicUrl: fileData.publicUrl, filePath };
-  });
-
-  const publicUrlsWithFilePaths = await Promise.all(publicUrlPromises);
-  const filteredPublicUrlsWithFilePaths = publicUrlsWithFilePaths.filter(
-    (urlWithPath) => urlWithPath !== null
-  );
-
-  return filteredPublicUrlsWithFilePaths;
+  return uploadedFilePaths;
 };
 
 const uploadImage = async (
@@ -88,16 +66,6 @@ const uploadImage = async (
     throw uploadError;
   }
 
-  const { error: insertError } = await supabase.from("job_files").insert({
-    job_id: jobId,
-    file_type: fileType,
-    file_path: filePath, // Store the file path instead of the public URL
-  });
-
-  if (insertError) {
-    throw insertError;
-  }
-
   revalidateEditJobPathServer(jobId);
 
   return filePath; // Return the file path
@@ -108,8 +76,8 @@ export const deleteImages = async (filePaths: string[], jobId: string) => {
 
   const deletePromises = filePaths.map(async (filePath) => {
     if (filePath) {
-      await supabase.storage.from("job_files").remove([filePath]);
       await supabase.from("job_files").delete().eq("file_path", filePath);
+      await supabase.storage.from("job_files").remove([filePath]);
     }
   });
 

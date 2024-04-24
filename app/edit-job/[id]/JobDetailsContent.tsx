@@ -147,12 +147,22 @@ function JobDetailsContent({ job }: { job: Job }) {
       const newBeforeImages = beforeImages.filter((image): image is ImageType => image.file instanceof File);
       const newAfterImages = afterImages.filter((image): image is ImageType => image.file instanceof File);
 
+      const uploadedBeforeFiles = await uploadImages(
+        newBeforeImages,
+        userId,
+        job.id,
+        "before"
+      );
+      const uploadedAfterFiles = await uploadImages(
+        newAfterImages,
+        userId,
+        job.id,
+        "after"
+      );
 
-
+      const uploadedFiles = [...uploadedBeforeFiles, ...uploadedAfterFiles];
 
       await Promise.all([
-        uploadImages(newBeforeImages, userId, job.id, "before"),
-        uploadImages(newAfterImages, userId, job.id, "after"),
         deleteImages(imagesToDelete, job.id),
         deleteQuotes(supabase, quotesToDelete),
       ]);
@@ -175,7 +185,7 @@ function JobDetailsContent({ job }: { job: Job }) {
         published: true,
       };
 
-      await updateJobDetails(updatedJobDetails);
+      await updateJobDetails(updatedJobDetails, uploadedFiles);
 
       await revalidateJobPathServer(job.id);
       router.push(`/job/${job.id}`);
