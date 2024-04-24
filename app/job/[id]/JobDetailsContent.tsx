@@ -4,6 +4,7 @@ import { Box, Text, Center, Button, Heading, Image, Flex } from "@chakra-ui/reac
 import { fetchJobData } from "@/services/fetchJobData";
 import { FaMapMarkerAlt } from "react-icons/fa";
 
+
 export default async function JobDetailsContent({ jobId }: { jobId: string }) {
   const job = await fetchJobData(jobId);
   const userId = await getUserId();
