@@ -120,7 +120,7 @@ export const QuotesList = ({ quotes }: { quotes: any[] }) => {
                   <Box key={index} display="flex" alignItems="center" mb={2}>
                     <Box width="100px" height="100px" mr={4}>
                       {isPdfFile(file) ? (
-                        <a href={file.file_url} target="_blank">
+                        <a href={file.file_url.split('?')[0]} target="_blank">
                           <Box
                             bg="gray.100"
                             display="flex"
@@ -133,9 +133,9 @@ export const QuotesList = ({ quotes }: { quotes: any[] }) => {
                           </Box>
                         </a>
                       ) : (
-                        <a href={file.file_url} target="_blank">
+                        <a href={file.file_url.split('?')[0]} target="_blank">
                           <Image
-                            src={file.file_url}
+                            src={file.file_url.split('?')[0]}
                             alt={file.file_path}
                             width="100%"
                             height="100%"
@@ -144,7 +144,7 @@ export const QuotesList = ({ quotes }: { quotes: any[] }) => {
                         </a>
                       )}
                     </Box>
-                    <a href={file.file_url} target="_blank">
+                    <a href={file.file_url.split('?')[0]} target="_blank">
                       <Text color="blue.500" fontWeight="bold" cursor="pointer">
                         {getFileName(file.file_path)}
                       </Text>

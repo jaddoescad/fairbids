@@ -3,7 +3,6 @@ import { SupabaseClient } from '@supabase/supabase-js';
 export async function saveJobToSupabase(
   supabase: SupabaseClient,
   title: string,
-  category: string,
   address: string,
   latitude: number,
   longitude: number,
@@ -14,7 +13,6 @@ export async function saveJobToSupabase(
     .insert([
       {
         title,
-        category,
         address,
         latitude,
         longitude,

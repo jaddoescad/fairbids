@@ -75,9 +75,9 @@ const uploadImage = async (
   }
 
   // check if file size is greater than 2MB
-  const isLt2M = file.size / 1024 / 1024 < 2;
+  const isLt2M = file.size / 1024 / 1024 < 50;
   if (!isLt2M) {
-    throw new Error("Image must smaller than 2MB!");
+    throw new Error("Image must smaller than 50MB!");
   }
 
   let { error: uploadError, data } = await supabase.storage

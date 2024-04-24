@@ -89,7 +89,7 @@ export function QuotesList({
                           href={
                             isLocalFile(file)
                               ? URL.createObjectURL(file)
-                              : file.file_url
+                              : file.file_url?.split('?')[0]
                           }
                           target="_blank"
                         >
@@ -109,7 +109,7 @@ export function QuotesList({
                           href={
                             isLocalFile(file)
                               ? URL.createObjectURL(file)
-                              : file.file_url
+                              : file.file_url?.split('?')[0]
                           }
                           target="_blank"
                         >
@@ -117,7 +117,7 @@ export function QuotesList({
                             src={
                               isLocalFile(file)
                                 ? URL.createObjectURL(file)
-                                : file.file_url
+                                : file.file_url?.split('?')[0]
                             }
                             alt={isLocalFile(file) ? file.name : file.file_path}
                             width="100%"
@@ -131,7 +131,7 @@ export function QuotesList({
                       href={
                         isLocalFile(file)
                           ? URL.createObjectURL(file)
-                          : file.file_url
+                          : file.file_url?.split('?')[0]
                       }
                       target="_blank"
                     >

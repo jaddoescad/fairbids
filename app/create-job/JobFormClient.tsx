@@ -6,7 +6,7 @@ import { saveJobToSupabase } from "@/services/createJobSupabase";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
-import { CategorySelectProps, LocationAutocompleteProps, TitleInputProps } from "@/types/types";
+import { LocationAutocompleteProps, TitleInputProps } from "@/types/types";
 import { useToast } from "@chakra-ui/react";
 
 
@@ -33,33 +33,6 @@ const TitleInput = ({ title, setTitle, error, onEnter }: TitleInputProps) => (
     )}
   </>
 );
-
-const CategorySelect = ({ category, setCategory, error, onEnter }: CategorySelectProps) => (
-  <>
-    <Select
-      placeholder="Select category"
-      className="rounded-md px-4 py-2 bg-inherit border"
-      value={category}
-      onChange={(e) => setCategory(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          onEnter();
-        }
-      }}
-    >
-      <option value="kitchen">Kitchen</option>
-      <option value="bathroom">Bathroom</option>
-      <option value="full-house-renovation">Full House Renovation</option>
-      <option value="other">Other</option>
-    </Select>
-    {error && (
-      <Box color="red" mt="2">
-        Please select a category.
-      </Box>
-    )}
-  </>
-);
-
 
 const LocationAutocomplete = ({
   isLoaded,
@@ -157,9 +130,7 @@ const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
 export default function JobForm() {
   const [step, setStep] = useState(1);
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
   const [titleError, setTitleError] = useState(false);
-  const [categoryError, setCategoryError] = useState(false);
   const [locationError, setLocationError] = useState(false);
   const [address, setAddress] = useState("");
   const [latitute, setLatitude] = useState<number | null>(null);
@@ -175,13 +146,10 @@ export default function JobForm() {
   const handleNext = () => {
     if (step === 1 && title.trim() === "") {
       setTitleError(true);
-    } else if (step === 2 && category === "") {
-      setCategoryError(true);
-    } else if (step === 3 && address.trim() === "") {
+    } if (step === 2 && address.trim() === "") {
       setLocationError(true);
     } else {
       setTitleError(false);
-      setCategoryError(false);
       setLocationError(false);
       setStep(step + 1);
     }
@@ -222,7 +190,6 @@ export default function JobForm() {
       const savedJob = await saveJobToSupabase(
         supabase,
         title,
-        category,
         address,
         latitute,
         longitude,
@@ -266,27 +233,6 @@ export default function JobForm() {
           </div>
         )}
         {step === 2 && (
-          <>
-            <Box fontSize="lg" mb="4">
-              What type of job is this?
-            </Box>
-            <CategorySelect
-              category={category}
-              setCategory={setCategory}
-              error={categoryError}
-              onEnter={handleNext}
-            />
-            <div className="flex justify-between w-full">
-              <Button onClick={handleBack} colorScheme="gray">
-                Back
-              </Button>
-              <Button onClick={handleNext} colorScheme="blue">
-                Next
-              </Button>
-            </div>
-          </>
-        )}
-        {step === 3 && (
           <>
             <Box fontSize="lg" mb="4">
               Please choose a city?

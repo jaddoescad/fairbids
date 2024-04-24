@@ -8,12 +8,7 @@ export interface TitleInputProps {
     onEnter: () => void;
   }
 
-export  interface CategorySelectProps {
-    category: string;
-    setCategory: (value: string) => void;
-    error: boolean;
-    onEnter: () => void;
-  }
+
 
   export interface LocationAutocompleteProps {
     isLoaded: boolean;
@@ -35,7 +30,6 @@ export  interface CategorySelectProps {
   export interface JobDetails {
     id: string;
     title: string;
-    category: string;
     location: {
       address: string;
       latitude: number;
@@ -48,7 +42,6 @@ export  interface CategorySelectProps {
   export interface Job {
     id: string;
     title: string;
-    category: string;
     description: string;
     address: string;
     latitude: number;

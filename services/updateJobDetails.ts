@@ -14,7 +14,6 @@ export async function updateJobDetails(updatedJob: JobDetails) {
     .from("jobs")
     .update({
       title: updatedJob.title,
-      category: updatedJob.category,
       address: updatedJob.location.address,
       latitude: updatedJob.location.latitude,
       longitude: updatedJob.location.longitude,

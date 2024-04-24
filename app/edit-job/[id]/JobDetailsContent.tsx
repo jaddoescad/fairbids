@@ -1,6 +1,5 @@
 'use client'
 
-import { CategorySelect } from "@/components/CreateJobComponents/CategorySelect";
 import { LocationAutocomplete } from "@/components/CreateJobComponents/LocationInput";
 import { TitleInput } from "@/components/CreateJobComponents/TitleInput";
 import { AfterImages, BeforeImages } from "@/components/CreateJobComponents/BeforeAfterImageUpload";
@@ -28,7 +27,6 @@ function JobDetailsContent({ job }: { job: Job }) {
   const [quotesToDelete, setQuotesToDelete] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [titleError, setTitleError] = useState("");
-  const [categoryError, setCategoryError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
   const [locationError, setLocationError] = useState("");
   const [quoteError, setQuoteError] = useState("");
@@ -41,7 +39,6 @@ function JobDetailsContent({ job }: { job: Job }) {
   const handleSaveChanges = async () => {
     try {
       setTitleError("");
-      setCategoryError("");
       setDescriptionError("");
       setLocationError("");
       setImageError("");
@@ -72,19 +69,6 @@ function JobDetailsContent({ job }: { job: Job }) {
         toast({
           title: "Error",
           description: "Invalid location. Please select a valid location.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-        return;
-      }
-
-      if (!updatedJob?.category) {
-        setCategoryError("Category is required.");
-        setIsSaving(false);
-        toast({
-          title: "Error",
-          description: "Category is required.",
           status: "error",
           duration: 3000,
           isClosable: true,
@@ -182,7 +166,6 @@ function JobDetailsContent({ job }: { job: Job }) {
       const updatedJobDetails: JobDetails = {
         id: updatedJob.id,
         title: updatedJob.title,
-        category: updatedJob.category,
         location: {
           address: updatedJob.address,
           latitude: updatedJob.latitude,
@@ -225,11 +208,6 @@ function JobDetailsContent({ job }: { job: Job }) {
           initialTitle={updatedJob.title}
           setTitle={(title: string) => setUpdatedJob({ ...updatedJob, title })}
           errorMessage={titleError}
-        />
-        <CategorySelect
-          initialCategory={updatedJob.category}
-          setCategory={(category: string) => setUpdatedJob({ ...updatedJob, category })}
-          errorMessage={categoryError}
         />
         <LocationAutocomplete
           initialLocation={updatedJob.address}
