@@ -18,7 +18,7 @@ const defaultUrl = process.env.VERCEL_URL
       type: 'website',
       images: [
         {
-          url: `${defaultUrl}/static/images/logo.png`,
+          url: `https://qzitvpgvcloccfktnrgx.supabase.co/storage/v1/object/public/static/logo.png?t=2024-04-24T20%3A35%3A37.459Z`,
           width: 1200,
           height: 630,
           alt: 'Fairbids Preview Image',
