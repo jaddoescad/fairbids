@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useContext, useEffect, useState } from "react";
 import { fetchNearestJobs } from "@/services/fetchJobData";
 import JobList from '@/components/JobList';
