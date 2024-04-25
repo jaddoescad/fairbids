@@ -47,7 +47,8 @@ import { cookies } from "next/headers";
 
 export async function updateJobDetails(
   updatedJob: JobDetails,
-  uploadedFiles: { filePath: string; fileType: string }[]
+  uploadedFiles: { filePath: string; fileType: string }[],
+  uploadedQuoteFiles: { title: string; value: number; quote_files: string[] }[]
 ) {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
@@ -64,6 +65,7 @@ export async function updateJobDetails(
       file_type: file.fileType,
       file_path: file.filePath,
     })),
+    p_quotes: uploadedQuoteFiles,
   });
   if (transactionError) {
     console.error("Error updating job details", transactionError);

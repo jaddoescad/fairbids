@@ -41,15 +41,15 @@ export function AddQuoteDialog({
 
   const formatQuoteValue = (value: string) => {
     if (value === "") return "";
-
+  
     // Remove any non-digit characters from the input value
     const sanitizedValue = value.replace(/\D/g, "");
-
-    // Convert the sanitized value to a number and divide by 100 to move the decimal point
-    const formattedValue = Number(sanitizedValue) / 100;
-
-    // Return the formatted value as a string with two decimal places
-    return formattedValue.toFixed(2);
+  
+    // Convert the sanitized value to a number
+    const formattedValue = Number(sanitizedValue);
+  
+    // Return the formatted value as a whole number
+    return formattedValue.toString();
   };
 
   const handleAddClick = () => {

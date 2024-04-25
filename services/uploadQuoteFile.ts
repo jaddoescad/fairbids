@@ -7,12 +7,11 @@ const uploadQuoteFile = async (
   supabase: SupabaseClient,
   file: File,
   jobId: string,
-  quoteId: string,
   userId: string
 ) => {
   try {
     const fileExt = file.name.split(".").pop();
-    const filePath = `${userId}/${jobId}/quotes/${quoteId}/files/${Date.now()}.${fileExt}`;
+    const filePath = `${userId}/${jobId}/quotes/files/${Date.now()}.${fileExt}`;
     const { error: uploadError, data } = await supabase.storage
       .from("job_files")
       .upload(filePath, file);
@@ -21,90 +20,47 @@ const uploadQuoteFile = async (
       throw uploadError;
     }
 
-    const { error: insertError } = await supabase.from("quote_files").insert({
-      quote_id: quoteId,
-      file_path: filePath,
-    });
-
-    if (insertError) {
-      throw insertError;
-    }
-
-    const { data: publicUrlData } = await supabase.storage
-      .from("job_files")
-      .getPublicUrl(filePath);
-
-    revalidateEditJobPathServer(jobId);
-    return publicUrlData.publicUrl;
+    return filePath;
   } catch (error) {
     console.error("Error uploading file:", error);
     throw error;
   }
 };
-
-const uploadQuoteFiles = async (
+export const uploadQuoteFiles = async (
   supabase: SupabaseClient,
-  files: File[],
+  quotes: Quote[],
   jobId: string,
-  quoteId: string,
   userId: string
 ) => {
-  const uploadPromises = files.map((file) =>
-    uploadQuoteFile(supabase, file, jobId, quoteId, userId)
-  );
-  const filePaths = await Promise.all(uploadPromises); // Rename to filePaths
-  return filePaths;
+  // Filter out the quotes that already have an id (existing quotes)
+  const localQuotes = quotes.filter((quote: Quote) => !quote.id);
+
+  const uploadPromises = localQuotes.map(async (quote: Quote) => {
+    const fileObjects = quote.quote_files.filter(
+      (file): file is File => file instanceof File
+    );
+    const filePaths = await Promise.all(
+      fileObjects.map((file) => uploadQuoteFile(supabase, file, jobId, userId))
+    );
+    return {
+      title: quote.title,
+      value: quote.value,
+      quote_files: filePaths, // Use the filePaths array directly
+    };
+  });
+
+  const uploadedQuoteFiles = await Promise.all(uploadPromises);
+  return uploadedQuoteFiles;
 };
 
 export const deleteQuotes = async (
   supabase: SupabaseClient,
   quoteIds: string[]
 ) => {
-    const { data: deletedQuotes, error: deleteError } = await supabase
-      .from("quotes")
-      .delete()
-      .in("id", quoteIds);
+  const { data: deletedQuotes, error: deleteError } = await supabase
+    .from("quotes")
+    .delete()
+    .in("id", quoteIds);
 
-    return deletedQuotes;
-};
-
-export const uploadQuotes = async (quotes: Quote[], jobId: string, userId: string) => {
-  const supabase = createClient();
-
-  const uploadedQuotes = await Promise.all(
-    quotes.map(async (quote: Quote) => {
-      const { data: quoteData, error: quoteError } = await supabase
-        .from("quotes")
-        .insert({
-          job_id: jobId,
-          title: quote.title,
-          value: quote.value,
-        })
-        .select("*");
-
-      if (quoteError) {
-        throw quoteError;
-      }
-
-      const fileObjects = quote.quote_files.filter(
-        (file): file is File => file instanceof File
-      );
-
-      const fileUrls = await uploadQuoteFiles(
-        supabase,
-        fileObjects,
-        jobId,
-        quoteData[0].id,
-        userId
-      );
-
-      return {
-        ...quoteData,
-        quote_files: fileUrls,
-      };
-    })
-  );
-
-  revalidateEditJobPathServer(jobId);
-  return uploadedQuotes;
+  return deletedQuotes;
 };

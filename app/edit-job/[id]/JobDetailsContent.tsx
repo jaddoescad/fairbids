@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { updateJobDetails } from "@/services/updateJobDetails";
 import { deleteImages, uploadImages } from "@/services/uploadImage";
 import { createClient } from "@/utils/supabase/client";
-import { deleteQuotes, uploadQuotes } from "@/services/uploadQuoteFile";
+import { deleteQuotes, uploadQuoteFiles } from "@/services/uploadQuoteFile";
 import { useRouter } from "next/navigation";
 import { useToast } from "@chakra-ui/react";
 import { revalidateJobPathServer } from "@/services/revalidatePath";
@@ -168,10 +168,16 @@ function JobDetailsContent({ job }: { job: Job }) {
       ]);
 
       // Filter out the quotes that already have an id (existing quotes)
-      const localQuotes = quotes.filter((quote: Quote) => !quote.id);
 
       // Upload only the local quotes
-      await uploadQuotes(localQuotes, job.id, userId);
+
+      const uploadedQuoteFiles = await uploadQuoteFiles(
+        supabase,
+        quotes,
+        job.id,
+        userId
+      );
+      
 
       const updatedJobDetails: JobDetails = {
         id: updatedJob.id,
@@ -185,7 +191,7 @@ function JobDetailsContent({ job }: { job: Job }) {
         published: true,
       };
 
-      await updateJobDetails(updatedJobDetails, uploadedFiles);
+      await updateJobDetails(updatedJobDetails, uploadedFiles, uploadedQuoteFiles);
 
       await revalidateJobPathServer(job.id);
       router.push(`/job/${job.id}`);
