@@ -11,7 +11,7 @@ export default async function JobDetailsContent({ jobId }: { jobId: string }) {
   const isOwner = job.user_id === userId;
 
   return (
-    <Box marginTop={10} paddingBottom={"200px"}>
+    <Box paddingBottom={"200px"}>
       <Box background={"white"} padding={10}>
         {isOwner && (
           <Box>
